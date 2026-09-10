@@ -1,0 +1,6 @@
+{
+  "name": "MeteoRadar 3D & Storm Track",
+  "description": "Applicazione meteo predittiva con mappa satellitare e radar dell'Italia in tempo reale, sensore di umidità, bussola del vento, monitor fulmini e grafici interattivi.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

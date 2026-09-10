@@ -1,0 +1,34 @@
+{
+  "packageId": "com.meteoradar.italy",
+  "host": "meteoradar.app",
+  "name": "MeteoRadar 3D & Storm Track",
+  "launcherName": "MeteoRadar",
+  "themeColor": "#0d1f33",
+  "navigationColor": "#091422",
+  "backgroundColor": "#091422",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "/icon.svg",
+  "maskableIconUrl": "/icon.svg",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Radar & Satellite Italia",
+      "shortName": "Radar Italia",
+      "url": "/?tab=radar",
+      "icon": "/icon.svg"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  }
+}
