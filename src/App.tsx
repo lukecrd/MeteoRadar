@@ -481,23 +481,26 @@ export default function App() {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 relative z-10">
-        {/* Main Tab Navigation Header - Matching Stitch Application Layout */}
-        <div className="bg-slate-100/90 dark:bg-slate-900/90 p-1.5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-md">
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        {/* Main Tab Navigation Header - Disposto su due righe con contorni netti */}
+        <div className="bg-slate-100/95 dark:bg-slate-900/95 p-2 sm:p-2.5 rounded-xl border-2 border-slate-300 dark:border-slate-700 shadow-sm backdrop-blur-md space-y-1.5 sm:space-y-2">
+          {/* Riga 1: Dashboard Principale, Monitoraggio & Mappa (4 Tab) */}
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
             {/* 1. All Modules / Full Console */}
             <button
               id="app-tab-station-dashboard-btn"
               onClick={() => setActiveAppTab('station')}
-              className={`shrink-0 px-3.5 py-2 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
                 activeAppTab === 'station'
-                  ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/25'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
+                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
               }`}
+              title="Console Completa: tutti i sensori e moduli meteorologici"
             >
-              <Layers className="w-4 h-4" />
-              <span>Console Completa</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black hidden sm:inline ${
-                activeAppTab === 'station' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200'
+              <Layers className="w-4 h-4 shrink-0" />
+              <span className="truncate hidden sm:inline">Console Completa</span>
+              <span className="truncate sm:hidden">Console</span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] font-black hidden lg:inline border ${
+                activeAppTab === 'station' ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600'
               }`}>
                 {currentLocation.name}
               </span>
@@ -507,92 +510,107 @@ export default function App() {
             <button
               id="app-tab-today-btn"
               onClick={() => setActiveAppTab('today')}
-              className={`shrink-0 px-3.5 py-2 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
                 activeAppTab === 'today'
-                  ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/25'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
+                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
               }`}
+              title="Condizioni attuali e bollettino allerte"
             >
-              <Sun className="w-4 h-4 text-amber-400" />
-              <span>Oggi & Allerte</span>
+              <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="truncate hidden sm:inline">Oggi & Allerte</span>
+              <span className="truncate sm:hidden">Oggi</span>
             </button>
 
             {/* 3. Radar & Fulmini */}
             <button
               id="app-tab-radar-btn"
               onClick={() => setActiveAppTab('radar')}
-              className={`shrink-0 px-3.5 py-2 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
                 activeAppTab === 'radar'
-                  ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/25'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
+                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
               }`}
+              title="Monitoraggio fulmini e stima temporali CAPE"
             >
-              <Zap className="w-4 h-4 text-amber-300" />
-              <span>Radar & Fulmini</span>
+              <Zap className="w-4 h-4 text-amber-300 shrink-0" />
+              <span className="truncate hidden sm:inline">Radar & Fulmini</span>
+              <span className="truncate sm:hidden">Radar</span>
               {lightningStrikes.length > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-500 text-white font-black animate-pulse">
+                <span className="px-1.5 py-0.2 rounded-md text-[10px] bg-rose-500 text-white font-black animate-pulse border border-rose-400">
                   {lightningStrikes.length}
                 </span>
               )}
             </button>
 
-            {/* 4. Previsioni 5G */}
-            <button
-              id="app-tab-forecast5-btn"
-              onClick={() => setActiveAppTab('forecast5')}
-              className={`shrink-0 px-3.5 py-2 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
-                activeAppTab === 'forecast5'
-                  ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/25'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Calendar className="w-4 h-4 text-indigo-400" />
-              <span>Previsioni 5G</span>
-            </button>
-
-            {/* 5. Vento & Umidità */}
-            <button
-              id="app-tab-wind-btn"
-              onClick={() => setActiveAppTab('wind')}
-              className={`shrink-0 px-3.5 py-2 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
-                activeAppTab === 'wind'
-                  ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/25'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Wind className="w-4 h-4 text-cyan-400" />
-              <span>Vento & Umidità</span>
-            </button>
-
-            {/* 6. UV & Qualità Aria */}
-            <button
-              id="app-tab-ambient-btn"
-              onClick={() => setActiveAppTab('ambient')}
-              className={`shrink-0 px-3.5 py-2 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
-                activeAppTab === 'ambient'
-                  ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/25'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
-              }`}
-            >
-              <Trees className="w-4 h-4 text-emerald-400" />
-              <span>UV & Qualità Aria</span>
-            </button>
-
-            {/* 7. Mappa Satellite Italia */}
+            {/* 4. Mappa Satellite Italia */}
             <button
               id="app-tab-italy-satellite-btn"
               onClick={() => setActiveAppTab('italy_map')}
-              className={`shrink-0 px-3.5 py-2 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ml-auto ${
+              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
                 activeAppTab === 'italy_map'
-                  ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/25'
-                  : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
+                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
               }`}
+              title="Mappa satellitare atmosferica in tempo reale dell'Italia"
             >
-              <Radio className="w-4 h-4 text-rose-400 animate-pulse" />
-              <span>Mappa Italia</span>
-              <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-black border border-rose-500/30">
+              <Radio className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
+              <span className="truncate hidden sm:inline">Mappa Italia</span>
+              <span className="truncate sm:hidden">Mappa</span>
+              <span className="px-1.5 py-0.2 rounded-md bg-rose-500/20 text-rose-400 text-[10px] font-black border border-rose-500/50 hidden xs:inline">
                 LIVE
               </span>
+            </button>
+          </div>
+
+          {/* Riga 2: Analisi Specialistica & Previsioni (3 Tab) */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+            {/* 5. Previsioni 5G */}
+            <button
+              id="app-tab-forecast5-btn"
+              onClick={() => setActiveAppTab('forecast5')}
+              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
+                activeAppTab === 'forecast5'
+                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
+              }`}
+              title="Previsioni meteorologiche dettagliate sui prossimi 5 giorni"
+            >
+              <Calendar className="w-4 h-4 text-indigo-400 shrink-0" />
+              <span className="truncate hidden sm:inline">Previsioni 5 Giorni</span>
+              <span className="truncate sm:hidden">Previsioni 5G</span>
+            </button>
+
+            {/* 6. Vento & Umidità */}
+            <button
+              id="app-tab-wind-btn"
+              onClick={() => setActiveAppTab('wind')}
+              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
+                activeAppTab === 'wind'
+                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
+              }`}
+              title="Analisi vettoriale del vento e sensore barico di umidità"
+            >
+              <Wind className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span className="truncate hidden sm:inline">Vento & Umidità</span>
+              <span className="truncate sm:hidden">Vento & Umidità</span>
+            </button>
+
+            {/* 7. UV & Qualità Aria */}
+            <button
+              id="app-tab-ambient-btn"
+              onClick={() => setActiveAppTab('ambient')}
+              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
+                activeAppTab === 'ambient'
+                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
+              }`}
+              title="Indice radiazioni ultraviolette e indici di qualità dell'aria europea"
+            >
+              <Trees className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="truncate hidden sm:inline">UV & Qualità Aria</span>
+              <span className="truncate sm:hidden">UV & Qualità</span>
             </button>
           </div>
         </div>
@@ -619,7 +637,7 @@ export default function App() {
           <>
             {/* VIEW 1: Full Console / All Modules */}
             {activeAppTab === 'station' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div key="tab-station" className="space-y-6 animate-tab-enter">
                 {/* 1. Hero Weather Overview & AI Report Trigger */}
                 <WeatherHero
                   weather={weatherData}
@@ -694,7 +712,7 @@ export default function App() {
 
             {/* VIEW 2: Today & Alerts */}
             {activeAppTab === 'today' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div key="tab-today" className="space-y-6 animate-tab-enter">
                 <WeatherHero
                   weather={weatherData}
                   isDark={isDark}
@@ -712,7 +730,7 @@ export default function App() {
 
             {/* VIEW 3: Radar & Thunderstorms */}
             {activeAppTab === 'radar' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div key="tab-radar" className="space-y-6 animate-tab-enter">
                 <LightningMonitor
                   strikes={lightningStrikes}
                   capeIndex={weatherData.hourly[0]?.cape || 250}
@@ -731,7 +749,7 @@ export default function App() {
 
             {/* VIEW 4: 5-Day Detailed Forecasts */}
             {activeAppTab === 'forecast5' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div key="tab-forecast5" className="space-y-6 animate-tab-enter">
                 <ForecastFiveDays
                   daily={weatherData.daily}
                   hourly={weatherData.hourly}
@@ -747,7 +765,7 @@ export default function App() {
 
             {/* VIEW 5: Wind & Humidity Analysis */}
             {activeAppTab === 'wind' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div key="tab-wind" className="space-y-6 animate-tab-enter">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <HumiditySensorCard
                     currentHumidity={currentHumidity}
@@ -774,7 +792,7 @@ export default function App() {
 
             {/* VIEW 6: UV & Air Quality Analysis */}
             {activeAppTab === 'ambient' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
+              <div key="tab-ambient" className="space-y-6 animate-tab-enter">
                 <EnvironmentalUvCard
                   uvIndex={weatherData.current.uvIndex}
                   airQuality={weatherData.airQuality}
@@ -787,14 +805,16 @@ export default function App() {
 
         {/* Tab 7: Italy Real-Time Satellite & Atmospheric Phenomena Map */}
         {activeAppTab === 'italy_map' && (
-          <ItalySatelliteMap
-            currentLocation={currentLocation}
-            onSelectLocation={(loc) => {
-              setCurrentLocation(loc);
-              loadWeather(loc);
-            }}
-            isDark={isDark}
-          />
+          <div key="tab-italy-map" className="animate-tab-enter">
+            <ItalySatelliteMap
+              currentLocation={currentLocation}
+              onSelectLocation={(loc) => {
+                setCurrentLocation(loc);
+                loadWeather(loc);
+              }}
+              isDark={isDark}
+            />
+          </div>
         )}
       </main>
 

@@ -101,14 +101,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Tab Switcher in Navbar for quick access */}
-        <div className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs shrink-0">
+        <div className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-900/90 p-1 rounded-xl border-2 border-slate-300 dark:border-slate-700 text-xs shrink-0">
           <button
             id="nav-tab-station-btn"
             onClick={() => onSelectAppTab('station')}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 border ${
               activeAppTab !== 'italy_map'
-                ? 'bg-teal-500 text-white shadow-sm'
-                : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-teal-600 text-white border-teal-700 dark:border-teal-400 shadow-sm'
+                : 'text-slate-700 dark:text-slate-200 border-transparent hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
@@ -117,10 +117,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             id="nav-tab-italy-satellite-btn"
             onClick={() => onSelectAppTab('italy_map')}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 border ${
               activeAppTab === 'italy_map'
-                ? 'bg-teal-500 text-white shadow-sm'
-                : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-teal-600 text-white border-teal-700 dark:border-teal-400 shadow-sm'
+                : 'text-slate-700 dark:text-slate-200 border-transparent hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Radio className="w-3.5 h-3.5" />

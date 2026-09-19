@@ -33,10 +33,10 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-modal-backdrop">
       <div
         id="vercel-export-modal"
-        className={`w-full max-w-2xl rounded-3xl p-6 sm:p-8 border shadow-2xl relative overflow-hidden transition-all max-h-[90vh] overflow-y-auto ${
+        className={`w-full max-w-2xl rounded-3xl p-6 sm:p-8 border shadow-2xl relative overflow-hidden transition-all max-h-[90vh] overflow-y-auto animate-modal-slide-up ${
           isDark
             ? 'bg-slate-900/95 border-slate-800 text-slate-100 shadow-black/80'
             : 'bg-white border-slate-200 text-slate-900 shadow-slate-300/60'

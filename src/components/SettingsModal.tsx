@@ -48,9 +48,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-modal-backdrop">
       <div
-        className={`w-full max-w-xl rounded-3xl p-6 sm:p-8 border shadow-2xl relative overflow-hidden transition-all max-h-[90vh] overflow-y-auto ${
+        className={`w-full max-w-xl rounded-3xl p-6 sm:p-8 border shadow-2xl relative overflow-hidden transition-all max-h-[90vh] overflow-y-auto animate-modal-slide-up ${
           isDark
             ? 'bg-slate-900 border-slate-800 text-slate-100'
             : 'bg-white border-slate-200 text-slate-900'
