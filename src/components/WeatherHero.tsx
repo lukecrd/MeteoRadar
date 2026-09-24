@@ -117,7 +117,7 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
   return (
     <div
       id="weather-hero-card"
-      className={`rounded-3xl p-6 sm:p-8 transition-all duration-300 relative overflow-hidden border ${
+      className={`rounded-3xl p-6 sm:p-8 transition-all duration-300 relative overflow-hidden border hud-panel-border ${
         isDark
           ? 'bg-slate-900/80 backdrop-blur-xl border-white/10 text-slate-100 shadow-2xl shadow-black/50'
           : 'bg-white/95 backdrop-blur-xl border-slate-200 text-slate-900 shadow-xl shadow-slate-200/60'
@@ -127,11 +127,22 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
       <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none -z-0" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-500/15 rounded-full blur-3xl pointer-events-none -z-0" />
 
+      {/* HUD targeting reticle + slow scan sweep — the instrument-panel signature */}
+      {isDark && (
+        <>
+          <div className="hud-corners">
+            <span /><span /><span /><span />
+          </div>
+          <div className="hud-scanline" />
+        </>
+      )}
+
       {/* Top Header: Location, Badges & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6 relative z-10 border-b border-slate-200/80 dark:border-slate-800/80 pb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-teal-500/15 text-teal-400 border border-teal-500/30 shadow-inner">
-            <MapPin className="w-5 h-5" />
+          <div className="relative p-2.5 rounded-2xl bg-teal-500/15 text-teal-400 border border-teal-500/30 shadow-inner">
+            {isDark && <span className="hud-pulse-ring" />}
+            <MapPin className="w-5 h-5 relative" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -141,14 +152,15 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold border border-slate-300 dark:border-slate-700">
                 {location.country} {location.admin1 ? `• ${location.admin1}` : ''}
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 font-bold border border-teal-500/30">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 font-bold border border-teal-500/30 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
                 Stazione Live
               </span>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5 font-medium flex items-center gap-2">
+            <p className="font-hud text-xs text-slate-500 dark:text-slate-300 mt-0.5 flex items-center gap-2">
               <span>Aggiornato alle {lastUpdated}</span>
               <span>•</span>
-              <span className="text-teal-500 dark:text-teal-400 font-semibold">Coordinate: {location.latitude.toFixed(2)}°N, {location.longitude.toFixed(2)}°E</span>
+              <span className="text-teal-500 dark:text-teal-400">{location.latitude.toFixed(2)}°N, {location.longitude.toFixed(2)}°E</span>
             </p>
           </div>
         </div>

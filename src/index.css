@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @layer base {
   body {
@@ -13,6 +14,96 @@
   html.dark body {
     color: #f8fafc;
   }
+}
+
+/* ---------- HUD / console design tokens ---------- */
+
+.font-hud {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Faint technical grid backdrop, used on the app root so every tab reads
+   as one instrument panel rather than a stack of separate cards. */
+.hud-grid-bg {
+  background-image:
+    linear-gradient(rgba(45, 212, 191, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 212, 191, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  background-position: center top;
+}
+html:not(.dark) .hud-grid-bg {
+  background-image:
+    linear-gradient(rgba(13, 148, 136, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 148, 136, 0.045) 1px, transparent 1px);
+}
+
+/* Thin gradient "console" border + ambient glow, used on the primary
+   instrument panel (hero) so it reads as the powered-on centerpiece. */
+.hud-panel-border {
+  position: relative;
+}
+.hud-panel-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.55), rgba(56, 189, 248, 0.12) 35%, rgba(129, 140, 248, 0.35) 75%, rgba(45, 212, 191, 0.45));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Corner brackets: a lightweight "targeting reticle" frame for HUD panels. */
+.hud-corners {
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  z-index: 1;
+}
+.hud-corners span {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(45, 212, 191, 0.55);
+  border-style: solid;
+  border-width: 0;
+}
+.hud-corners span:nth-child(1) { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 6px; }
+.hud-corners span:nth-child(2) { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 6px; }
+.hud-corners span:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 6px; }
+.hud-corners span:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 6px; }
+
+/* Slow vertical scan sweep across a panel — one deliberate, low-key motion. */
+@keyframes hudScan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+.hud-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(45, 212, 191, 0.06), transparent);
+  animation: hudScan 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes hudPulseRing {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+.hud-pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(45, 212, 191, 0.6);
+  animation: hudPulseRing 2.4s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
 }
 
 /* Custom scrollbar for horizontal forecast strip */

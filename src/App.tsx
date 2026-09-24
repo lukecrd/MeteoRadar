@@ -22,6 +22,7 @@ import { EnvironmentalUvCard } from './components/EnvironmentalUvCard';
 import { AiForecastModal } from './components/AiForecastModal';
 import { SettingsModal } from './components/SettingsModal';
 import { AtmosphericCanvas } from './components/AtmosphericCanvas';
+import { RadarGlobe3D } from './components/RadarGlobe3D';
 import { AlertBanner } from './components/AlertBanner';
 import { ItalySatelliteMap } from './components/ItalySatelliteMap';
 import { AndroidModal } from './components/AndroidModal';
@@ -442,10 +443,13 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen relative font-sans transition-colors duration-300 ${
+      className={`min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg ${
         isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
       }`}
     >
+      {/* Ambient 3D tracking globe — furthest-back decorative layer */}
+      <RadarGlobe3D isDark={isDark} intensity={0.85} />
+
       {/* Dynamic Atmospheric Particle and Flash Background */}
       {weatherData && (
         <AtmosphericCanvas

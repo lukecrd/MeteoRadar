@@ -86,8 +86,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3 shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/25">
-            <CloudLightning className="w-6 h-6" />
+          <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/25">
+            {isDark && <span className="hud-pulse-ring" />}
+            <CloudLightning className="w-6 h-6 relative" />
           </div>
           <div>
             <div className="font-black text-base tracking-tight flex items-center gap-1.5">
