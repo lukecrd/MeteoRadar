@@ -27,7 +27,12 @@ import { AlertBanner } from './components/AlertBanner';
 import { ItalySatelliteMap } from './components/ItalySatelliteMap';
 import { AndroidModal } from './components/AndroidModal';
 import { VercelModal } from './components/VercelModal';
-import { Loader2, Radio, Activity, Sun, Zap, Calendar, Wind, Trees, Layers } from 'lucide-react';
+import { HubCommandDeck } from './components/HubCommandDeck';
+import { HubStatusStrip } from './components/HubStatusStrip';
+import { NewsTicker } from './components/NewsTicker';
+import { NewsHub } from './components/NewsHub';
+import { NewsFeedPanel } from './components/NewsFeedPanel';
+import { Loader2 } from 'lucide-react';
 
 export default function App() {
   // Theme state: dark mode as default for optimal night radar readability
@@ -441,12 +446,13 @@ export default function App() {
     ? lightningStrikes.reduce((min, s) => (s.distanceKm < min.distanceKm ? s : min), lightningStrikes[0])
     : null;
 
+  const isLightningAlertActive =
+    !isLightningCurrentlyDismissed && closestStrike !== null && closestStrike.distanceKm < settings.lightningProximityThresholdKm;
+  const activeAlertCount =
+    (humidityAlertState.isSpikeActive ? 1 : 0) + (isLightningAlertActive ? 1 : 0) + (weatherData?.alerts?.length ?? 0);
+
   return (
-    <div
-      className={`min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg ${
-        isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
-      }`}
-    >
+    <div className="hub-root min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg">
       {/* Ambient 3D tracking globe — furthest-back decorative layer */}
       <RadarGlobe3D isDark={isDark} intensity={0.85} />
 
@@ -475,164 +481,52 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenAndroid={() => setIsAndroidModalOpen(true)}
         onOpenVercel={() => setIsVercelModalOpen(true)}
-        hasActiveAlerts={
-          humidityAlertState.isSpikeActive ||
-          (!isLightningCurrentlyDismissed && closestStrike !== null && closestStrike.distanceKm < settings.lightningProximityThresholdKm)
-        }
-        activeAppTab={activeAppTab}
-        onSelectAppTab={setActiveAppTab}
+        hasActiveAlerts={humidityAlertState.isSpikeActive || isLightningAlertActive}
       />
 
+      {/* Live headline band, visible from every module */}
+      <NewsTicker category="meteo" onOpenHub={() => setActiveAppTab('news')} />
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 relative z-10">
-        {/* Main Tab Navigation Header - Disposto su due righe con contorni netti */}
-        <div className="bg-slate-100/95 dark:bg-slate-900/95 p-2 sm:p-2.5 rounded-xl border-2 border-slate-300 dark:border-slate-700 shadow-sm backdrop-blur-md space-y-1.5 sm:space-y-2">
-          {/* Riga 1: Dashboard Principale, Monitoraggio & Mappa (4 Tab) */}
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-            {/* 1. All Modules / Full Console */}
-            <button
-              id="app-tab-station-dashboard-btn"
-              onClick={() => setActiveAppTab('station')}
-              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
-                activeAppTab === 'station'
-                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
-              }`}
-              title="Console Completa: tutti i sensori e moduli meteorologici"
-            >
-              <Layers className="w-4 h-4 shrink-0" />
-              <span className="truncate hidden sm:inline">Console Completa</span>
-              <span className="truncate sm:hidden">Console</span>
-              <span className={`px-1.5 py-0.5 rounded text-[10px] font-black hidden lg:inline border ${
-                activeAppTab === 'station' ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600'
-              }`}>
-                {currentLocation.name}
-              </span>
-            </button>
-
-            {/* 2. Oggi & Allerte */}
-            <button
-              id="app-tab-today-btn"
-              onClick={() => setActiveAppTab('today')}
-              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
-                activeAppTab === 'today'
-                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
-              }`}
-              title="Condizioni attuali e bollettino allerte"
-            >
-              <Sun className="w-4 h-4 text-amber-400 shrink-0" />
-              <span className="truncate hidden sm:inline">Oggi & Allerte</span>
-              <span className="truncate sm:hidden">Oggi</span>
-            </button>
-
-            {/* 3. Radar & Fulmini */}
-            <button
-              id="app-tab-radar-btn"
-              onClick={() => setActiveAppTab('radar')}
-              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
-                activeAppTab === 'radar'
-                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
-              }`}
-              title="Monitoraggio fulmini e stima temporali CAPE"
-            >
-              <Zap className="w-4 h-4 text-amber-300 shrink-0" />
-              <span className="truncate hidden sm:inline">Radar & Fulmini</span>
-              <span className="truncate sm:hidden">Radar</span>
-              {lightningStrikes.length > 0 && (
-                <span className="px-1.5 py-0.2 rounded-md text-[10px] bg-rose-500 text-white font-black animate-pulse border border-rose-400">
-                  {lightningStrikes.length}
-                </span>
-              )}
-            </button>
-
-            {/* 4. Mappa Satellite Italia */}
-            <button
-              id="app-tab-italy-satellite-btn"
-              onClick={() => setActiveAppTab('italy_map')}
-              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
-                activeAppTab === 'italy_map'
-                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
-              }`}
-              title="Mappa satellitare atmosferica in tempo reale dell'Italia"
-            >
-              <Radio className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
-              <span className="truncate hidden sm:inline">Mappa Italia</span>
-              <span className="truncate sm:hidden">Mappa</span>
-              <span className="px-1.5 py-0.2 rounded-md bg-rose-500/20 text-rose-400 text-[10px] font-black border border-rose-500/50 hidden xs:inline">
-                LIVE
-              </span>
-            </button>
-          </div>
-
-          {/* Riga 2: Analisi Specialistica & Previsioni (3 Tab) */}
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-            {/* 5. Previsioni 5G */}
-            <button
-              id="app-tab-forecast5-btn"
-              onClick={() => setActiveAppTab('forecast5')}
-              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
-                activeAppTab === 'forecast5'
-                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
-              }`}
-              title="Previsioni meteorologiche dettagliate sui prossimi 5 giorni"
-            >
-              <Calendar className="w-4 h-4 text-indigo-400 shrink-0" />
-              <span className="truncate hidden sm:inline">Previsioni 5 Giorni</span>
-              <span className="truncate sm:hidden">Previsioni 5G</span>
-            </button>
-
-            {/* 6. Vento & Umidità */}
-            <button
-              id="app-tab-wind-btn"
-              onClick={() => setActiveAppTab('wind')}
-              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
-                activeAppTab === 'wind'
-                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
-              }`}
-              title="Analisi vettoriale del vento e sensore barico di umidità"
-            >
-              <Wind className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span className="truncate hidden sm:inline">Vento & Umidità</span>
-              <span className="truncate sm:hidden">Vento & Umidità</span>
-            </button>
-
-            {/* 7. UV & Qualità Aria */}
-            <button
-              id="app-tab-ambient-btn"
-              onClick={() => setActiveAppTab('ambient')}
-              className={`h-10 sm:h-11 px-2 sm:px-3.5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 border-2 ${
-                activeAppTab === 'ambient'
-                  ? 'bg-teal-600 dark:bg-teal-500 text-white border-teal-700 dark:border-teal-300 shadow-sm'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-750'
-              }`}
-              title="Indice radiazioni ultraviolette e indici di qualità dell'aria europea"
-            >
-              <Trees className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="truncate hidden sm:inline">UV & Qualità Aria</span>
-              <span className="truncate sm:hidden">UV & Qualità</span>
-            </button>
-          </div>
+        {/* Hub command deck + live telemetry bus */}
+        <div className="space-y-3">
+          <HubCommandDeck
+            active={activeAppTab}
+            onSelect={setActiveAppTab}
+            badges={lightningStrikes.length > 0 ? { radar: lightningStrikes.length } : undefined}
+          />
+          <HubStatusStrip
+            weather={weatherData}
+            humidity={currentHumidity}
+            isLoading={isLoading}
+            hasError={!!errorMsg}
+            alertCount={activeAlertCount}
+          />
         </div>
 
-        {/* Loading Spinner */}
-        {isLoading && !weatherData && (
-          <div className="py-32 flex flex-col items-center justify-center gap-3">
-            <Loader2 className="w-10 h-10 text-teal-500 animate-spin" />
-            <div className="text-sm font-bold text-slate-700 dark:text-slate-200">
-              Connessione API meteorologica in corso...
+        {/* Loading state */}
+        {isLoading && !weatherData && activeAppTab !== 'news' && (
+          <div className="py-32 flex flex-col items-center justify-center gap-4">
+            <div className="relative w-14 h-14">
+              <span className="hud-pulse-ring" />
+              <Loader2 className="w-14 h-14 text-[var(--hub-cyan)] animate-spin" />
             </div>
+            <div className="hub-label">Handshake con i satelliti meteo in corso…</div>
           </div>
         )}
 
         {/* Error Notification */}
         {errorMsg && (
-          <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-500 text-sm font-medium">
+          <div className="hub-panel p-4 !border-[var(--hub-red)]/40 text-[var(--hub-red)] text-sm font-medium">
+            <span className="hub-label !text-[var(--hub-red)] mr-2">ERR</span>
             {errorMsg}
+          </div>
+        )}
+
+        {/* VIEW 8: Real-time News Hub (independent from weather data) */}
+        {activeAppTab === 'news' && (
+          <div key="tab-news" className="animate-tab-enter">
+            <NewsHub />
           </div>
         )}
 
@@ -642,32 +536,42 @@ export default function App() {
             {/* VIEW 1: Full Console / All Modules */}
             {activeAppTab === 'station' && (
               <div key="tab-station" className="space-y-6 animate-tab-enter">
-                {/* 1. Hero Weather Overview & AI Report Trigger */}
-                <WeatherHero
-                  weather={weatherData}
-                  isDark={isDark}
-                  isLoading={isLoading}
-                  onRefresh={() => loadWeather(currentLocation)}
-                  onOpenAiReport={handleGenerateAiReport}
-                />
+                {/* 1. Hero + live news column */}
+                <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-6">
+                  <div className="hub-module min-w-0">
+                    <WeatherHero
+                      weather={weatherData}
+                      isDark={isDark}
+                      isLoading={isLoading}
+                      onRefresh={() => loadWeather(currentLocation)}
+                      onOpenAiReport={handleGenerateAiReport}
+                    />
+                  </div>
+                  <NewsFeedPanel onOpenHub={() => setActiveAppTab('news')} />
+                </div>
 
                 {/* 2. Environmental UV & European AQI Card */}
-                <EnvironmentalUvCard
-                  uvIndex={weatherData.current.uvIndex}
-                  airQuality={weatherData.airQuality}
-                  isDark={isDark}
-                />
+                <div className="hub-module">
+                  <EnvironmentalUvCard
+                    uvIndex={weatherData.current.uvIndex}
+                    airQuality={weatherData.airQuality}
+                    isDark={isDark}
+                  />
+                </div>
 
                 {/* 3. Prominent 5-Day Weather Forecast */}
-                <ForecastFiveDays
-                  daily={weatherData.daily}
-                  hourly={weatherData.hourly}
-                  isDark={isDark}
-                />
+                <div className="hub-module">
+                  <ForecastFiveDays
+                    daily={weatherData.daily}
+                    hourly={weatherData.hourly}
+                    isDark={isDark}
+                  />
+                </div>
 
                 {/* 4. Primary Specialized Instruments Grid: Integrated Humidity Sensor & Wind Compass Map */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Integrated Humidity Sensor Card */}
+                  <div className="hub-module">
                   <HumiditySensorCard
                     currentHumidity={currentHumidity}
                     dewPoint={weatherData.current.dewPoint}
@@ -679,91 +583,108 @@ export default function App() {
                     isDark={isDark}
                     spikeThreshold={settings.humiditySpikeThreshold}
                   />
+                  </div>
 
                   {/* Digital Compass & Wind Vectors Map */}
-                  <WindCompassMap
-                    windSpeed={weatherData.current.windSpeed}
-                    windDirection={weatherData.current.windDirection}
-                    windGusts={weatherData.current.windGusts}
-                    location={weatherData.location}
-                    isDark={isDark}
-                  />
+                  <div className="hub-module">
+                    <WindCompassMap
+                      windSpeed={weatherData.current.windSpeed}
+                      windDirection={weatherData.current.windDirection}
+                      windGusts={weatherData.current.windGusts}
+                      location={weatherData.location}
+                      isDark={isDark}
+                    />
+                  </div>
                 </div>
 
                 {/* 5. Thunder & Lightning Convective Radar with Color Zones & Acoustic Timer */}
-                <LightningMonitor
-                  strikes={lightningStrikes}
-                  capeIndex={weatherData.hourly[0]?.cape || 250}
-                  onSimulateStrike={handleSimulateLightningStrike}
-                  onClearStrikes={() => {
-                    setLightningStrikes([]);
-                    setIsLightningAlertDismissed(true);
-                  }}
-                  isDark={isDark}
-                  proximityThreshold={settings.lightningProximityThresholdKm}
-                  enableAudio={settings.enableAudioAlerts}
-                  audioVolume={settings.audioVolume}
-                />
+                <div className="hub-module">
+                  <LightningMonitor
+                    strikes={lightningStrikes}
+                    capeIndex={weatherData.hourly[0]?.cape || 250}
+                    onSimulateStrike={handleSimulateLightningStrike}
+                    onClearStrikes={() => {
+                      setLightningStrikes([]);
+                      setIsLightningAlertDismissed(true);
+                    }}
+                    isDark={isDark}
+                    proximityThreshold={settings.lightningProximityThresholdKm}
+                    enableAudio={settings.enableAudioAlerts}
+                    audioVolume={settings.audioVolume}
+                  />
+                </div>
 
                 {/* 6. Forecast Trends & Advanced Recharts Graphs */}
-                <ForecastCharts
-                  hourly={weatherData.hourly}
-                  daily={weatherData.daily}
-                  isDark={isDark}
-                />
+                <div className="hub-module">
+                  <ForecastCharts
+                    hourly={weatherData.hourly}
+                    daily={weatherData.daily}
+                    isDark={isDark}
+                  />
+                </div>
               </div>
             )}
 
             {/* VIEW 2: Today & Alerts */}
             {activeAppTab === 'today' && (
               <div key="tab-today" className="space-y-6 animate-tab-enter">
-                <WeatherHero
-                  weather={weatherData}
-                  isDark={isDark}
-                  isLoading={isLoading}
-                  onRefresh={() => loadWeather(currentLocation)}
-                  onOpenAiReport={handleGenerateAiReport}
-                />
-                <EnvironmentalUvCard
-                  uvIndex={weatherData.current.uvIndex}
-                  airQuality={weatherData.airQuality}
-                  isDark={isDark}
-                />
+                <div className="hub-module">
+                  <WeatherHero
+                    weather={weatherData}
+                    isDark={isDark}
+                    isLoading={isLoading}
+                    onRefresh={() => loadWeather(currentLocation)}
+                    onOpenAiReport={handleGenerateAiReport}
+                  />
+                </div>
+                <div className="hub-module">
+                  <EnvironmentalUvCard
+                    uvIndex={weatherData.current.uvIndex}
+                    airQuality={weatherData.airQuality}
+                    isDark={isDark}
+                  />
+                </div>
               </div>
             )}
 
             {/* VIEW 3: Radar & Thunderstorms */}
             {activeAppTab === 'radar' && (
               <div key="tab-radar" className="space-y-6 animate-tab-enter">
-                <LightningMonitor
-                  strikes={lightningStrikes}
-                  capeIndex={weatherData.hourly[0]?.cape || 250}
-                  onSimulateStrike={handleSimulateLightningStrike}
-                  onClearStrikes={() => {
-                    setLightningStrikes([]);
-                    setIsLightningAlertDismissed(true);
-                  }}
-                  isDark={isDark}
-                  proximityThreshold={settings.lightningProximityThresholdKm}
-                  enableAudio={settings.enableAudioAlerts}
-                  audioVolume={settings.audioVolume}
-                />
+                <div className="hub-module">
+                  <LightningMonitor
+                    strikes={lightningStrikes}
+                    capeIndex={weatherData.hourly[0]?.cape || 250}
+                    onSimulateStrike={handleSimulateLightningStrike}
+                    onClearStrikes={() => {
+                      setLightningStrikes([]);
+                      setIsLightningAlertDismissed(true);
+                    }}
+                    isDark={isDark}
+                    proximityThreshold={settings.lightningProximityThresholdKm}
+                    enableAudio={settings.enableAudioAlerts}
+                    audioVolume={settings.audioVolume}
+                  />
+                </div>
               </div>
             )}
 
             {/* VIEW 4: 5-Day Detailed Forecasts */}
             {activeAppTab === 'forecast5' && (
               <div key="tab-forecast5" className="space-y-6 animate-tab-enter">
-                <ForecastFiveDays
-                  daily={weatherData.daily}
-                  hourly={weatherData.hourly}
-                  isDark={isDark}
-                />
-                <ForecastCharts
-                  hourly={weatherData.hourly}
-                  daily={weatherData.daily}
-                  isDark={isDark}
-                />
+                <div className="hub-module">
+                  <ForecastFiveDays
+                    daily={weatherData.daily}
+                    hourly={weatherData.hourly}
+                    isDark={isDark}
+                  />
+                </div>
+                <div className="hub-module">
+                  <ForecastCharts
+                    hourly={weatherData.hourly}
+                    daily={weatherData.daily}
+                    isDark={isDark}
+                  />
+                </div>
               </div>
             )}
 
@@ -771,25 +692,29 @@ export default function App() {
             {activeAppTab === 'wind' && (
               <div key="tab-wind" className="space-y-6 animate-tab-enter">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <HumiditySensorCard
-                    currentHumidity={currentHumidity}
-                    dewPoint={weatherData.current.dewPoint}
-                    temperature={weatherData.current.temperature}
-                    readings={humidityReadings}
-                    alertState={humidityAlertState}
-                    onSimulateSpike={handleSimulateHumiditySpike}
-                    onCalibrate={handleCalibrateSensor}
-                    isDark={isDark}
-                    spikeThreshold={settings.humiditySpikeThreshold}
-                  />
+                  <div className="hub-module">
+                    <HumiditySensorCard
+                      currentHumidity={currentHumidity}
+                      dewPoint={weatherData.current.dewPoint}
+                      temperature={weatherData.current.temperature}
+                      readings={humidityReadings}
+                      alertState={humidityAlertState}
+                      onSimulateSpike={handleSimulateHumiditySpike}
+                      onCalibrate={handleCalibrateSensor}
+                      isDark={isDark}
+                      spikeThreshold={settings.humiditySpikeThreshold}
+                    />
+                  </div>
 
-                  <WindCompassMap
-                    windSpeed={weatherData.current.windSpeed}
-                    windDirection={weatherData.current.windDirection}
-                    windGusts={weatherData.current.windGusts}
-                    location={weatherData.location}
-                    isDark={isDark}
-                  />
+                  <div className="hub-module">
+                    <WindCompassMap
+                      windSpeed={weatherData.current.windSpeed}
+                      windDirection={weatherData.current.windDirection}
+                      windGusts={weatherData.current.windGusts}
+                      location={weatherData.location}
+                      isDark={isDark}
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -797,11 +722,13 @@ export default function App() {
             {/* VIEW 6: UV & Air Quality Analysis */}
             {activeAppTab === 'ambient' && (
               <div key="tab-ambient" className="space-y-6 animate-tab-enter">
-                <EnvironmentalUvCard
-                  uvIndex={weatherData.current.uvIndex}
-                  airQuality={weatherData.airQuality}
-                  isDark={isDark}
-                />
+                <div className="hub-module">
+                  <EnvironmentalUvCard
+                    uvIndex={weatherData.current.uvIndex}
+                    airQuality={weatherData.airQuality}
+                    isDark={isDark}
+                  />
+                </div>
               </div>
             )}
           </>

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
+import { getNews, isNewsCategory } from './lib/news';
 
 dotenv.config();
 
@@ -34,6 +35,18 @@ function getGeminiClient(): GoogleGenAI | null {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Real-time news hub feed (RSS aggregated server-side, cached 3 min)
+app.get('/api/news', async (req, res) => {
+  const category = isNewsCategory(req.query.category) ? req.query.category : 'all';
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    res.json(await getNews(category));
+  } catch (error: any) {
+    console.error('News feed error:', error?.message || error);
+    res.status(502).json({ error: 'News feed unavailable' });
+  }
 });
 
 // AI Meteorological Predictive Analysis endpoint

@@ -1,11 +1,49 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
+/* The theme toggle sets html.dark; make Tailwind's dark: variant follow it
+   (v4 defaults to prefers-color-scheme, which ignored the toggle). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Hub design tokens ---------- */
+:root {
+  --hub-bg: #eef3f8;
+  --hub-bg-2: #e2e9f2;
+  --hub-panel: rgba(255, 255, 255, 0.72);
+  --hub-panel-strong: rgba(255, 255, 255, 0.9);
+  --hub-line: rgba(15, 23, 42, 0.12);
+  --hub-line-strong: rgba(8, 145, 178, 0.45);
+  --hub-text: #0b1220;
+  --hub-dim: #475569;
+  --hub-cyan: #0891b2;
+  --hub-violet: #7c3aed;
+  --hub-amber: #d97706;
+  --hub-red: #e11d48;
+  --hub-glow: rgba(8, 145, 178, 0.18);
+}
+html.dark {
+  --hub-bg: #03060c;
+  --hub-bg-2: #070c16;
+  --hub-panel: rgba(8, 14, 26, 0.62);
+  --hub-panel-strong: rgba(9, 15, 28, 0.88);
+  --hub-line: rgba(148, 197, 255, 0.11);
+  --hub-line-strong: rgba(34, 211, 238, 0.5);
+  --hub-text: #e6f1ff;
+  --hub-dim: #8aa0bb;
+  --hub-cyan: #22d3ee;
+  --hub-violet: #a78bfa;
+  --hub-amber: #fbbf24;
+  --hub-red: #fb7185;
+  --hub-glow: rgba(34, 211, 238, 0.22);
+}
+
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background: var(--hub-bg);
+    color: var(--hub-text);
   }
-  
+
   html.dark {
     color-scheme: dark;
     color: #f8fafc;
@@ -14,6 +52,242 @@
   html.dark body {
     color: #f8fafc;
   }
+}
+
+@layer components {
+.font-display {
+  font-family: 'Chakra Petch', 'Space Grotesk', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+}
+
+/* App root: deep-space backdrop with two nebula glows and a vignette. */
+.hub-root {
+  background-color: var(--hub-bg);
+  background-image:
+    radial-gradient(1200px 600px at 8% -10%, rgba(34, 211, 238, 0.13), transparent 60%),
+    radial-gradient(900px 600px at 100% 110%, rgba(167, 139, 250, 0.12), transparent 60%),
+    linear-gradient(180deg, var(--hub-bg) 0%, var(--hub-bg-2) 100%);
+  background-attachment: fixed;
+  color: var(--hub-text);
+}
+html:not(.dark) .hub-root {
+  background-image:
+    radial-gradient(1200px 600px at 8% -10%, rgba(8, 145, 178, 0.12), transparent 60%),
+    radial-gradient(900px 600px at 100% 110%, rgba(124, 58, 237, 0.08), transparent 60%),
+    linear-gradient(180deg, var(--hub-bg) 0%, var(--hub-bg-2) 100%);
+}
+.hub-root::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+}
+html:not(.dark) .hub-root::after { display: none; }
+
+/* Glass instrument panel with a gradient hairline border. */
+.hub-panel {
+  position: relative;
+  background: var(--hub-panel);
+  border: 1px solid var(--hub-line);
+  border-radius: 18px;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 20px 50px -30px rgba(0, 0, 0, 0.6);
+}
+.hub-panel--glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--hub-line-strong), transparent 30%, transparent 70%, rgba(167, 139, 250, 0.45));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Existing feature cards are wrapped in .hub-module so they share the hub
+   glass treatment without rewriting each component's markup. */
+.hub-module { position: relative; }
+html.dark .hub-module > :first-child {
+  background-color: var(--hub-panel) !important;
+  border-color: var(--hub-line) !important;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 20px 50px -30px rgba(0, 0, 0, 0.7);
+}
+html:not(.dark) .hub-module > :first-child {
+  background-color: var(--hub-panel) !important;
+  border-color: var(--hub-line) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.hub-module::before,
+.hub-module::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 0 solid var(--hub-cyan);
+  opacity: 0.75;
+  pointer-events: none;
+  z-index: 2;
+}
+.hub-module::before { top: -1px; left: -1px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 14px; }
+.hub-module::after { bottom: -1px; right: -1px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 14px; }
+
+/* Small uppercase HUD label, e.g. "MOD-03 // RADAR". */
+.hub-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hub-dim);
+}
+
+.hub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--hub-line);
+  background: var(--hub-panel);
+  color: var(--hub-dim);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.hub-chip:hover { color: var(--hub-text); border-color: var(--hub-line-strong); }
+.hub-chip[aria-pressed='true'] {
+  color: var(--hub-text);
+  border-color: var(--chip-color, var(--hub-cyan));
+  background: color-mix(in srgb, var(--chip-color, var(--hub-cyan)) 14%, transparent);
+  box-shadow: 0 0 18px -6px var(--chip-color, var(--hub-cyan));
+}
+
+.hub-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid var(--hub-line);
+  background: var(--hub-panel);
+  color: var(--hub-text);
+  font-size: 12px;
+  font-weight: 700;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+.hub-icon-btn:hover { border-color: var(--hub-line-strong); box-shadow: 0 0 16px -6px var(--hub-cyan); }
+.hub-icon-btn:focus-visible,
+.hub-chip:focus-visible,
+.hub-deck-btn:focus-visible { outline: 2px solid var(--hub-cyan); outline-offset: 2px; }
+
+/* ---------- Command deck (module switcher) ---------- */
+.hub-deck {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(112px, 1fr);
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 6px;
+}
+.hub-deck::-webkit-scrollbar { display: none; }
+.hub-deck-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px 12px 11px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  color: var(--hub-dim);
+  text-align: left;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+  overflow: hidden;
+}
+.hub-deck-btn:hover { color: var(--hub-text); background: color-mix(in srgb, var(--hub-cyan) 6%, transparent); }
+.hub-deck-btn[aria-current='page'] {
+  color: var(--hub-text);
+  border-color: color-mix(in srgb, var(--hub-cyan) 45%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--hub-cyan) 16%, transparent), color-mix(in srgb, var(--hub-cyan) 4%, transparent));
+}
+.hub-deck-btn[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--hub-cyan);
+  box-shadow: 0 0 12px var(--hub-cyan);
+}
+
+/* ---------- Live news ticker ---------- */
+@keyframes hubTicker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.hub-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: hubTicker var(--ticker-duration, 90s) linear infinite;
+}
+.hub-ticker:hover .hub-ticker-track,
+.hub-ticker:focus-within .hub-ticker-track { animation-play-state: paused; }
+.hub-ticker-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+
+@keyframes hubBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+.hub-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--hub-red);
+  box-shadow: 0 0 10px var(--hub-red);
+  animation: hubBlink 1.4s ease-in-out infinite;
+}
+
+@keyframes hubShimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+.hub-skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--hub-line) 25%, color-mix(in srgb, var(--hub-cyan) 18%, transparent) 50%, var(--hub-line) 75%);
+  background-size: 200% 100%;
+  animation: hubShimmer 1.6s linear infinite;
+}
+
+@keyframes hubFreshIn {
+  from { box-shadow: 0 0 0 1px var(--hub-cyan), 0 0 26px -4px var(--hub-cyan); }
+  to { box-shadow: 0 0 0 1px transparent, 0 0 0 0 transparent; }
+}
+.hub-fresh { animation: hubFreshIn 2.4s ease-out both; }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-ticker-track,
+  .hub-live-dot,
+  .hub-skeleton,
+  .hub-fresh,
+  .hud-scanline,
+  .hud-pulse-ring { animation: none !important; }
+  .hub-ticker-track { flex-wrap: nowrap; }
 }
 
 /* ---------- HUD / console design tokens ---------- */
