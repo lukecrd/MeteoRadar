@@ -17,14 +17,10 @@ interface MarketBoardProps {
   isLoading: boolean;
   error: string | null;
   fetchedAt: number | null;
-  selectedId: string | null;
-  onSelect: (quote: MarketQuote) => void;
   onRefresh: () => void;
 }
 
-export const marketMarkerId = (symbol: string) => `mkt:${symbol}`;
-
-export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, error, fetchedAt, selectedId, onSelect, onRefresh }) => {
+export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, error, fetchedAt, onRefresh }) => {
   const openCount = quotes.filter((q) => q.kind === 'index' && q.isOpen).length;
   const indexCount = quotes.filter((q) => q.kind === 'index').length;
 
@@ -59,16 +55,11 @@ export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, err
               <div className="hub-label mb-1">{label}</div>
               <ul className="space-y-0.5">
                 {rows.map((q) => {
-                  const mid = marketMarkerId(q.symbol);
-                  const selectable = q.lat != null;
-                  const isSel = selectedId === mid;
                   return (
                     <li key={q.symbol}>
-                      <button
-                        type="button"
-                        onClick={() => onSelect(q)}
-                        className={`hub-row w-full grid grid-cols-[minmax(0,1fr)_auto_64px] items-center gap-2 px-2 py-1.5 rounded-lg text-left ${isSel ? 'is-selected' : ''}`}
-                        title={selectable ? `${q.name} · ${q.city} — mostra sul globo` : q.name}
+                      <div
+                        className="hub-row w-full grid grid-cols-[minmax(0,1fr)_auto_64px] items-center gap-2 px-2 py-1.5 rounded-lg"
+                        title={q.city ? `${q.name} · ${q.city}` : q.name}
                       >
                         <span className="min-w-0">
                           <span className="flex items-center gap-1.5">
@@ -90,7 +81,7 @@ export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, err
                           </span>
                         </span>
                         <Sparkline values={q.spark} width={64} height={22} />
-                      </button>
+                      </div>
                     </li>
                   );
                 })}
