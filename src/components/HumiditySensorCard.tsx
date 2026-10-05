@@ -74,13 +74,12 @@ export const HumiditySensorCard: React.FC<HumiditySensorCardProps> = ({
           </div>
           <div>
             <h3 className="font-bold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-              Sensore Igrometrico Digitale
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+              Sensore Igrometrico
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black border border-slate-400/40 text-slate-600 dark:text-slate-300">
+                SIMULAZIONE
               </span>
             </h3>
-            <p className="text-xs text-slate-600 dark:text-slate-300">Monitoraggio variazione igrometrica in tempo reale</p>
+            <p className="text-xs text-slate-600 dark:text-slate-300">Valore iniziale da Open-Meteo; l'andamento minuto per minuto è simulato</p>
           </div>
         </div>
 

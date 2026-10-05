@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { DailyForecastItem, HourlyForecastItem } from '../types';
 import { getWindDirectionLabel } from '../services/weatherApi';
+import { formatTemp } from '../services/weatherFormat';
 
 interface ForecastFiveDaysProps {
   daily: DailyForecastItem[];
@@ -182,13 +183,13 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
                 <div className="flex items-baseline justify-between mb-1.5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-xl font-black text-amber-500 dark:text-amber-400">
-                      +{day.maxTemp}°
+                      {formatTemp(day.maxTemp, { unit: false })}
                     </span>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-300">Max</span>
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-sm font-bold text-cyan-500 dark:text-cyan-300">
-                      +{day.minTemp}°
+                      {formatTemp(day.minTemp, { unit: false })}
                     </span>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-300">Min</span>
                   </div>
@@ -245,10 +246,10 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
 
             <div className="flex items-center gap-2 text-xs">
               <span className="px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold">
-                Max: +{selectedDay.maxTemp}°C
+                Max: {formatTemp(selectedDay.maxTemp)}
               </span>
               <span className="px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold">
-                Min: +{selectedDay.minTemp}°C
+                Min: {formatTemp(selectedDay.minTemp)}
               </span>
             </div>
           </div>

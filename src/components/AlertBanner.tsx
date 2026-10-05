@@ -294,7 +294,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                       <span>•</span>
                       <span>Direzione: <strong>{closestStrike.bearingDeg}°</strong></span>
                       <span>•</span>
-                      <span>Tipo: <strong>{closestStrike.type === 'CG' ? 'Terra-Nube' : 'Nube-Nube'}</strong></span>
+                      <span>Tipo: <strong>{closestStrike.type === 'CG' ? 'Nube-Suolo' : 'Intranube'}</strong></span>
                     </div>
                   </div>
                 </div>

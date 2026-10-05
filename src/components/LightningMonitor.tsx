@@ -228,13 +228,13 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
             <h3 className="font-bold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
               Monitor Tuoni & Lampi Convettivi
               {strikes.length > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white animate-pulse">
-                  {strikes.length} SCARICHE
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white">
+                  {strikes.length} SCARICHE SIMULATE
                 </span>
               )}
             </h3>
             <p className="text-xs text-slate-600 dark:text-slate-300">
-              Rilevamento elettrico atmosferico & zone di pericolosità a colori
+              Simulatore di scariche e zone di distanza: nessun feed fulmini reale collegato
             </p>
           </div>
         </div>
@@ -267,8 +267,9 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
 
       {/* Zone Color Legend Bar */}
       <div className="grid grid-cols-4 gap-1.5 mb-4 text-center text-[10px] font-bold">
-        <div className="p-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-          🟢 &gt;30 km: Sicura
+        {/* Neutral grey, never "safe": strikes can hit well beyond 30 km */}
+        <div className="p-1.5 rounded-lg bg-slate-500/15 border border-slate-500/30 text-slate-600 dark:text-slate-300">
+          ⚪ &gt;30 km: Lontano
         </div>
         <div className="p-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400">
           🟡 15-30 km: Monitor
@@ -293,7 +294,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
 
           {closestStrike && (
             <div className="absolute bottom-2 right-3 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-900/95 border border-slate-700 text-slate-100 backdrop-blur-md">
-              Più vicina: <span className={closestStrike.distanceKm < 15 ? 'text-rose-400' : 'text-amber-400'}>{closestStrike.distanceKm} km</span>
+              Più vicina: <span className={closestStrike.distanceKm <= 5 ? 'text-rose-400' : closestStrike.distanceKm <= 15 ? 'text-orange-400' : 'text-amber-400'}>{closestStrike.distanceKm} km</span>
             </div>
           )}
         </div>
@@ -421,7 +422,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
                   }`}
                 >
                   <span className="font-mono font-bold">
-                    {s.polarity}{s.peakCurrentKa} kA ({s.type === 'CG' ? 'Terra-Nube' : 'Nube-Nube'})
+                    {s.polarity}{s.peakCurrentKa} kA ({s.type === 'CG' ? 'Nube-Suolo' : 'Intranube'})
                   </span>
                   <span className="font-bold">{s.distanceKm} km</span>
                   <span className="text-[10px] opacity-80">{s.bearingDeg}°</span>

@@ -44,11 +44,21 @@ import { LocationInfo, ItalyStationWeather, SatelliteLayerType } from '../types'
 import {
   fetchRainViewerMaps,
   fetchItalianStationsWeather,
+  fetchMarineWind,
+  MarineWindReading,
   RainViewerData,
   ITALIAN_CITIES,
   ITALY_REGIONS,
   ItalyRegionInfo
 } from '../services/italyMapService';
+import {
+  formatTemp,
+  windFlowBearing,
+  italianWindName,
+  compassLabel,
+  RADAR_RAIN_LEGEND,
+  RADAR_SNOW_LEGEND,
+} from '../services/weatherFormat';
 
 interface ItalySatelliteMapProps {
   currentLocation: LocationInfo;
@@ -85,12 +95,16 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
   const [regionsViewMode, setRegionsViewMode] = useState<'scroll' | 'grid'>('scroll');
   
   // Layer toggles & settings
-  const [baseMapType, setBaseMapType] = useState<'satellite' | 'dark' | 'streets'>('satellite');
+  // Neutral dark basemap by default: radar classes read best on a quiet background
+  const [baseMapType, setBaseMapType] = useState<'satellite' | 'dark' | 'streets'>('dark');
   const [showRadar, setShowRadar] = useState<boolean>(true);
-  const [showSatelliteIR, setShowSatelliteIR] = useState<boolean>(true);
+  const [showSatelliteIR, setShowSatelliteIR] = useState<boolean>(false);
   const [showStations, setShowStations] = useState<boolean>(true);
-  const [showLightning, setShowLightning] = useState<boolean>(true);
+  // Lightning strikes are simulated (no real feed yet): off by default and labelled as such
+  const [showLightning, setShowLightning] = useState<boolean>(false);
   const [showWindVectors, setShowWindVectors] = useState<boolean>(true);
+  const [marineWind, setMarineWind] = useState<MarineWindReading[]>([]);
+  const irAvailable = (rainViewerData?.satellite.infrared.length ?? 0) > 0;
   
   // Opacity
   const [radarOpacity, setRadarOpacity] = useState<number>(0.75);
@@ -119,8 +133,9 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
   // Load Italian stations data
   const loadStationsData = async () => {
     setIsLoadingStations(true);
-    const data = await fetchItalianStationsWeather();
+    const [data, wind] = await Promise.all([fetchItalianStationsWeather(), fetchMarineWind()]);
     setStations(data);
+    setMarineWind(wind);
     setIsLoadingStations(false);
   };
 
@@ -178,7 +193,8 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
       minZoom: 4,
       maxZoom: 18,
       zoomControl: false,
-      attributionControl: false,
+      // Tile providers (Esri, CARTO, OSM, RainViewer) require visible attribution
+      attributionControl: true,
       maxBoundsViscosity: 0.2,
     });
 
@@ -192,6 +208,8 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
       [32.0, 2.5], // South-West
       [49.5, 21.5]  // North-East
     ]);
+
+    map.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
 
     mapInstanceRef.current = map;
 
@@ -258,26 +276,27 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
       map.removeLayer(baseTileLayerRef.current);
     }
 
-    let url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    // Esri ArcGIS Online basemaps: keyless (CARTO basemaps now watermark "API KEY REQUIRED")
+    const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
+    let url = `${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`;
+    let attribution = 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, GIS User Community';
     let maxZoom = 18;
     let maxNativeZoom = 16; // Fix "zoom level not supported" by limiting native tile queries to 16 and letting Leaflet upscale cleanly
 
     if (baseMapType === 'dark') {
-      url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      maxZoom = 18;
-      maxNativeZoom = 18;
+      url = `${ESRI}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`;
+      attribution = 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors';
+      maxNativeZoom = 16;
     } else if (baseMapType === 'streets') {
-      url = isDark
-        ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-      maxZoom = 18;
+      url = `${ESRI}/World_Street_Map/MapServer/tile/{z}/{y}/{x}`;
+      attribution = 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, USGS, &copy; OpenStreetMap contributors';
       maxNativeZoom = 18;
     }
 
     baseTileLayerRef.current = L.tileLayer(url, {
       maxZoom,
       maxNativeZoom,
-      subdomains: 'abcd',
+      attribution,
       crossOrigin: true,
     }).addTo(map);
 
@@ -305,6 +324,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
         zIndex: 5,
         maxNativeZoom: 6, // RainViewer Infrared Satellite maximum native zoom is 6
         maxZoom: 18,
+        attribution: '<a href="https://www.rainviewer.com/api.html">RainViewer</a>',
         crossOrigin: true,
       }).addTo(map);
     }
@@ -322,7 +342,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
     if (showRadar && rainViewerData && radarFrames.length > 0 && radarFrames[currentFrameIndex]) {
       const frame = radarFrames[currentFrameIndex];
-      // 2/1_1.png = Color scheme with smoothing and dBZ thresholds
+      // 2/1_1.png = "Universal Blue" color scheme (see RADAR_RAIN_LEGEND), smoothing on, snow on
       const radarUrl = `${rainViewerData.host}${frame.path}/256/{z}/{x}/{y}/2/1_1.png`;
 
       radarTileLayerRef.current = L.tileLayer(radarUrl, {
@@ -330,6 +350,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
         zIndex: 10,
         maxNativeZoom: 7, // RainViewer Weather Radar API maximum native zoom is 7
         maxZoom: 18,
+        attribution: '<a href="https://www.rainviewer.com/api.html">RainViewer</a>',
         crossOrigin: true,
       }).addTo(map);
     }
@@ -444,7 +465,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
       });
 
       const strikeMarker = L.marker([s.lat, s.lon], { icon: strikeIcon });
-      strikeMarker.bindTooltip(`Fulmine rilevato: ${s.ka} kA (${s.ageMinutes} min fa)`, {
+      strikeMarker.bindTooltip(`SIMULAZIONE – fulmine dimostrativo, non rilevato (${s.ka} kA, ${s.ageMinutes} min fa)`, {
         direction: 'top',
         className: 'bg-slate-900 text-white text-xs border border-purple-500 rounded-lg p-1.5'
       });
@@ -460,26 +481,13 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
     if (!showWindVectors) return;
 
-    // Strategic maritime & mountain anemometer vector points around Italy
-    const maritimeWindPoints = [
-      { name: 'Mar Ligure', lat: 43.8, lon: 8.8, speed: 24, deg: 230, label: 'Libeccio' },
-      { name: 'Tirreno Settentrionale', lat: 42.0, lon: 10.5, speed: 18, deg: 210, label: 'Ponente' },
-      { name: 'Tirreno Meridionale', lat: 39.5, lon: 13.5, speed: 16, deg: 170, label: 'Ostro' },
-      { name: 'Canale di Sicilia', lat: 36.8, lon: 12.8, speed: 28, deg: 140, label: 'Scirocco' },
-      { name: 'Mar Ionio', lat: 38.5, lon: 17.5, speed: 20, deg: 130, label: 'Levante' },
-      { name: 'Basso Adriatico', lat: 41.5, lon: 17.8, speed: 22, deg: 310, label: 'Maestrale' },
-      { name: 'Medio Adriatico', lat: 43.2, lon: 14.8, speed: 19, deg: 320, label: 'Maestrale' },
-      { name: 'Alto Adriatico (Golfo TS)', lat: 45.3, lon: 13.2, speed: 34, deg: 45, label: 'Bora' },
-      { name: 'Bocche di Bonifacio', lat: 41.3, lon: 9.2, speed: 38, deg: 280, label: 'Ponente Forte' },
-      { name: 'Arco Alpino Nord-Ovest', lat: 45.8, lon: 7.8, speed: 25, deg: 340, label: 'Favonio / Föhn' }
-    ];
-
-    maritimeWindPoints.forEach(p => {
+    // Live Open-Meteo readings; the arrow points where the wind blows TO (provenance + 180°)
+    marineWind.forEach(p => {
       const windIcon = L.divIcon({
         className: 'custom-wind-barb',
         html: `
           <div class="flex items-center gap-1 bg-slate-900/80 backdrop-blur-sm border border-slate-700/80 px-2 py-0.5 rounded-full text-white -translate-x-1/2 -translate-y-1/2 shadow-md">
-            <div style="transform: rotate(${p.deg}deg);" class="transition-transform duration-500">
+            <div style="transform: rotate(${windFlowBearing(p.deg)}deg);" class="transition-transform duration-500">
               <svg class="w-3 h-3 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="19" x2="12" y2="5"></line>
                 <polyline points="5 12 12 5 19 12"></polyline>
@@ -493,13 +501,13 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
       });
 
       const marker = L.marker([p.lat, p.lon], { icon: windIcon });
-      marker.bindTooltip(`${p.name}: ${p.label} a ${p.speed} km/h (${p.deg}°)`, {
+      marker.bindTooltip(`${p.name}: ${italianWindName(p.deg)} da ${compassLabel(p.deg)} (${p.deg}°) a ${p.speed} km/h – Open-Meteo`, {
         direction: 'top',
         className: 'bg-slate-900 text-white text-xs border border-cyan-500 rounded-lg p-1.5'
       });
       marker.addTo(lg);
     });
-  }, [showWindVectors]);
+  }, [showWindVectors, marineWind]);
 
   // Handle station selection to set as active location in the whole app
   const handleSetLocationFromStation = (st: ItalyStationWeather) => {
@@ -836,14 +844,17 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
             <button
               id="toggle-satellite-ir-layer"
               onClick={() => setShowSatelliteIR(!showSatelliteIR)}
-              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
-                showSatelliteIR
+              disabled={!irAvailable}
+              aria-pressed={showSatelliteIR && irAvailable}
+              title={irAvailable ? undefined : 'Il fornitore RainViewer non pubblica attualmente immagini satellitari IR'}
+              className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border disabled:opacity-50 disabled:cursor-not-allowed ${
+                showSatelliteIR && irAvailable
                   ? 'bg-indigo-600/20 text-indigo-400 dark:text-indigo-300 border-indigo-500/40'
                   : 'bg-transparent text-slate-600 dark:text-slate-300 border-transparent hover:bg-slate-200 dark:hover:bg-slate-800/60'
               }`}
             >
               <Eye className="w-3.5 h-3.5" />
-              <span>Nubi IR Satellite</span>
+              <span>{irAvailable ? 'Nubi IR Satellite' : 'Nubi IR (non disponibile)'}</span>
             </button>
 
             <button
@@ -869,7 +880,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               }`}
             >
               <Zap className="w-3.5 h-3.5" />
-              <span>Fulmini Live ({italyStrikes.length})</span>
+              <span>Fulmini (simulazione)</span>
             </button>
 
             <button
@@ -1094,12 +1105,25 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
             }`}
           >
             <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
-              <Info className="w-3 h-3 text-teal-400" /> Scala Riflettività Radar (dBZ)
+              <Info className="w-3 h-3 text-teal-400" /> Pioggia radar (mm/h)
             </div>
-            <div className="flex items-center gap-1 text-[9px] font-bold">
-              <span className="text-slate-400">Debole</span>
-              <div className="w-24 h-2.5 rounded-full bg-gradient-to-r from-teal-400 via-sky-400 via-amber-400 via-rose-500 to-purple-600 border border-slate-700/60" />
-              <span className="text-purple-400">Nubifragio/Grandine</span>
+            {/* Discrete classes matching the RainViewer "Universal Blue" tiles actually requested */}
+            <div className="flex" role="img" aria-label={`Scala pioggia da ${RADAR_RAIN_LEGEND[0].mmh} a oltre 400 millimetri l'ora`}>
+              {RADAR_RAIN_LEGEND.map(c => (
+                <div key={c.dbz} className="flex flex-col items-center w-6" title={`${c.dbz} dBZ ≈ ${c.mmh} mm/h`}>
+                  <span className="w-full h-2.5 border-y border-slate-700/40 first:rounded-l" style={{ backgroundColor: c.color }} />
+                  <span className="text-[9px] font-semibold tabular-nums mt-0.5 opacity-80">{c.mmh}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-1.5 mt-1.5 text-[9px] font-semibold opacity-80">
+              <span>Neve</span>
+              <div className="flex">
+                {RADAR_SNOW_LEGEND.map(c => (
+                  <span key={c.dbz} className="w-4 h-2.5" style={{ backgroundColor: c.color }} />
+                ))}
+              </div>
+              <span>debole → forte</span>
             </div>
           </div>
 
@@ -1365,6 +1389,11 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
         </div>
 
         {/* Stations Table Grid */}
+        {!isLoadingStations && stations.length === 0 && (
+          <div role="status" className="p-4 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300">
+            Dati delle stazioni non disponibili al momento. Riprova con il pulsante di aggiornamento.
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 w-full max-w-full">
           {filteredStations.map(st => {
             const isCurrentActive = currentLocation.name.toLowerCase().includes(st.name.toLowerCase());
@@ -1394,7 +1423,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                     </span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold">({st.region})</span>
                   </div>
-                  <span className="text-base font-black text-amber-500 dark:text-amber-400">+{st.temperature}°C</span>
+                  <span className="text-base font-black text-amber-500 dark:text-amber-400">{formatTemp(st.temperature)}</span>
                 </div>
 
                 <div className="text-xs text-slate-700 dark:text-slate-200 mt-1 truncate font-medium">

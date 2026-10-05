@@ -18,6 +18,7 @@ import {
   Zap
 } from 'lucide-react';
 import { HourlyForecastItem, DailyForecastItem } from '../types';
+import { formatTemp } from '../services/weatherFormat';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -669,9 +670,9 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
               )}
 
               <div className="flex items-center gap-2 text-sm font-extrabold w-28 justify-end">
-                <span className="text-amber-500 dark:text-amber-400">+{item.maxTemp}°</span>
+                <span className="text-amber-500 dark:text-amber-400">{formatTemp(item.maxTemp, { unit: false })}</span>
                 <span className="text-slate-500 dark:text-slate-300 font-normal">/</span>
-                <span className="text-cyan-400 dark:text-cyan-300">+{item.minTemp}°</span>
+                <span className="text-cyan-400 dark:text-cyan-300">{formatTemp(item.minTemp, { unit: false })}</span>
               </div>
             </div>
           ))}

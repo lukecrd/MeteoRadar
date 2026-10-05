@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Compass, Wind, Navigation, Layers, Rotate3d, ArrowUpRight, Gauge, MapPin } from 'lucide-react';
 import { getWindDirectionLabel, getBeaufortScale } from '../services/weatherApi';
 import { LocationInfo } from '../types';
+import { windFlowBearing } from '../services/weatherFormat';
 
 interface WindCompassMapProps {
   windSpeed: number; // km/h
@@ -86,8 +87,9 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
       });
     }
 
-    // Direction vector (wind flows towards direction + 180 or meteorological standard from angle)
-    const rad = ((windDirection - 90) * Math.PI) / 180;
+    // windDirection is where the wind comes FROM: particles travel towards windDirection + 180°.
+    // Canvas angle 0 = east, y grows downwards, so bearing b maps to (b - 90).
+    const rad = ((windFlowBearing(windDirection) - 90) * Math.PI) / 180;
     const dx = Math.cos(rad);
     const dy = Math.sin(rad);
 
@@ -268,11 +270,11 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
               {/* Wind Vector Pointer Arrow */}
               <div
                 className="absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-out z-10 pointer-events-none"
-                style={{ transform: `rotate(${windDirection}deg)` }}
+                style={{ transform: `rotate(${windFlowBearing(windDirection)}deg)` }}
               >
-                {/* Needle pointing in wind direction */}
+                {/* Needle pointing where the wind blows to (same as the particles) */}
                 <div className="relative w-2 h-44 flex flex-col items-center justify-between">
-                  {/* Arrow Head (Wind Origin / Direction Indicator) */}
+                  {/* Arrow Head (flow direction) */}
                   <div className="w-0 h-0 border-x-[8px] border-x-transparent border-b-[24px] border-b-teal-400 drop-shadow-[0_0_8px_rgba(45,212,191,0.8)]" />
                   {/* Opposite Tail */}
                   <div className="w-0 h-0 border-x-[5px] border-x-transparent border-t-[14px] border-t-slate-500/50" />
@@ -291,8 +293,9 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
               <span className="text-teal-400 font-bold">{windDirection}°</span>
             </div>
             <div className="text-xl font-black text-slate-900 dark:text-white mt-1 flex items-center gap-2">
-              <Navigation className="w-5 h-5 text-teal-400" style={{ transform: `rotate(${windDirection}deg)` }} />
-              {windDirLabel}
+              {/* lucide Navigation is drawn pointing NE (45°): compensate so it points along the flow */}
+              <Navigation className="w-5 h-5 text-teal-400" aria-hidden="true" style={{ transform: `rotate(${windFlowBearing(windDirection) - 45}deg)` }} />
+              da {windDirLabel}
             </div>
           </div>
 

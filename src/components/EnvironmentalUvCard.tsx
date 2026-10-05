@@ -28,17 +28,19 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
   airQuality,
   isDark
 }) => {
-  // Default fallback if airQuality API didn't load
+  // Without an air-quality response we show an explicit "unavailable" state,
+  // never plausible-looking invented numbers. UV falls back to the forecast value (0 at night is valid).
+  const hasAirQuality = !!airQuality;
   const aqi = airQuality || {
-    europeanAqi: 32,
-    pm10: 14.2,
-    pm2_5: 8.5,
-    ozone: 78.0,
-    nitrogenDioxide: 12.4,
-    carbonMonoxide: 180,
-    uvIndex: uvIndex || 5.2,
+    europeanAqi: 0,
+    pm10: 0,
+    pm2_5: 0,
+    ozone: 0,
+    nitrogenDioxide: 0,
+    carbonMonoxide: 0,
+    uvIndex,
     aqiLevel: 'buona' as const,
-    aqiDescription: 'Qualità dell\'aria soddisfacente con scarso rischio per la salute.'
+    aqiDescription: ''
   };
 
   // UV Classification helper
@@ -93,7 +95,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
     };
   };
 
-  const uvTier = getUvTier(aqi.uvIndex || uvIndex);
+  const uvTier = getUvTier(aqi.uvIndex ?? uvIndex);
 
   // AQI color & recommendation helper
   const getAqiDetails = (level: string) => {
@@ -271,6 +273,18 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
 
         {/* Right Column (7 cols): European AQI & Pollutants Grid */}
         <div className="lg:col-span-7 flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-inner">
+          {!hasAirQuality ? (
+            <div role="status" className="flex flex-col items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+                <Activity className="w-4 h-4 text-teal-400" />
+                Indice Europeo Qualità dell'Aria (EAQI)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4 text-slate-400" />
+                Dati sulla qualità dell'aria non disponibili al momento.
+              </span>
+            </div>
+          ) : (<>
           <div>
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
@@ -374,6 +388,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
               <span>Ambienti Chiusi: <span className="font-normal text-slate-600 dark:text-slate-300">{aqiInfo.ventilation}</span></span>
             </div>
           </div>
+          </>)}
         </div>
       </div>
     </div>

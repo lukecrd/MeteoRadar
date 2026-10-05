@@ -181,38 +181,9 @@ export default function App() {
       }
       setHumidityReadings(initialReadings);
 
-      // Populate some realistic convective lightning strikes if high CAPE or storm code
-      if (data.current.weatherCode >= 80 || (data.hourly[0]?.cape && data.hourly[0].cape > 400)) {
-        const initialStrikes: LightningStrike[] = [
-          {
-            id: 'init-1',
-            latitude: loc.latitude + 0.08,
-            longitude: loc.longitude + 0.05,
-            distanceKm: 12.4,
-            bearingDeg: 42,
-            peakCurrentKa: 48,
-            polarity: '-',
-            type: 'CG',
-            timestamp: Date.now() - 30000,
-            severityZone: 'orange',
-          },
-          {
-            id: 'init-2',
-            latitude: loc.latitude - 0.15,
-            longitude: loc.longitude - 0.12,
-            distanceKm: 24.8,
-            bearingDeg: 215,
-            peakCurrentKa: 32,
-            polarity: '+',
-            type: 'IC',
-            timestamp: Date.now() - 90000,
-            severityZone: 'yellow',
-          }
-        ];
-        setLightningStrikes(initialStrikes);
-      } else {
-        setLightningStrikes([]);
-      }
+      // No real lightning feed is wired yet: never invent "detected" strikes.
+      // Strikes only appear through the explicit "Simula" test action.
+      setLightningStrikes([]);
     } catch (err: any) {
       console.error('Error fetching weather:', err);
       setErrorMsg(err.message || 'Errore nel recupero dati meteorologici');
