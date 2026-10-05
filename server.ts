@@ -1,14 +1,13 @@
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
+import { getNews, isNewsCategory } from './lib/news';
+import { getGeoNews } from './lib/geonews';
+import { getMarkets } from './lib/markets';
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
@@ -34,6 +33,40 @@ function getGeminiClient(): GoogleGenAI | null {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Real-time news hub feed (RSS aggregated server-side, cached 3 min)
+app.get('/api/news', async (req, res) => {
+  const category = isNewsCategory(req.query.category) ? req.query.category : 'all';
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    res.json(await getNews(category));
+  } catch (error: any) {
+    console.error('News feed error:', error?.message || error);
+    res.status(502).json({ error: 'News feed unavailable' });
+  }
+});
+
+// Global Hub: geo-located world headlines (cached 5 min)
+app.get('/api/geonews', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=120');
+    res.json(await getGeoNews());
+  } catch (error: any) {
+    console.error('Geo news feed error:', error?.message || error);
+    res.status(502).json({ error: 'Geo news feed unavailable' });
+  }
+});
+
+// Global Hub: world indices, FX and commodities (cached 45 s)
+app.get('/api/markets', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=30');
+    res.json(await getMarkets());
+  } catch (error: any) {
+    console.error('Market feed error:', error?.message || error);
+    res.status(502).json({ error: 'Market feed unavailable' });
+  }
 });
 
 // AI Meteorological Predictive Analysis endpoint
@@ -175,7 +208,9 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(__dirname, 'dist');
+    // The bundled server is CommonJS (no import.meta), and both `npm start`
+    // and hosting platforms launch it from the project root.
+    const distPath = path.resolve(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));

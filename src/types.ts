@@ -163,4 +163,4 @@ export interface ItalyStationWeather {
   alertLevel?: 'green' | 'yellow' | 'orange' | 'red';
 }
 
-export type AppTab = 'station' | 'today' | 'radar' | 'forecast5' | 'wind' | 'ambient' | 'italy_map';
+export type AppTab = 'hub' | 'station' | 'today' | 'radar' | 'forecast5' | 'wind' | 'ambient' | 'italy_map' | 'news';
