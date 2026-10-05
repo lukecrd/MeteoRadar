@@ -252,20 +252,22 @@ export async function fetchItalianStationsWeather(): Promise<ItalyStationWeather
 
     const resultsArray = Array.isArray(data) ? data : [data];
 
-    return ITALIAN_CITIES.map((city, idx) => {
+    // Stations without a real reading are dropped instead of showing invented values
+    return ITALIAN_CITIES.flatMap((city, idx): ItalyStationWeather[] => {
       const entry = resultsArray[idx]?.current;
-      const temp = entry ? Math.round(entry.temperature_2m) : 18;
-      const humidity = entry ? Math.round(entry.relative_humidity_2m) : 65;
-      const code = entry ? entry.weather_code : 1;
-      const windSpeed = entry ? Math.round(entry.wind_speed_10m) : 12;
-      const windDirection = entry ? Math.round(entry.wind_direction_10m) : 180;
-      const precipitation = entry ? entry.precipitation : 0;
-      const pressure = entry ? Math.round(entry.surface_pressure) : 1013;
+      if (!entry || typeof entry.temperature_2m !== 'number') return [];
+      const temp = Math.round(entry.temperature_2m);
+      const humidity = Math.round(entry.relative_humidity_2m);
+      const code = entry.weather_code;
+      const windSpeed = Math.round(entry.wind_speed_10m);
+      const windDirection = Math.round(entry.wind_direction_10m);
+      const precipitation = entry.precipitation ?? 0;
+      const pressure = Math.round(entry.surface_pressure);
 
       const phenomenon = classifyPhenomenon(code, precipitation);
       const alertLevel = determineAlertLevel(phenomenon, windSpeed, precipitation);
 
-      return {
+      return [{
         id: city.id,
         name: city.name,
         region: city.region,
@@ -281,27 +283,54 @@ export async function fetchItalianStationsWeather(): Promise<ItalyStationWeather
         pressure,
         phenomenon,
         alertLevel,
-      };
+      }];
     });
   } catch (err) {
     console.error('Error fetching Italian stations weather:', err);
-    // Fallback baseline for Italian stations
-    return ITALIAN_CITIES.map((city) => ({
-      id: city.id,
-      name: city.name,
-      region: city.region,
-      latitude: city.lat,
-      longitude: city.lon,
-      temperature: 20,
-      humidity: 60,
-      weatherCode: 1,
-      weatherDescription: 'Sereno o poco nuvoloso',
-      windSpeed: 14,
-      windDirection: 210,
-      precipitation: 0,
-      pressure: 1015,
-      phenomenon: 'clear',
-      alertLevel: 'green',
-    }));
+    // No invented fallback: the UI shows an explicit "data unavailable" state
+    return [];
+  }
+}
+
+// Marine & mountain wind sampling points; values are fetched live from Open-Meteo
+export const MARINE_WIND_POINTS: Array<{ name: string; lat: number; lon: number }> = [
+  { name: 'Mar Ligure', lat: 43.8, lon: 8.8 },
+  { name: 'Tirreno Settentrionale', lat: 42.0, lon: 10.5 },
+  { name: 'Tirreno Meridionale', lat: 39.5, lon: 13.5 },
+  { name: 'Canale di Sicilia', lat: 36.8, lon: 12.8 },
+  { name: 'Mar Ionio', lat: 38.5, lon: 17.5 },
+  { name: 'Basso Adriatico', lat: 41.5, lon: 17.8 },
+  { name: 'Medio Adriatico', lat: 43.2, lon: 14.8 },
+  { name: 'Alto Adriatico (Golfo di Trieste)', lat: 45.3, lon: 13.2 },
+  { name: 'Bocche di Bonifacio', lat: 41.3, lon: 9.2 },
+  { name: 'Arco Alpino Nord-Ovest', lat: 45.8, lon: 7.8 },
+];
+
+export interface MarineWindReading {
+  name: string;
+  lat: number;
+  lon: number;
+  speed: number; // km/h
+  deg: number; // provenance direction (meteorological convention)
+}
+
+export async function fetchMarineWind(): Promise<MarineWindReading[]> {
+  const lats = MARINE_WIND_POINTS.map((p) => p.lat).join(',');
+  const lons = MARINE_WIND_POINTS.map((p) => p.lon).join(',');
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=wind_speed_10m,wind_direction_10m&timezone=Europe%2FRome`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Open-Meteo marine wind fetch failed');
+    const data = await res.json();
+    const results = Array.isArray(data) ? data : [data];
+    return MARINE_WIND_POINTS.flatMap((p, idx): MarineWindReading[] => {
+      const cur = results[idx]?.current;
+      if (!cur || typeof cur.wind_speed_10m !== 'number') return [];
+      return [{ ...p, speed: Math.round(cur.wind_speed_10m), deg: Math.round(cur.wind_direction_10m) }];
+    });
+  } catch (err) {
+    console.error('Error fetching marine wind:', err);
+    return [];
   }
 }

@@ -37,7 +37,7 @@ export const WorldNewsPanel: React.FC<WorldNewsPanelProps> = ({ areas, region, s
   return (
     <section className="hub-panel p-4 flex flex-col flex-1 min-w-0 min-h-0" aria-label="Notizie dal mondo">
       <PanelHeader
-        code={selectedArea ? `MOD-00.A // ${GEO_REGION_META[selectedArea.region].label}` : 'MOD-00.A // Feed geolocalizzato'}
+        code={selectedArea ? `${GEO_REGION_META[selectedArea.region].label}` : 'Feed geolocalizzato'}
         title={selectedArea ? selectedArea.name : `Notizie · ${GEO_REGION_META[region].label}`}
         icon={<Globe2 className="w-4 h-4" style={{ color: accent }} />}
         right={
@@ -65,7 +65,7 @@ export const WorldNewsPanel: React.FC<WorldNewsPanelProps> = ({ areas, region, s
               <div className="hub-row group rounded-lg px-2 py-2 flex gap-2.5">
                 <span className="w-0.5 self-stretch rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 text-[10px] text-[var(--hub-dim)] mb-0.5">
+                  <div className="flex items-center gap-2 text-xs text-[var(--hub-dim)] mb-0.5">
                     {!selectedArea && area && (
                       <button
                         type="button"

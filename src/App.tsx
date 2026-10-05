@@ -7,8 +7,10 @@ import {
   LightningStrike,
   NotificationSettings,
   AiPredictionReport,
-  AppTab
+  MeteoSection
 } from './types';
+import { useHashRoute, useAndroidBackButton } from './hooks/useHashRoute';
+import { AppTopNav, AppBottomNav } from './components/AppNav';
 import { DEFAULT_LOCATION, fetchWeatherData } from './services/weatherApi';
 import { playHumidityAlertSound, playLightningAlertSound, triggerVibration } from './services/audioAlerts';
 import { Navbar } from './components/Navbar';
@@ -27,11 +29,9 @@ import { AlertBanner } from './components/AlertBanner';
 import { ItalySatelliteMap } from './components/ItalySatelliteMap';
 import { AndroidModal } from './components/AndroidModal';
 import { VercelModal } from './components/VercelModal';
-import { HubCommandDeck } from './components/HubCommandDeck';
 import { HubStatusStrip } from './components/HubStatusStrip';
 import { NewsTicker } from './components/NewsTicker';
 import { NewsHub } from './components/NewsHub';
-import { NewsFeedPanel } from './components/NewsFeedPanel';
 import { GlobalHub } from './components/hub/GlobalHub';
 import { Loader2 } from 'lucide-react';
 
@@ -45,8 +45,9 @@ export default function App() {
     return true;
   });
 
-  // Main application Tab based on Stitch navigation architecture
-  const [activeAppTab, setActiveAppTab] = useState<AppTab>('hub');
+  // Primary navigation: hash routes (#/meteo is the home), real history entries
+  const { route, section, navigate } = useHashRoute();
+  useAndroidBackButton();
 
   // Location & Weather Data
   const [currentLocation, setCurrentLocation] = useState<LocationInfo>(DEFAULT_LOCATION);
@@ -181,38 +182,9 @@ export default function App() {
       }
       setHumidityReadings(initialReadings);
 
-      // Populate some realistic convective lightning strikes if high CAPE or storm code
-      if (data.current.weatherCode >= 80 || (data.hourly[0]?.cape && data.hourly[0].cape > 400)) {
-        const initialStrikes: LightningStrike[] = [
-          {
-            id: 'init-1',
-            latitude: loc.latitude + 0.08,
-            longitude: loc.longitude + 0.05,
-            distanceKm: 12.4,
-            bearingDeg: 42,
-            peakCurrentKa: 48,
-            polarity: '-',
-            type: 'CG',
-            timestamp: Date.now() - 30000,
-            severityZone: 'orange',
-          },
-          {
-            id: 'init-2',
-            latitude: loc.latitude - 0.15,
-            longitude: loc.longitude - 0.12,
-            distanceKm: 24.8,
-            bearingDeg: 215,
-            peakCurrentKa: 32,
-            polarity: '+',
-            type: 'IC',
-            timestamp: Date.now() - 90000,
-            severityZone: 'yellow',
-          }
-        ];
-        setLightningStrikes(initialStrikes);
-      } else {
-        setLightningStrikes([]);
-      }
+      // No real lightning feed is wired yet: never invent "detected" strikes.
+      // Strikes only appear through the explicit "Simula" test action.
+      setLightningStrikes([]);
     } catch (err: any) {
       console.error('Error fetching weather:', err);
       setErrorMsg(err.message || 'Errore nel recupero dati meteorologici');
@@ -229,7 +201,7 @@ export default function App() {
   // GPS Location handler
   const handleUseGps = () => {
     if (!navigator.geolocation) {
-      alert('Geolocalizzazione non supportata dal tuo browser');
+      setTestToastMessage('Geolocalizzazione non supportata da questo dispositivo.');
       return;
     }
     setIsGpsLoading(true);
@@ -247,7 +219,7 @@ export default function App() {
       (err) => {
         console.warn('GPS position error:', err);
         setIsGpsLoading(false);
-        alert('Impossibile ottenere la posizione GPS: ' + err.message);
+        setTestToastMessage('Impossibile ottenere la posizione GPS: ' + err.message);
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
@@ -452,13 +424,35 @@ export default function App() {
   const activeAlertCount =
     (humidityAlertState.isSpikeActive ? 1 : 0) + (isLightningAlertActive ? 1 : 0) + (weatherData?.alerts?.length ?? 0);
 
+  const devMode = !!settings.developerMode;
+  const hasWeather = !!weatherData;
+
+  // On route change start from the top; on #/meteo/<section> scroll to that section
+  // (re-run once data arrives so deep links work on first load)
+  useEffect(() => {
+    if (route === 'meteo' && section) {
+      document.getElementById(`sec-${section}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0 });
+    }
+  }, [route, section, hasWeather]);
+
+  const meteoSections: Array<{ id: MeteoSection; label: string }> = [
+    { id: 'oggi', label: 'Oggi' },
+    { id: 'previsioni', label: 'Previsioni' },
+    { id: 'grafici', label: 'Grafici' },
+    { id: 'vento', label: 'Vento' },
+    { id: 'ambiente', label: 'Umidità e aria' },
+    ...(devMode ? [{ id: 'fulmini' as MeteoSection, label: 'Fulmini (demo)' }] : []),
+  ];
+
   return (
     <div className="hub-root min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg">
-      {/* Ambient 3D tracking globe — furthest-back decorative layer */}
-      <RadarGlobe3D isDark={isDark} intensity={activeAppTab === 'hub' ? 0.35 : 0.85} />
+      {/* Ambient 3D tracking globe — decorative, only behind the world view */}
+      {route === 'mondo' && <RadarGlobe3D isDark={isDark} intensity={0.35} />}
 
       {/* Dynamic Atmospheric Particle and Flash Background */}
-      {weatherData && (
+      {weatherData && route === 'meteo' && (
         <AtmosphericCanvas
           weatherCode={weatherData.current.weatherCode}
           isDay={weatherData.current.isDay}
@@ -469,7 +463,7 @@ export default function App() {
         />
       )}
 
-      {/* Main Navbar */}
+      {/* Main Navbar (sticky) with primary navigation on tablet/desktop */}
       <Navbar
         currentLocation={currentLocation}
         onSelectLocation={(loc) => {
@@ -483,279 +477,185 @@ export default function App() {
         onOpenAndroid={() => setIsAndroidModalOpen(true)}
         onOpenVercel={() => setIsVercelModalOpen(true)}
         hasActiveAlerts={humidityAlertState.isSpikeActive || isLightningAlertActive}
-      />
+        showDevTools={devMode}
+      >
+        <AppTopNav active={route} onNavigate={navigate} />
+      </Navbar>
 
-      {/* Live headline band, visible from every module */}
-      <NewsTicker category="meteo" onOpenHub={() => setActiveAppTab('news')} />
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 relative z-10">
-        {/* Hub command deck + live telemetry bus */}
-        <div className="space-y-3">
-          <HubCommandDeck
-            active={activeAppTab}
-            onSelect={setActiveAppTab}
-            badges={lightningStrikes.length > 0 ? { radar: lightningStrikes.length } : undefined}
-          />
-          <HubStatusStrip
-            weather={weatherData}
-            humidity={currentHumidity}
-            isLoading={isLoading}
-            hasError={!!errorMsg}
-            alertCount={activeAlertCount}
-          />
-        </div>
+      {/* Main Container — bottom padding leaves room for the mobile bottom nav */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10 space-y-6 relative z-10">
+        {/* Live telemetry bus: weather view only, tablet and up */}
+        {route === 'meteo' && (
+          <div className="hidden md:block">
+            <HubStatusStrip
+              weather={weatherData}
+              humidity={currentHumidity}
+              isLoading={isLoading}
+              hasError={!!errorMsg}
+              alertCount={activeAlertCount}
+            />
+          </div>
+        )}
 
         {/* Loading state */}
-        {isLoading && !weatherData && activeAppTab !== 'news' && activeAppTab !== 'hub' && (
-          <div className="py-32 flex flex-col items-center justify-center gap-4">
+        {isLoading && !weatherData && route === 'meteo' && (
+          <div className="py-32 flex flex-col items-center justify-center gap-4" role="status">
             <div className="relative w-14 h-14">
               <span className="hud-pulse-ring" />
               <Loader2 className="w-14 h-14 text-[var(--hub-cyan)] animate-spin" />
             </div>
-            <div className="hub-label">Handshake con i satelliti meteo in corso…</div>
+            <div className="hub-label">Caricamento dati meteo…</div>
           </div>
         )}
 
-        {/* Error Notification */}
-        {errorMsg && (
-          <div className="hub-panel p-4 !border-[var(--hub-red)]/40 text-[var(--hub-red)] text-sm font-medium">
-            <span className="hub-label !text-[var(--hub-red)] mr-2">ERR</span>
-            {errorMsg}
+        {/* Error Notification: only where weather data is shown */}
+        {errorMsg && route === 'meteo' && (
+          <div role="alert" className="hub-panel p-4 !border-[var(--hub-red)]/40 text-[var(--hub-red)] text-sm font-medium flex flex-wrap items-center gap-3">
+            <span>{errorMsg}</span>
+            <button
+              onClick={() => loadWeather(currentLocation)}
+              className="hub-chip !text-[var(--hub-text)]"
+            >
+              Riprova
+            </button>
           </div>
         )}
 
-        {/* VIEW 0 (home): Global Hub — world news globe, markets, crypto */}
-        {activeAppTab === 'hub' && (
-          <div key="tab-hub" className="animate-tab-enter">
-            <GlobalHub />
+        {/* METEO (home): one page, progressive sections */}
+        {route === 'meteo' && weatherData && (
+          <div key="route-meteo" className="space-y-6 animate-tab-enter">
+            {/* In-page section shortcuts (replace the old duplicated tabs) */}
+            <nav aria-label="Sezioni meteo" className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto hub-scroll">
+              <ul className="flex gap-2 w-max">
+                {meteoSections.map((s) => (
+                  <li key={s.id}>
+                    <a
+                      href={`#/meteo/${s.id}`}
+                      onClick={(e) => { e.preventDefault(); navigate('meteo', s.id); }}
+                      aria-current={section === s.id ? 'true' : undefined}
+                      aria-pressed={section === s.id}
+                      className="hub-chip !h-9 whitespace-nowrap"
+                    >
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <section id="sec-oggi" aria-label="Condizioni attuali" className="hub-module min-w-0 scroll-mt-40">
+              <WeatherHero
+                weather={weatherData}
+                isDark={isDark}
+                isLoading={isLoading}
+                onRefresh={() => loadWeather(currentLocation)}
+                onOpenAiReport={handleGenerateAiReport}
+              />
+            </section>
+
+            <section id="sec-previsioni" aria-label="Previsioni a 5 giorni" className="hub-module scroll-mt-40">
+              <ForecastFiveDays
+                daily={weatherData.daily}
+                hourly={weatherData.hourly}
+                isDark={isDark}
+              />
+            </section>
+
+            <section id="sec-grafici" aria-label="Grafici di tendenza" className="hub-module scroll-mt-40">
+              <ForecastCharts
+                hourly={weatherData.hourly}
+                daily={weatherData.daily}
+                isDark={isDark}
+              />
+            </section>
+
+            <section id="sec-vento" aria-label="Vento" className="hub-module scroll-mt-40">
+              <WindCompassMap
+                windSpeed={weatherData.current.windSpeed}
+                windDirection={weatherData.current.windDirection}
+                windGusts={weatherData.current.windGusts}
+                location={weatherData.location}
+                isDark={isDark}
+              />
+            </section>
+
+            <section id="sec-ambiente" aria-label="Umidità, UV e qualità dell'aria" className="grid grid-cols-1 xl:grid-cols-2 gap-6 scroll-mt-40">
+              <div className="hub-module">
+                <EnvironmentalUvCard
+                  uvIndex={weatherData.current.uvIndex}
+                  airQuality={weatherData.airQuality}
+                  isDark={isDark}
+                />
+              </div>
+              <div className="hub-module">
+                <HumiditySensorCard
+                  currentHumidity={currentHumidity}
+                  dewPoint={weatherData.current.dewPoint}
+                  temperature={weatherData.current.temperature}
+                  readings={humidityReadings}
+                  alertState={humidityAlertState}
+                  onSimulateSpike={devMode ? handleSimulateHumiditySpike : undefined}
+                  onCalibrate={handleCalibrateSensor}
+                  isDark={isDark}
+                  spikeThreshold={settings.humiditySpikeThreshold}
+                />
+              </div>
+            </section>
+
+            {/* Lightning monitor has no real feed yet: shown only as a developer/demo tool */}
+            {devMode && (
+              <section id="sec-fulmini" aria-label="Simulatore fulmini" className="hub-module scroll-mt-40">
+                <LightningMonitor
+                  strikes={lightningStrikes}
+                  capeIndex={weatherData.hourly[0]?.cape || 250}
+                  onSimulateStrike={handleSimulateLightningStrike}
+                  onClearStrikes={() => {
+                    setLightningStrikes([]);
+                    setIsLightningAlertDismissed(true);
+                  }}
+                  isDark={isDark}
+                  proximityThreshold={settings.lightningProximityThresholdKm}
+                  enableAudio={settings.enableAudioAlerts}
+                  audioVolume={settings.audioVolume}
+                />
+              </section>
+            )}
           </div>
         )}
 
-        {/* VIEW 8: Real-time News Hub (independent from weather data) */}
-        {activeAppTab === 'news' && (
-          <div key="tab-news" className="animate-tab-enter">
-            <NewsHub />
-          </div>
-        )}
-
-        {/* Content Views */}
-        {weatherData && (
-          <>
-            {/* VIEW 1: Full Console / All Modules */}
-            {activeAppTab === 'station' && (
-              <div key="tab-station" className="space-y-6 animate-tab-enter">
-                {/* 1. Hero + live news column */}
-                <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_340px] gap-6">
-                  <div className="hub-module min-w-0">
-                    <WeatherHero
-                      weather={weatherData}
-                      isDark={isDark}
-                      isLoading={isLoading}
-                      onRefresh={() => loadWeather(currentLocation)}
-                      onOpenAiReport={handleGenerateAiReport}
-                    />
-                  </div>
-                  <NewsFeedPanel onOpenHub={() => setActiveAppTab('news')} />
-                </div>
-
-                {/* 2. Environmental UV & European AQI Card */}
-                <div className="hub-module">
-                  <EnvironmentalUvCard
-                    uvIndex={weatherData.current.uvIndex}
-                    airQuality={weatherData.airQuality}
-                    isDark={isDark}
-                  />
-                </div>
-
-                {/* 3. Prominent 5-Day Weather Forecast */}
-                <div className="hub-module">
-                  <ForecastFiveDays
-                    daily={weatherData.daily}
-                    hourly={weatherData.hourly}
-                    isDark={isDark}
-                  />
-                </div>
-
-                {/* 4. Primary Specialized Instruments Grid: Integrated Humidity Sensor & Wind Compass Map */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Integrated Humidity Sensor Card */}
-                  <div className="hub-module">
-                  <HumiditySensorCard
-                    currentHumidity={currentHumidity}
-                    dewPoint={weatherData.current.dewPoint}
-                    temperature={weatherData.current.temperature}
-                    readings={humidityReadings}
-                    alertState={humidityAlertState}
-                    onSimulateSpike={handleSimulateHumiditySpike}
-                    onCalibrate={handleCalibrateSensor}
-                    isDark={isDark}
-                    spikeThreshold={settings.humiditySpikeThreshold}
-                  />
-                  </div>
-
-                  {/* Digital Compass & Wind Vectors Map */}
-                  <div className="hub-module">
-                    <WindCompassMap
-                      windSpeed={weatherData.current.windSpeed}
-                      windDirection={weatherData.current.windDirection}
-                      windGusts={weatherData.current.windGusts}
-                      location={weatherData.location}
-                      isDark={isDark}
-                    />
-                  </div>
-                </div>
-
-                {/* 5. Thunder & Lightning Convective Radar with Color Zones & Acoustic Timer */}
-                <div className="hub-module">
-                  <LightningMonitor
-                    strikes={lightningStrikes}
-                    capeIndex={weatherData.hourly[0]?.cape || 250}
-                    onSimulateStrike={handleSimulateLightningStrike}
-                    onClearStrikes={() => {
-                      setLightningStrikes([]);
-                      setIsLightningAlertDismissed(true);
-                    }}
-                    isDark={isDark}
-                    proximityThreshold={settings.lightningProximityThresholdKm}
-                    enableAudio={settings.enableAudioAlerts}
-                    audioVolume={settings.audioVolume}
-                  />
-                </div>
-
-                {/* 6. Forecast Trends & Advanced Recharts Graphs */}
-                <div className="hub-module">
-                  <ForecastCharts
-                    hourly={weatherData.hourly}
-                    daily={weatherData.daily}
-                    isDark={isDark}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* VIEW 2: Today & Alerts */}
-            {activeAppTab === 'today' && (
-              <div key="tab-today" className="space-y-6 animate-tab-enter">
-                <div className="hub-module">
-                  <WeatherHero
-                    weather={weatherData}
-                    isDark={isDark}
-                    isLoading={isLoading}
-                    onRefresh={() => loadWeather(currentLocation)}
-                    onOpenAiReport={handleGenerateAiReport}
-                  />
-                </div>
-                <div className="hub-module">
-                  <EnvironmentalUvCard
-                    uvIndex={weatherData.current.uvIndex}
-                    airQuality={weatherData.airQuality}
-                    isDark={isDark}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* VIEW 3: Radar & Thunderstorms */}
-            {activeAppTab === 'radar' && (
-              <div key="tab-radar" className="space-y-6 animate-tab-enter">
-                <div className="hub-module">
-                  <LightningMonitor
-                    strikes={lightningStrikes}
-                    capeIndex={weatherData.hourly[0]?.cape || 250}
-                    onSimulateStrike={handleSimulateLightningStrike}
-                    onClearStrikes={() => {
-                      setLightningStrikes([]);
-                      setIsLightningAlertDismissed(true);
-                    }}
-                    isDark={isDark}
-                    proximityThreshold={settings.lightningProximityThresholdKm}
-                    enableAudio={settings.enableAudioAlerts}
-                    audioVolume={settings.audioVolume}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* VIEW 4: 5-Day Detailed Forecasts */}
-            {activeAppTab === 'forecast5' && (
-              <div key="tab-forecast5" className="space-y-6 animate-tab-enter">
-                <div className="hub-module">
-                  <ForecastFiveDays
-                    daily={weatherData.daily}
-                    hourly={weatherData.hourly}
-                    isDark={isDark}
-                  />
-                </div>
-                <div className="hub-module">
-                  <ForecastCharts
-                    hourly={weatherData.hourly}
-                    daily={weatherData.daily}
-                    isDark={isDark}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* VIEW 5: Wind & Humidity Analysis */}
-            {activeAppTab === 'wind' && (
-              <div key="tab-wind" className="space-y-6 animate-tab-enter">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="hub-module">
-                    <HumiditySensorCard
-                      currentHumidity={currentHumidity}
-                      dewPoint={weatherData.current.dewPoint}
-                      temperature={weatherData.current.temperature}
-                      readings={humidityReadings}
-                      alertState={humidityAlertState}
-                      onSimulateSpike={handleSimulateHumiditySpike}
-                      onCalibrate={handleCalibrateSensor}
-                      isDark={isDark}
-                      spikeThreshold={settings.humiditySpikeThreshold}
-                    />
-                  </div>
-
-                  <div className="hub-module">
-                    <WindCompassMap
-                      windSpeed={weatherData.current.windSpeed}
-                      windDirection={weatherData.current.windDirection}
-                      windGusts={weatherData.current.windGusts}
-                      location={weatherData.location}
-                      isDark={isDark}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* VIEW 6: UV & Air Quality Analysis */}
-            {activeAppTab === 'ambient' && (
-              <div key="tab-ambient" className="space-y-6 animate-tab-enter">
-                <div className="hub-module">
-                  <EnvironmentalUvCard
-                    uvIndex={weatherData.current.uvIndex}
-                    airQuality={weatherData.airQuality}
-                    isDark={isDark}
-                  />
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Tab 7: Italy Real-Time Satellite & Atmospheric Phenomena Map */}
-        {activeAppTab === 'italy_map' && (
-          <div key="tab-italy-map" className="animate-tab-enter">
+        {/* MAPPA: Italy radar & satellite */}
+        {route === 'mappa' && (
+          <div key="route-mappa" className="animate-tab-enter">
             <ItalySatelliteMap
               currentLocation={currentLocation}
               onSelectLocation={(loc) => {
+                // The currentLocation effect reloads the weather: no explicit loadWeather here
                 setCurrentLocation(loc);
-                loadWeather(loc);
               }}
               isDark={isDark}
             />
           </div>
         )}
+
+        {/* MONDO: global hub — world news globe, quakes, flights, markets */}
+        {route === 'mondo' && (
+          <div key="route-mondo" className="animate-tab-enter">
+            <GlobalHub />
+          </div>
+        )}
+
+        {/* NOTIZIE: the only place with the headline ticker */}
+        {route === 'notizie' && (
+          <div key="route-notizie" className="space-y-4 animate-tab-enter">
+            <div className="-mx-4 sm:mx-0">
+              <NewsTicker category="meteo" onOpenHub={() => navigate('notizie')} />
+            </div>
+            <NewsHub />
+          </div>
+        )}
       </main>
+
+      <AppBottomNav active={route} onNavigate={navigate} />
 
       {/* Global Interactive Alert Banner for Sudden Changes & Lightning */}
       <AlertBanner
@@ -797,19 +697,21 @@ export default function App() {
         isDark={isDark}
       />
 
-      {/* Android Installation & Export Modal */}
-      <AndroidModal
-        isOpen={isAndroidModalOpen}
-        onClose={() => setIsAndroidModalOpen(false)}
-        isDark={isDark}
-      />
-
-      {/* Vercel Cloud Export Modal */}
-      <VercelModal
-        isOpen={isVercelModalOpen}
-        onClose={() => setIsVercelModalOpen(false)}
-        isDark={isDark}
-      />
+      {/* Developer tools: Android export & Vercel deploy */}
+      {devMode && (
+        <>
+          <AndroidModal
+            isOpen={isAndroidModalOpen}
+            onClose={() => setIsAndroidModalOpen(false)}
+            isDark={isDark}
+          />
+          <VercelModal
+            isOpen={isVercelModalOpen}
+            onClose={() => setIsVercelModalOpen(false)}
+            isDark={isDark}
+          />
+        </>
+      )}
     </div>
   );
 }

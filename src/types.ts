@@ -132,6 +132,9 @@ export interface NotificationSettings {
   // Wind Alert settings
   enableWindAlerts: boolean;
   windSpeedThresholdKm: number; // e.g. 50 km/h
+
+  // Shows developer/demo tools (Android/Vercel export, lightning & humidity simulators)
+  developerMode?: boolean;
 }
 
 export interface AiPredictionReport {
@@ -163,4 +166,6 @@ export interface ItalyStationWeather {
   alertLevel?: 'green' | 'yellow' | 'orange' | 'red';
 }
 
-export type AppTab = 'hub' | 'station' | 'today' | 'radar' | 'forecast5' | 'wind' | 'ambient' | 'italy_map' | 'news';
+// Primary destinations (hash routes) and in-page sections of the Meteo view
+export type AppRoute = 'meteo' | 'mappa' | 'mondo' | 'notizie';
+export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'ambiente' | 'fulmini';

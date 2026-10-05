@@ -42,9 +42,9 @@ interface FlightPanelProps {
 
 const Stat: React.FC<{ label: string; value: React.ReactNode; sub?: React.ReactNode }> = ({ label, value, sub }) => (
   <div className="rounded-lg border border-[var(--hub-line)] px-2.5 py-1.5 min-w-0">
-    <div className="hub-label !text-[9px]">{label}</div>
+    <div className="hub-label !text-xs">{label}</div>
     <div className="font-hud text-sm font-bold tabular-nums truncate">{value}</div>
-    {sub && <div className="font-hud text-[10px] text-[var(--hub-dim)] truncate">{sub}</div>}
+    {sub && <div className="font-hud text-xs text-[var(--hub-dim)] truncate">{sub}</div>}
   </div>
 );
 
@@ -96,13 +96,13 @@ const FlightDetail: React.FC<{ f: Flight; info: FlightInfo | null; loading: bool
             <div className="min-w-0">
               <div className="flex items-center gap-1 hub-label"><PlaneTakeoff className="w-3 h-3" /> Partenza</div>
               <div className="font-hud text-lg font-bold">{o.iata ?? o.icao}</div>
-              <div className="text-[11px] text-[var(--hub-dim)] truncate" title={o.name}>{o.city || o.name}</div>
+              <div className="text-xs text-[var(--hub-dim)] truncate" title={o.name}>{o.city || o.name}</div>
             </div>
             <ArrowRight className="w-4 h-4 text-[var(--hub-dim)]" />
             <div className="min-w-0 text-right">
               <div className="flex items-center gap-1 justify-end hub-label">Arrivo <PlaneLanding className="w-3 h-3" /></div>
               <div className="font-hud text-lg font-bold">{d.iata ?? d.icao}</div>
-              <div className="text-[11px] text-[var(--hub-dim)] truncate" title={d.name}>{d.city || d.name}</div>
+              <div className="text-xs text-[var(--hub-dim)] truncate" title={d.name}>{d.city || d.name}</div>
             </div>
           </div>
           {progress != null && (
@@ -110,7 +110,7 @@ const FlightDetail: React.FC<{ f: Flight; info: FlightInfo | null; loading: bool
               <div className="h-1.5 rounded-full bg-[var(--hub-line)] overflow-hidden">
                 <div className="h-full rounded-full" style={{ width: `${progress * 100}%`, background: color, boxShadow: `0 0 10px ${color}` }} />
               </div>
-              <div className="flex justify-between font-hud text-[10px] text-[var(--hub-dim)] mt-1">
+              <div className="flex justify-between font-hud text-xs text-[var(--hub-dim)] mt-1">
                 <span>{formatNumber(flown!, 0)} km percorsi</span>
                 <span>{formatNumber(left!, 0)} km all'arrivo</span>
               </div>
@@ -150,7 +150,7 @@ const FlightDetail: React.FC<{ f: Flight; info: FlightInfo | null; loading: bool
         <div className="min-w-0 text-xs space-y-0.5">
           <div className="font-semibold truncate">
             {ac ? `${ac.manufacturer} ${ac.type}`.trim() : f.type ?? 'Aeromobile'}
-            {(ac?.icaoType || f.type) && <span className="font-hud text-[10px] text-[var(--hub-dim)] ml-1.5">{ac?.icaoType || f.type}</span>}
+            {(ac?.icaoType || f.type) && <span className="font-hud text-xs text-[var(--hub-dim)] ml-1.5">{ac?.icaoType || f.type}</span>}
           </div>
           <div className="text-[var(--hub-dim)] truncate">
             Marche <span className="font-hud text-[var(--hub-text)]">{ac?.registration || f.reg || '—'}</span>
@@ -159,7 +159,7 @@ const FlightDetail: React.FC<{ f: Flight; info: FlightInfo | null; loading: bool
           {ac?.owner && <div className="text-[var(--hub-dim)] truncate">Operatore: {ac.owner}{ac.ownerCountry ? ` (${ac.ownerCountry})` : ''}</div>}
         </div>
       </div>
-      <p className="text-[10px] text-[var(--hub-dim)] leading-snug">
+      <p className="text-xs text-[var(--hub-dim)] leading-snug">
         Rotta prevista dal database pubblico adsbdb: per voli charter o con codici riutilizzati può non corrispondere al volo reale.
       </p>
     </div>
@@ -195,11 +195,11 @@ export const FlightPanel: React.FC<FlightPanelProps> = ({
   return (
     <section className="hub-panel p-4 flex flex-col flex-1 min-w-0 min-h-0" aria-label="Traffico aereo">
       <PanelHeader
-        code="MOD-00.D // ADS-B live"
+        code="ADS-B live"
         title="Traffico aereo"
         icon={<Plane className="w-4 h-4 text-[#38bdf8]" />}
         right={
-          <div className="text-right font-hud text-[11px] text-[var(--hub-dim)] leading-tight">
+          <div className="text-right font-hud text-xs text-[var(--hub-dim)] leading-tight">
             <div>
               <span className="text-[var(--hub-text)] font-bold text-sm">{formatNumber(flights.length, 0)}</span> aerei
             </div>
@@ -233,13 +233,13 @@ export const FlightPanel: React.FC<FlightPanelProps> = ({
               {m.id === 'pinned' && pinned.length > 0 && <span className="opacity-70">{pinned.length}</span>}
             </button>
           ))}
-          <span className="font-hud text-[10px] text-[var(--hub-dim)] ml-auto">{formatNumber(shownOnGlobe, 0)} visibili</span>
+          <span className="font-hud text-xs text-[var(--hub-dim)] ml-auto">{formatNumber(shownOnGlobe, 0)} visibili</span>
         </div>
         {mode === 'pinned' && pinned.length === 0 && (
-          <p className="text-[11px] text-[var(--hub-dim)]">Usa la puntina accanto a ogni volo per sceglierlo.</p>
+          <p className="text-xs text-[var(--hub-dim)]">Usa la puntina accanto a ogni volo per sceglierlo.</p>
         )}
         {pinned.length > 0 && (
-          <button type="button" onClick={onClearPins} className="text-[11px] text-[var(--hub-dim)] hover:text-[var(--hub-text)] underline">
+          <button type="button" onClick={onClearPins} className="text-xs text-[var(--hub-dim)] hover:text-[var(--hub-text)] underline">
             Rimuovi tutti i voli scelti ({pinned.length})
           </button>
         )}
@@ -293,7 +293,7 @@ export const FlightPanel: React.FC<FlightPanelProps> = ({
         />
       </label>
 
-      <div className="grid grid-cols-[24px_minmax(0,1fr)_52px_64px_72px] gap-2 px-2 hub-label !text-[9px] mb-1">
+      <div className="grid grid-cols-[24px_minmax(0,1fr)_52px_64px_72px] gap-2 px-2 hub-label !text-xs mb-1">
         <span className="sr-only">Scegli</span>
         <span>Volo · {formatNumber(rows.length, 0)}</span>
         <span>Tipo</span>
@@ -329,9 +329,9 @@ export const FlightPanel: React.FC<FlightPanelProps> = ({
                   <span className="font-hud text-xs font-bold truncate">{f.cs}</span>
                   {emergency && <TriangleAlert className="w-3 h-3 text-[#dc2626] shrink-0" aria-label={emergency} />}
                 </span>
-                <span className="font-hud text-[11px] text-[var(--hub-dim)] truncate">{f.type ?? '—'}</span>
-                <span className="font-hud text-[11px] text-right tabular-nums">{fl(f.alt)}</span>
-                <span className="font-hud text-[11px] text-right tabular-nums">{f.gs != null ? `${formatNumber(f.gs * 1.852, 0)} km/h` : '—'}</span>
+                <span className="font-hud text-xs text-[var(--hub-dim)] truncate">{f.type ?? '—'}</span>
+                <span className="font-hud text-xs text-right tabular-nums">{fl(f.alt)}</span>
+                <span className="font-hud text-xs text-right tabular-nums">{f.gs != null ? `${formatNumber(f.gs * 1.852, 0)} km/h` : '—'}</span>
               </button>
             </li>
           );

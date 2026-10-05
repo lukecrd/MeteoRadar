@@ -25,22 +25,8 @@ export const fetchHubFlights = (hub: string) =>
 export const fetchFlightInfo = (callsign: string, hex: string) =>
   getJson<FlightInfo>(`/api/flight?callsign=${encodeURIComponent(callsign)}&hex=${encodeURIComponent(hex)}`, 'Dettagli volo');
 
-/** Magnitude → colour: yellow (minor) to deep red (major). */
-export function quakeColor(mag: number): string {
-  if (mag >= 6) return '#dc2626';
-  if (mag >= 5) return '#f97316';
-  if (mag >= 4) return '#fb923c';
-  if (mag >= 3) return '#facc15';
-  return '#fde68a';
-}
-
-/** Altitude band → colour, low traffic warm, cruise cool. */
-export function flightColor(altFt: number): string {
-  if (altFt < 10000) return '#fbbf24';
-  if (altFt < 25000) return '#34d399';
-  if (altFt < 35000) return '#38bdf8';
-  return '#c4b5fd';
-}
+// Data colours come from the shared scales (quakes warm, flights cool).
+export { quakeColor, flightColor } from '../theme/colorScales';
 
 /** Great-circle distance in km. */
 export function haversineKm(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Activity, ArrowUpRight, Waves } from 'lucide-react';
 import type { Quake } from '../../services/hubApi';
 import { formatNumber, quakeColor } from '../../services/hubApi';
+import { quakeTextColor } from '../../theme/colorScales';
 import { timeAgo } from '../../services/newsApi';
 import { PanelHeader } from './HubWidgets';
 
@@ -47,7 +48,7 @@ export const QuakePanel: React.FC<QuakePanelProps> = ({
   return (
     <section className="hub-panel p-4 flex flex-col flex-1 min-w-0 min-h-0" aria-label="Terremoti">
       <PanelHeader
-        code="MOD-00.C // Sismica"
+        code="Sismica"
         title="Terremoti"
         icon={<Activity className="w-4 h-4 text-[#f97316]" />}
         right={
@@ -68,7 +69,8 @@ export const QuakePanel: React.FC<QuakePanelProps> = ({
         </div>
         <div className="rounded-xl border border-[var(--hub-line)] px-3 py-2 min-w-0">
           <div className="hub-label">Più forte</div>
-          <div className="font-hud text-xl font-bold tabular-nums" style={{ color: strongest ? quakeColor(strongest.mag) : undefined }}>
+          <div className="font-hud text-xl font-bold tabular-nums flex items-center gap-2">
+            {strongest && <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: quakeColor(strongest.mag) }} aria-hidden="true" />}
             {strongest ? `M${formatNumber(strongest.mag, 1)}` : '—'}
           </div>
         </div>
@@ -110,13 +112,13 @@ export const QuakePanel: React.FC<QuakePanelProps> = ({
                 <button type="button" onClick={() => onSelect(q)} className="flex items-center gap-3 flex-1 min-w-0 text-left" title="Mostra sul globo">
                   <span
                     className="w-11 h-11 shrink-0 rounded-xl grid place-items-center font-hud text-sm font-bold"
-                    style={{ color, background: `${color}1f`, border: `1px solid ${color}66`, boxShadow: q.mag >= 5 ? `0 0 16px -4px ${color}` : undefined }}
+                    style={{ color: quakeTextColor(q.mag), background: color }}
                   >
                     {formatNumber(q.mag, 1)}
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[13px] font-medium leading-snug truncate">{q.place}</span>
-                    <span className="flex items-center gap-1.5 font-hud text-[10px] text-[var(--hub-dim)]">
+                    <span className="flex items-center gap-1.5 font-hud text-xs text-[var(--hub-dim)]">
                       <time dateTime={new Date(q.time).toISOString()}>{timeAgo(q.time)}</time>
                       <span aria-hidden>·</span>
                       <span>prof. {formatNumber(q.depthKm, q.depthKm < 10 ? 1 : 0)} km</span>

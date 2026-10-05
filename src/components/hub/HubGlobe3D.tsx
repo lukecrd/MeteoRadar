@@ -684,7 +684,8 @@ export const HubGlobe3D: React.FC<HubGlobe3DProps> = ({ markers, flights = [], r
         hit,
         marker,
         phase: (i * 0.37) % 2,
-        baseScale: kind === 'quake' ? 0.6 + marker.heat * 1.1 : kind === 'airport' ? 0.8 : 1,
+        // heat = (M-2)/5: size grows exponentially with magnitude (~1.35x per unit)
+        baseScale: kind === 'quake' ? 0.5 * 1.35 ** (marker.heat * 5) : kind === 'airport' ? 0.8 : 1,
       };
     });
   }, [markers]);
@@ -831,7 +832,7 @@ export const HubGlobe3D: React.FC<HubGlobe3DProps> = ({ markers, flights = [], r
         {hovered && hovered.id !== selectedId && (
           <div className="hub-globe-tag__box" style={{ borderColor: hovered.color }}>
             <div className="font-display text-xs font-bold uppercase" style={{ color: hovered.color }}>{hovered.label}</div>
-            {hovered.sublabel && <div className="font-hud text-[10px] text-[var(--hub-dim)]">{hovered.sublabel}</div>}
+            {hovered.sublabel && <div className="font-hud text-xs text-[var(--hub-dim)]">{hovered.sublabel}</div>}
           </div>
         )}
       </div>
@@ -839,7 +840,7 @@ export const HubGlobe3D: React.FC<HubGlobe3DProps> = ({ markers, flights = [], r
         {selected && (
           <div className="hub-globe-tag__box" style={{ borderColor: selected.color, boxShadow: `0 0 22px -6px ${selected.color}` }}>
             <div className="font-display text-sm font-bold uppercase" style={{ color: selected.color }}>{selected.label}</div>
-            {selected.sublabel && <div className="font-hud text-[10px] text-[var(--hub-text)] opacity-80">{selected.sublabel}</div>}
+            {selected.sublabel && <div className="font-hud text-xs text-[var(--hub-text)] opacity-80">{selected.sublabel}</div>}
           </div>
         )}
       </div>

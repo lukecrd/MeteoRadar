@@ -54,7 +54,7 @@ export const CryptoDeck: React.FC = () => {
               <div className="hub-skeleton h-9 w-56 mt-1" />
             )}
             {btc?.high != null && btc.low != null && (
-              <div className="font-hud text-[11px] text-[var(--hub-dim)] mt-0.5">
+              <div className="font-hud text-xs text-[var(--hub-dim)] mt-0.5">
                 Max {formatNumber(btc.high, 0)} · Min {formatNumber(btc.low, 0)}
                 {btc.volume != null && ` · Vol ${compact(btc.volume)} $`}
               </div>
@@ -81,7 +81,7 @@ export const CryptoDeck: React.FC = () => {
                       >
                         {meta.currency}{formatNumber(q.price, meta.digits)}
                       </div>
-                      <div className="font-hud text-[11px] font-bold" style={{ color: trendColor(q.changePct) }}>
+                      <div className="font-hud text-xs font-bold" style={{ color: trendColor(q.changePct) }}>
                         {formatPct(q.changePct)}
                       </div>
                     </>
