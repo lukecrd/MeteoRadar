@@ -32,6 +32,7 @@ import { HubStatusStrip } from './components/HubStatusStrip';
 import { NewsTicker } from './components/NewsTicker';
 import { NewsHub } from './components/NewsHub';
 import { NewsFeedPanel } from './components/NewsFeedPanel';
+import { GlobalHub } from './components/hub/GlobalHub';
 import { Loader2 } from 'lucide-react';
 
 export default function App() {
@@ -45,7 +46,7 @@ export default function App() {
   });
 
   // Main application Tab based on Stitch navigation architecture
-  const [activeAppTab, setActiveAppTab] = useState<AppTab>('station');
+  const [activeAppTab, setActiveAppTab] = useState<AppTab>('hub');
 
   // Location & Weather Data
   const [currentLocation, setCurrentLocation] = useState<LocationInfo>(DEFAULT_LOCATION);
@@ -454,7 +455,7 @@ export default function App() {
   return (
     <div className="hub-root min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg">
       {/* Ambient 3D tracking globe — furthest-back decorative layer */}
-      <RadarGlobe3D isDark={isDark} intensity={0.85} />
+      <RadarGlobe3D isDark={isDark} intensity={activeAppTab === 'hub' ? 0.35 : 0.85} />
 
       {/* Dynamic Atmospheric Particle and Flash Background */}
       {weatherData && (
@@ -505,7 +506,7 @@ export default function App() {
         </div>
 
         {/* Loading state */}
-        {isLoading && !weatherData && activeAppTab !== 'news' && (
+        {isLoading && !weatherData && activeAppTab !== 'news' && activeAppTab !== 'hub' && (
           <div className="py-32 flex flex-col items-center justify-center gap-4">
             <div className="relative w-14 h-14">
               <span className="hud-pulse-ring" />
@@ -520,6 +521,13 @@ export default function App() {
           <div className="hub-panel p-4 !border-[var(--hub-red)]/40 text-[var(--hub-red)] text-sm font-medium">
             <span className="hub-label !text-[var(--hub-red)] mr-2">ERR</span>
             {errorMsg}
+          </div>
+        )}
+
+        {/* VIEW 0 (home): Global Hub — world news globe, markets, crypto */}
+        {activeAppTab === 'hub' && (
+          <div key="tab-hub" className="animate-tab-enter">
+            <GlobalHub />
           </div>
         )}
 

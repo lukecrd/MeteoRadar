@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Layers, Sun, Zap, Radio, Calendar, Wind, Trees, SatelliteDish, LucideIcon } from 'lucide-react';
+import { Layers, Sun, Zap, Radio, Calendar, Wind, Trees, SatelliteDish, Orbit, LucideIcon } from 'lucide-react';
 import { AppTab } from '../types';
 
 interface ModuleDef {
@@ -12,7 +12,8 @@ interface ModuleDef {
 }
 
 const MODULES: ModuleDef[] = [
-  { id: 'station', code: '01', label: 'Console', hint: 'Tutti i moduli', icon: Layers, tone: '#22d3ee' },
+  { id: 'hub', code: '00', label: 'Global', hint: 'News, borse e crypto', icon: Orbit, tone: '#f472b6' },
+  { id: 'station', code: '01', label: 'Meteo', hint: 'Console meteo completa', icon: Layers, tone: '#22d3ee' },
   { id: 'today', code: '02', label: 'Oggi', hint: 'Condizioni e allerte', icon: Sun, tone: '#fbbf24' },
   { id: 'radar', code: '03', label: 'Radar', hint: 'Fulmini e CAPE', icon: Zap, tone: '#fde047' },
   { id: 'italy_map', code: '04', label: 'Satellite', hint: 'Mappa Italia live', icon: Radio, tone: '#fb7185' },
