@@ -283,6 +283,13 @@ html:not(.dark) .hub-module > :first-child {
 .hub-fresh { animation: hubFreshIn 2.4s ease-out both; }
 
 /* ---------- Global Hub ---------- */
+.hub-brand-text {
+  background: linear-gradient(90deg, var(--hub-cyan), #a78bfa 55%, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--hub-cyan) 35%, transparent));
+}
 .hub-row {
   border: 1px solid transparent;
   transition: background-color 0.15s, border-color 0.15s;

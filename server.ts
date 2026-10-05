@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import { getNews, isNewsCategory } from './lib/news';
 import { getGeoNews } from './lib/geonews';
 import { getMarkets } from './lib/markets';
+import { getQuakes } from './lib/quakes';
+import { getHubFlights, getFlightInfo, isCallsign, isHex, isHubId } from './lib/flights';
 
 dotenv.config();
 
@@ -55,6 +57,49 @@ app.get('/api/geonews', async (req, res) => {
   } catch (error: any) {
     console.error('Geo news feed error:', error?.message || error);
     res.status(502).json({ error: 'Geo news feed unavailable' });
+  }
+});
+
+// Global Hub: recent earthquakes, USGS + INGV (cached 2 min)
+app.get('/api/quakes', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    res.json(await getQuakes());
+  } catch (error: any) {
+    console.error('Earthquake feed error:', error?.message || error);
+    res.status(502).json({ error: 'Earthquake feed unavailable' });
+  }
+});
+
+// Global Hub: live air traffic around one major hub (cached 60 s per hub)
+app.get('/api/flights', async (req, res) => {
+  const { hub } = req.query;
+  if (!isHubId(hub)) {
+    res.status(400).json({ error: 'Parametro hub non valido' });
+    return;
+  }
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=30');
+    res.json(await getHubFlights(hub));
+  } catch (error: any) {
+    console.error('Flight feed error:', error?.message || error);
+    res.status(502).json({ error: 'Flight feed unavailable' });
+  }
+});
+
+// Global Hub: route, airline and aircraft for one flight (cached 6 h)
+app.get('/api/flight', async (req, res) => {
+  const { callsign, hex } = req.query;
+  if (!isCallsign(callsign)) {
+    res.status(400).json({ error: 'Parametro callsign non valido' });
+    return;
+  }
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.json(await getFlightInfo(callsign, isHex(hex) ? hex : null));
+  } catch (error: any) {
+    console.error('Flight info error:', error?.message || error);
+    res.status(502).json({ error: 'Flight info unavailable' });
   }
 });
 

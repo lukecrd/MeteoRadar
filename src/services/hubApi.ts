@@ -1,7 +1,12 @@
 import type { GeoAreaNews, GeoNewsItem, GeoNewsResponse, GeoRegion } from '../../lib/geonews';
 import type { MarketQuote, MarketsResponse } from '../../lib/markets';
+import type { Quake, QuakesResponse } from '../../lib/quakes';
+import type { Airport, Flight, FlightHub, FlightInfo, HubFlightsResponse } from '../../lib/flights';
 
 export type { GeoAreaNews, GeoNewsItem, GeoNewsResponse, GeoRegion, MarketQuote, MarketsResponse };
+export type { Quake, QuakesResponse, Airport, Flight, FlightHub, FlightInfo, HubFlightsResponse };
+// Plain data (no Node APIs), safe to bundle for the browser.
+export { FLIGHT_HUBS, FLIGHT_RADIUS_KM } from '../../lib/flights';
 
 // Same convention as newsApi: native builds point at a deployed backend.
 const API_BASE: string = ((import.meta as any).env?.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') ?? '';
@@ -14,6 +19,35 @@ async function getJson<T>(path: string, label: string): Promise<T> {
 
 export const fetchGeoNews = () => getJson<GeoNewsResponse>('/api/geonews', 'Feed notizie mondiali');
 export const fetchMarkets = () => getJson<MarketsResponse>('/api/markets', 'Feed mercati');
+export const fetchQuakes = () => getJson<QuakesResponse>('/api/quakes', 'Feed terremoti');
+export const fetchHubFlights = (hub: string) =>
+  getJson<HubFlightsResponse>(`/api/flights?hub=${encodeURIComponent(hub)}`, 'Traffico aereo');
+export const fetchFlightInfo = (callsign: string, hex: string) =>
+  getJson<FlightInfo>(`/api/flight?callsign=${encodeURIComponent(callsign)}&hex=${encodeURIComponent(hex)}`, 'Dettagli volo');
+
+/** Magnitude → colour: yellow (minor) to deep red (major). */
+export function quakeColor(mag: number): string {
+  if (mag >= 6) return '#dc2626';
+  if (mag >= 5) return '#f97316';
+  if (mag >= 4) return '#fb923c';
+  if (mag >= 3) return '#facc15';
+  return '#fde68a';
+}
+
+/** Altitude band → colour, low traffic warm, cruise cool. */
+export function flightColor(altFt: number): string {
+  if (altFt < 10000) return '#fbbf24';
+  if (altFt < 25000) return '#34d399';
+  if (altFt < 35000) return '#38bdf8';
+  return '#c4b5fd';
+}
+
+/** Great-circle distance in km. */
+export function haversineKm(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {
+  const r = Math.PI / 180;
+  const h = Math.sin(((b.lat - a.lat) * r) / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(((b.lon - a.lon) * r) / 2) ** 2;
+  return 12742 * Math.asin(Math.min(1, Math.sqrt(h)));
+}
 
 export const GEO_REGION_META: Record<GeoRegion | 'all', { label: string; color: string }> = {
   all: { label: 'Mondo', color: '#22d3ee' },
