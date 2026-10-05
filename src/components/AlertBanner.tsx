@@ -60,7 +60,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
       {testToastMessage && (
         <div
           id="toast-test-notification"
-          className="pointer-events-auto p-4 rounded-2xl bg-teal-500 text-white shadow-2xl border border-teal-400 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300 backdrop-blur-md"
+          className="pointer-events-auto p-4 rounded-2xl bg-teal-500 text-white dark:text-slate-950 shadow-2xl border border-teal-400 flex items-center justify-between gap-3 animate-toast-in backdrop-blur-md"
         >
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-white/20">
@@ -89,7 +89,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             /* Minimized Humidity Pill */
             <div
               id="humidity-alert-pill-minimized"
-              className="pointer-events-auto px-3.5 py-2 rounded-2xl bg-rose-950/90 border border-rose-500/80 text-rose-200 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-3 duration-200"
+              className="on-dark pointer-events-auto px-3.5 py-2 rounded-2xl bg-rose-950/90 border border-rose-500/80 text-rose-200 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-toast-in"
             >
               <div
                 onClick={() => setIsHumidityMinimized(false)}
@@ -124,7 +124,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             /* Expanded Humidity Alert Card */
             <div
               id="humidity-alert-card-expanded"
-              className="pointer-events-auto p-4 rounded-2xl bg-gradient-to-r from-rose-950/95 to-slate-950/95 text-white shadow-2xl border border-rose-500/80 flex flex-col gap-2.5 backdrop-blur-xl animate-in slide-in-from-bottom-5 duration-300"
+              className="on-dark pointer-events-auto p-4 rounded-2xl bg-gradient-to-r from-rose-950/95 to-slate-950/95 text-white shadow-2xl border border-rose-500/80 flex flex-col gap-2.5 backdrop-blur-xl animate-toast-in"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
@@ -198,7 +198,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             /* Minimized Lightning Pill (Compact Floating Badge) */
             <div
               id="lightning-alert-pill-minimized"
-              className={`pointer-events-auto px-3.5 py-2.5 rounded-2xl shadow-2xl border backdrop-blur-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-3 duration-200 ${
+              className={`on-dark pointer-events-auto px-3.5 py-2.5 rounded-2xl shadow-2xl border backdrop-blur-xl flex items-center justify-between gap-3 animate-toast-in ${
                 closestStrike.distanceKm <= 5
                   ? 'bg-rose-950/95 border-rose-500/90 text-rose-100'
                   : 'bg-amber-950/95 border-amber-500/90 text-amber-100'
@@ -256,7 +256,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             /* Expanded Full Lightning Warning Card */
             <div
               id="lightning-alert-card-expanded"
-              className={`pointer-events-auto p-4 rounded-3xl shadow-2xl border flex flex-col gap-3 backdrop-blur-xl animate-in slide-in-from-bottom-5 duration-300 ${
+              className={`on-dark pointer-events-auto p-4 rounded-3xl shadow-2xl border flex flex-col gap-3 backdrop-blur-xl animate-toast-in ${
                 closestStrike.distanceKm <= 5
                   ? 'bg-rose-950/95 border-rose-500/90 text-rose-100'
                   : 'bg-amber-950/95 border-amber-500/90 text-amber-100'

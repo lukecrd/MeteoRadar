@@ -148,7 +148,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm">
           {/* TAB 0: Flutter Project */}
           {activeTab === 'flutter' && (
-            <div className="space-y-4 animate-in fade-in">
+            <div className="space-y-4 animate-toast-in">
               <div className="p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
                 <div>
@@ -162,7 +162,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <div className="text-xs font-bold text-teal-400">1. Esegui il progetto con Flutter:</div>
-                  <div className="relative p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200">
+                  <div className="on-dark relative p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200">
                     <code>cd flutter_app && flutter pub get && flutter run</code>
                     <button
                       onClick={() => handleCopy('cd flutter_app && flutter pub get && flutter run', 'flut1')}
@@ -176,7 +176,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
 
                 <div className="space-y-1.5">
                   <div className="text-xs font-bold text-teal-400">2. Genera l'APK Release per Android:</div>
-                  <div className="relative p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200">
+                  <div className="on-dark relative p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200">
                     <code>cd flutter_app && flutter build apk --release</code>
                     <button
                       onClick={() => handleCopy('cd flutter_app && flutter build apk --release', 'flut2')}
@@ -190,7 +190,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
 
                 <div className="space-y-1.5">
                   <div className="text-xs font-bold text-teal-400">3. Sincronizza modifiche web verso Flutter:</div>
-                  <div className="relative p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200">
+                  <div className="on-dark relative p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200">
                     <code>npm run flutter:sync</code>
                     <button
                       onClick={() => handleCopy('npm run flutter:sync', 'flut3')}
@@ -211,7 +211,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
           )}
           {/* TAB 1: PWA Direct Android Installation */}
           {activeTab === 'pwa' && (
-            <div className="space-y-4 animate-in fade-in">
+            <div className="space-y-4 animate-toast-in">
               <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-start gap-3.5">
                 <ShieldCheck className="w-5 h-5 text-teal-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
@@ -223,7 +223,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
               </div>
 
               {/* Install action button */}
-              <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-3">
+              <div className="on-dark p-5 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-3">
                 <div className="w-16 h-16 mx-auto rounded-2xl overflow-hidden border border-teal-500/30 shadow-xl shadow-teal-500/10 bg-slate-900 flex items-center justify-center">
                   <img src="/icon.svg" alt="App Icon" className="w-14 h-14" />
                 </div>
@@ -248,17 +248,17 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
                   Come installare da Google Chrome su Android:
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                  <div className="on-dark p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
                     <span className="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 font-black text-[11px] inline-flex items-center justify-center">1</span>
                     <p className="font-bold text-slate-200">Apri nel browser</p>
                     <p className="text-slate-400 text-[11px]">Apri il link su Google Chrome dal tuo smartphone Android.</p>
                   </div>
-                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                  <div className="on-dark p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
                     <span className="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 font-black text-[11px] inline-flex items-center justify-center">2</span>
                     <p className="font-bold text-slate-200">Menu opzioni (⋮)</p>
                     <p className="text-slate-400 text-[11px]">Tocca i tre puntini in alto a destra nel browser Chrome.</p>
                   </div>
-                  <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
+                  <div className="on-dark p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
                     <span className="w-5 h-5 rounded-full bg-teal-500/20 text-teal-400 font-black text-[11px] inline-flex items-center justify-center">3</span>
                     <p className="font-bold text-slate-200">Aggiungi a Home</p>
                     <p className="text-slate-400 text-[11px]">Seleziona "Aggiungi a schermata Home" o "Installa app".</p>
@@ -270,7 +270,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
 
           {/* TAB 2: Capacitor Native APK Build */}
           {activeTab === 'apk' && (
-            <div className="space-y-4 animate-in fade-in">
+            <div className="space-y-4 animate-toast-in">
               <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <div>
@@ -284,21 +284,21 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <div className="text-xs font-bold text-teal-400">1. Esporta il progetto dal menu in alto a destra:</div>
-                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+                  <div className="on-dark p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
                     Fai clic sul menu delle impostazioni in alto a destra e seleziona <strong>"Export as ZIP"</strong> (o Git push). Estrai lo zip sul tuo PC.
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="text-xs font-bold text-teal-400">2. Apri direttamente in Android Studio:</div>
-                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+                  <div className="on-dark p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
                     In Android Studio fai clic su <strong>Open</strong> e seleziona la cartella <code>android/</code> del progetto estratto. Gradle sincronizzerà tutto in automatico!
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="text-xs font-bold text-teal-400">3. Comandi da terminale (opzionali per sincronizzare modifiche):</div>
-                  <div className="relative p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200">
+                  <div className="on-dark relative p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200">
                     <code>npm install && npm run android:sync && npm run android:open</code>
                     <button
                       onClick={() => handleCopy('npm install && npm run android:sync && npm run android:open', 'cap1')}
@@ -320,13 +320,13 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
 
           {/* TAB 3: Generated Files Inspector */}
           {activeTab === 'files' && (
-            <div className="space-y-3 animate-in fade-in">
+            <div className="space-y-3 animate-toast-in">
               <div className="text-xs text-slate-300">
                 Tutti i file necessari per Android sono stati configurati e generati con successo:
               </div>
 
               <div className="space-y-2">
-                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                <div className="on-dark p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <FileCode className="w-4 h-4 text-teal-400" />
                     <div>
@@ -345,7 +345,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
                   </a>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                <div className="on-dark p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <FileCode className="w-4 h-4 text-cyan-400" />
                     <div>
@@ -364,7 +364,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
                   </a>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                <div className="on-dark p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <FileCode className="w-4 h-4 text-emerald-400" />
                     <div>
@@ -383,7 +383,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
                   </a>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                <div className="on-dark p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <FileCode className="w-4 h-4 text-amber-400" />
                     <div>
@@ -394,7 +394,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
                   <span className="text-[11px] text-slate-400 font-bold">com.meteoradar.italy</span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                <div className="on-dark p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <FileCode className="w-4 h-4 text-indigo-400" />
                     <div>
@@ -410,7 +410,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-800 flex items-center justify-between bg-slate-950/50">
+        <div className="on-dark p-4 border-t border-slate-800 flex items-center justify-between bg-slate-950/50">
           <div className="text-xs text-slate-300 flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-teal-400" />
             <span>Compatibile con Android 7.0+ (Chrome, Capacitor, TWA)</span>

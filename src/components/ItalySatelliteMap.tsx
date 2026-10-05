@@ -405,7 +405,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
           <div class="relative group cursor-pointer transform -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-110">
             <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full shadow-xl backdrop-blur-md ${
               isCurrentActive
-                ? 'bg-teal-500 text-white ring-2 ring-white font-extrabold'
+                ? 'bg-teal-500 text-slate-950 ring-2 ring-white font-extrabold'
                 : isSelectedInRegion
                 ? 'bg-slate-900/95 text-white border-2 border-teal-400 shadow-teal-500/20'
                 : 'bg-slate-900/90 text-white border border-slate-700'
@@ -609,7 +609,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
   }, []);
 
   return (
-    <div className="space-y-6 w-full max-w-full overflow-hidden animate-in fade-in duration-300">
+    <div className="space-y-6 w-full max-w-full overflow-hidden animate-toast-in">
       {/* Region Selector Bar with Macro-Area Pills */}
       <div
         className={`p-4 rounded-3xl border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all w-full max-w-full overflow-hidden ${
@@ -713,7 +713,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               }}
               className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-colors shrink-0 ${
                 macroAreaFilter === macro.id
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
               }`}
             >
@@ -809,7 +809,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               onClick={() => setBaseMapType('satellite')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                 baseMapType === 'satellite'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
               }`}
             >
@@ -820,7 +820,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               onClick={() => setBaseMapType('dark')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                 baseMapType === 'dark'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
               }`}
             >
@@ -831,7 +831,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               onClick={() => setBaseMapType('streets')}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                 baseMapType === 'streets'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
               }`}
             >
@@ -961,7 +961,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 onClick={zoomToNational}
                 className={`px-2.5 py-1 rounded-xl text-left transition-colors flex items-center gap-1.5 ${
                   currentZoomLevel <= 7
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'hover:bg-slate-800 text-slate-300'
                 }`}
                 title="Vista complessiva su tutta l'Italia"
@@ -976,7 +976,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 onClick={zoomToRegion}
                 className={`px-2.5 py-1 rounded-xl text-left transition-colors flex items-center gap-1.5 ${
                   currentZoomLevel > 7 && currentZoomLevel < 12
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'hover:bg-slate-800 text-slate-300'
                 }`}
                 title="Zoom centrato sulla regione selezionata"
@@ -991,7 +991,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 onClick={() => zoomToCityLevel()}
                 className={`px-2.5 py-1 rounded-xl text-left transition-colors flex items-center gap-1.5 ${
                   currentZoomLevel >= 12
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'hover:bg-slate-800 text-slate-300'
                 }`}
                 title="Zoom ravvicinato ad alta risoluzione (livello città e strade)"
@@ -1009,7 +1009,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
           {/* Region Badge overlay at top-left inside map */}
           {selectedRegionId !== 'all' && (
-            <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-950/85 border border-teal-500/40 text-teal-400 backdrop-blur-md shadow-xl text-xs font-black animate-in fade-in">
+            <div className="on-dark absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-950/85 border border-teal-500/40 text-teal-400 backdrop-blur-md shadow-xl text-xs font-black animate-toast-in">
               <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
               <span>Vista Regionale: {currentRegionInfo.name}</span>
               <button
@@ -1025,7 +1025,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
           {/* Selected Station Floating Drawer (if opened) */}
           {selectedStation && (
             <div
-              className={`absolute top-4 left-4 z-30 max-w-sm w-80 rounded-2xl border shadow-2xl p-4 backdrop-blur-xl animate-in slide-in-from-left-5 duration-200 ${
+              className={`absolute top-4 left-4 z-30 max-w-sm w-80 rounded-2xl border shadow-2xl p-4 backdrop-blur-xl animate-toast-in ${
                 isDark ? 'bg-slate-900/95 border-slate-700 text-slate-100' : 'bg-white/95 border-slate-200 text-slate-900'
               }`}
             >
@@ -1072,7 +1072,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 <button
                   type="button"
                   onClick={() => zoomToCityLevel(selectedStation.latitude, selectedStation.longitude)}
-                  className="py-1.5 px-2 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 font-bold text-xs flex items-center justify-center gap-1 border border-teal-500/30 transition-colors"
+                  className="py-1.5 px-2 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 font-bold text-xs flex items-center justify-center gap-1 border border-teal-500/30 transition-colors"
                 >
                   <ZoomIn className="w-3.5 h-3.5" />
                   <span>Zoom Città HD</span>
@@ -1170,7 +1170,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
             <button
               id="radar-play-pause-btn"
               onClick={() => setIsPlayingRadar(!isPlayingRadar)}
-              className="p-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-white shadow-md transition-colors flex items-center gap-1 text-xs font-bold"
+              className="p-2 rounded-xl bg-teal-500 hover:bg-teal-600 text-white dark:text-slate-950 shadow-md transition-colors flex items-center gap-1 text-xs font-bold"
             >
               {isPlayingRadar ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
               <span>{isPlayingRadar ? 'Pausa' : 'Loop Radar'}</span>
@@ -1270,7 +1270,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 <button
                   type="button"
                   onClick={() => setRegionsViewMode('scroll')}
-                  className={`p-1 rounded text-xs transition-colors ${regionsViewMode === 'scroll' ? 'bg-teal-500 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`p-1 rounded text-xs transition-colors ${regionsViewMode === 'scroll' ? 'bg-teal-500 text-white dark:text-slate-950' : 'text-slate-400 hover:text-slate-200'}`}
                   title="Vista a scorrimento orizzontale"
                 >
                   <List className="w-3.5 h-3.5" />
@@ -1278,7 +1278,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 <button
                   type="button"
                   onClick={() => setRegionsViewMode('grid')}
-                  className={`p-1 rounded text-xs transition-colors ${regionsViewMode === 'grid' ? 'bg-teal-500 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+                  className={`p-1 rounded text-xs transition-colors ${regionsViewMode === 'grid' ? 'bg-teal-500 text-white dark:text-slate-950' : 'text-slate-400 hover:text-slate-200'}`}
                   title="Vista a griglia completa"
                 >
                   <Grid className="w-3.5 h-3.5" />
@@ -1295,7 +1295,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 onClick={() => handleSelectRegion('all')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all shrink-0 ${
                   selectedRegionId === 'all'
-                    ? 'bg-teal-500 text-white shadow-md shadow-teal-500/20'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-md shadow-teal-500/20'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
@@ -1309,7 +1309,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                   onClick={() => handleSelectRegion(r.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
                     selectedRegionId === r.id
-                      ? 'bg-teal-500 text-white shadow-md shadow-teal-500/20 ring-1 ring-teal-300'
+                      ? 'bg-teal-500 text-white dark:text-slate-950 shadow-md shadow-teal-500/20 ring-1 ring-teal-300'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
@@ -1324,7 +1324,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 onClick={() => handleSelectRegion('all')}
                 className={`px-2.5 py-1.5 rounded-xl text-xs font-extrabold truncate transition-all text-left ${
                   selectedRegionId === 'all'
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
@@ -1337,7 +1337,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                   onClick={() => handleSelectRegion(r.id)}
                   className={`px-2.5 py-1.5 rounded-xl text-xs font-bold truncate transition-all text-left ${
                     selectedRegionId === r.id
-                      ? 'bg-teal-500 text-white shadow-sm ring-1 ring-teal-300'
+                      ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm ring-1 ring-teal-300'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
@@ -1366,7 +1366,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 onClick={() => setPhenomenonFilter(f.id)}
                 className={`px-2.5 py-1 rounded-xl text-xs font-semibold transition-all shrink-0 ${
                   phenomenonFilter === f.id
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >

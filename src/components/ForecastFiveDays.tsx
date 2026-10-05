@@ -43,17 +43,17 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
 
   // Helper for weather icons
   const getWeatherIcon = (code: number, sizeClass = 'w-8 h-8') => {
-    if (code === 0) return <Sun className={`${sizeClass} text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]`} />;
-    if (code === 1) return <SunMedium className={`${sizeClass} text-amber-300`} />;
-    if (code === 2) return <CloudSun className={`${sizeClass} text-amber-300`} />;
+    if (code === 0) return <Sun className={`${sizeClass} text-amber-400`} />;
+    if (code === 1) return <SunMedium className={`${sizeClass} text-amber-400`} />;
+    if (code === 2) return <CloudSun className={`${sizeClass} text-amber-400`} />;
     if (code === 3) return <Cloud className={`${sizeClass} text-slate-300`} />;
-    if (code >= 45 && code <= 48) return <CloudFog className={`${sizeClass} text-teal-300`} />;
+    if (code >= 45 && code <= 48) return <CloudFog className={`${sizeClass} text-teal-400`} />;
     if (code >= 51 && code <= 55) return <CloudDrizzle className={`${sizeClass} text-sky-400`} />;
-    if (code >= 61 && code <= 65) return <CloudRain className={`${sizeClass} text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]`} />;
-    if (code >= 71 && code <= 75) return <CloudSnow className={`${sizeClass} text-cyan-200`} />;
+    if (code >= 61 && code <= 65) return <CloudRain className={`${sizeClass} text-sky-400`} />;
+    if (code >= 71 && code <= 75) return <CloudSnow className={`${sizeClass} text-sky-400`} />;
     if (code >= 80 && code <= 82) return <CloudRainWind className={`${sizeClass} text-sky-400`} />;
-    if (code >= 95) return <CloudLightning className={`${sizeClass} text-amber-300 animate-pulse drop-shadow-[0_0_12px_rgba(251,191,36,0.7)]`} />;
-    return <CloudSun className={`${sizeClass} text-amber-300`} />;
+    if (code >= 95) return <CloudLightning className={`${sizeClass} text-amber-400`} />;
+    return <CloudSun className={`${sizeClass} text-amber-400`} />;
   };
 
   // Helper for formatted day label
@@ -100,9 +100,6 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
           <div>
             <h3 className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
               Previsioni a 5 Giorni
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                PROSSIMI 5 GIORNI
-              </span>
             </h3>
             <p className="text-xs text-slate-600 dark:text-slate-300">
               Evoluzione termica, precipitazioni, vento e indici atmosferici giornalieri
@@ -134,7 +131,7 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
               className={`p-4 rounded-2xl border text-left transition-all duration-200 relative overflow-hidden flex flex-col justify-between group ${
                 isSelected
                   ? isDark
-                    ? 'bg-gradient-to-b from-slate-800 to-slate-850 border-teal-500/80 shadow-lg shadow-teal-500/10 ring-2 ring-teal-500/50'
+                    ? 'bg-gradient-to-b from-slate-800 to-slate-900 border-teal-500/80 shadow-lg shadow-teal-500/10 ring-2 ring-teal-500/50'
                     : 'bg-teal-50/70 border-teal-500 shadow-md ring-2 ring-teal-500/40'
                   : isDark
                   ? 'bg-slate-800/50 border-slate-700/60 hover:bg-slate-800 hover:border-slate-600 text-slate-200'

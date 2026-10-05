@@ -141,7 +141,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
             {/* 3 Simple Steps */}
             <div className="space-y-3">
               <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-start gap-3 bg-slate-50 dark:bg-slate-800/40">
-                <div className="w-6 h-6 rounded-full bg-teal-500 text-white font-black text-xs flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-black text-xs flex items-center justify-center shrink-0">
                   1
                 </div>
                 <div>
@@ -155,7 +155,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               </div>
 
               <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-start gap-3 bg-slate-50 dark:bg-slate-800/40">
-                <div className="w-6 h-6 rounded-full bg-teal-500 text-white font-black text-xs flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-black text-xs flex items-center justify-center shrink-0">
                   2
                 </div>
                 <div>
@@ -169,7 +169,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               </div>
 
               <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-start gap-3 bg-slate-50 dark:bg-slate-800/40">
-                <div className="w-6 h-6 rounded-full bg-teal-500 text-white font-black text-xs flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-black text-xs flex items-center justify-center shrink-0">
                   3
                 </div>
                 <div>
@@ -212,7 +212,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               </ol>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-950 text-slate-200 font-mono text-xs flex items-center justify-between border border-slate-800">
+            <div className="on-dark p-3.5 rounded-xl bg-slate-950 text-slate-200 font-mono text-xs flex items-center justify-between border border-slate-800">
               <div className="truncate">
                 <span className="text-slate-500">Preset:</span> Vite &nbsp;|&nbsp;
                 <span className="text-slate-500">Output:</span> dist &nbsp;|&nbsp;
@@ -235,7 +235,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
                 1. Installa Vercel CLI:
               </div>
-              <div className="p-3 rounded-xl bg-slate-950 text-emerald-400 font-mono text-xs flex items-center justify-between border border-slate-800">
+              <div className="on-dark p-3 rounded-xl bg-slate-950 text-emerald-400 font-mono text-xs flex items-center justify-between border border-slate-800">
                 <code>npm install -g vercel</code>
                 <button
                   onClick={() => handleCopy('npm install -g vercel', 'npm-cli')}
@@ -252,7 +252,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
                 2. Distribuisci in Produzione:
               </div>
-              <div className="p-3 rounded-xl bg-slate-950 text-emerald-400 font-mono text-xs flex items-center justify-between border border-slate-800">
+              <div className="on-dark p-3 rounded-xl bg-slate-950 text-emerald-400 font-mono text-xs flex items-center justify-between border border-slate-800">
                 <code>vercel --prod</code>
                 <button
                   onClick={() => handleCopy('vercel --prod', 'vercel-prod')}

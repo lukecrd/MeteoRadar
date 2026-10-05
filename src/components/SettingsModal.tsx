@@ -154,7 +154,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   onClick={requestBrowserPushPermission}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold border ${
                     settings.enableBrowserPush
-                      ? 'bg-teal-500 text-white border-teal-500'
+                      ? 'bg-teal-500 text-white dark:text-slate-950 border-teal-500'
                       : 'bg-slate-800 text-slate-300 border-slate-700'
                   }`}
                 >
@@ -203,7 +203,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         onClick={() => onUpdateSettings({ humiditySpikeThreshold: threshold })}
                         className={`py-1.5 rounded-lg text-xs font-bold border transition-colors ${
                           settings.humiditySpikeThreshold === threshold
-                            ? 'bg-cyan-500 text-white border-cyan-400'
+                            ? 'bg-cyan-500 text-white dark:text-slate-950 border-cyan-400'
                             : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800'
                         }`}
                       >
@@ -235,7 +235,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onClick={() => onUpdateSettings({ lightningProximityThresholdKm: dist })}
                       className={`py-1.5 rounded-lg text-xs font-bold border transition-colors ${
                         settings.lightningProximityThresholdKm === dist
-                          ? 'bg-amber-500 text-slate-950 border-amber-400'
+                          ? 'bg-amber-500 text-white dark:text-slate-950 dark:text-slate-950 border-amber-400'
                           : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800'
                       }`}
                     >
@@ -286,7 +286,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         onClick={() => onUpdateSettings({ windSpeedThresholdKm: spd })}
                         className={`py-1.5 rounded-lg text-xs font-bold border transition-colors ${
                           settings.windSpeedThresholdKm === spd
-                            ? 'bg-teal-500 text-white border-teal-400'
+                            ? 'bg-teal-500 text-white dark:text-slate-950 border-teal-400'
                             : 'bg-slate-800/60 text-slate-300 border-slate-700 hover:bg-slate-800'
                         }`}
                       >
@@ -339,7 +339,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             <button
               onClick={onClose}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs bg-teal-500 hover:bg-teal-400 text-white shadow-md transition-colors"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs bg-teal-500 hover:bg-teal-400 text-white dark:text-slate-950 shadow-md transition-colors"
             >
               Salva & Chiudi
             </button>

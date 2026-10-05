@@ -112,7 +112,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
         name: 'Nebbia / Foschia',
         categoryKey: 'fog',
         color: '#2dd4bf',
-        textColor: 'text-teal-300',
+        textColor: 'text-teal-400',
         bgLight: 'bg-teal-500/10 border-teal-500/30',
         icon: CloudFog,
         timeSlots: [],
@@ -121,7 +121,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
         name: 'Neve & Gelicidio',
         categoryKey: 'snow',
         color: '#7dd3fc',
-        textColor: 'text-cyan-300',
+        textColor: 'text-cyan-400',
         bgLight: 'bg-cyan-500/10 border-cyan-500/30',
         icon: Snowflake,
         timeSlots: [],
@@ -224,7 +224,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 onClick={() => setChartMetric('humidity-cape')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-colors ${
                   chartMetric === 'humidity-cape'
-                    ? 'bg-cyan-500 text-white'
+                    ? 'bg-cyan-500 text-white dark:text-slate-950'
                     : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -239,7 +239,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 onClick={() => setDailyRange('5days')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-colors ${
                   dailyRange === '5days'
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -249,7 +249,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 onClick={() => setDailyRange('7days')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-colors ${
                   dailyRange === '7days'
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -264,7 +264,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
               onClick={() => setActiveTab('hourly')}
               className={`px-3 py-1 rounded-lg font-bold transition-colors ${
                 activeTab === 'hourly'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -275,7 +275,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
               onClick={() => setActiveTab('pie')}
               className={`px-3 py-1 rounded-lg font-bold transition-colors flex items-center gap-1.5 ${
                 activeTab === 'pie'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -287,7 +287,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
               onClick={() => setActiveTab('daily')}
               className={`px-3 py-1 rounded-lg font-bold transition-colors ${
                 activeTab === 'daily'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -425,7 +425,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
 
       {/* Pie Chart Weather Phenomena Breakdown View (Recharts) */}
       {activeTab === 'pie' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
+        <div className="space-y-6 animate-toast-in">
           {/* Top Summary Banner */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {dominantPhenomenon && (
@@ -653,7 +653,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
             >
               <div className="w-24 font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 <span>{item.dayLabel}</span>
-                {idx === 0 && <span className="text-[10px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300">Oggi</span>}
+                {idx === 0 && <span className="text-[10px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-400">Oggi</span>}
               </div>
 
               <div className="flex-1 px-4 text-xs font-semibold text-slate-800 dark:text-slate-200">

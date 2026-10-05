@@ -285,7 +285,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
       {/* Main Radar & Analysis Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         {/* Radar Screen Canvas */}
-        <div className="lg:col-span-7 relative h-72 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950/90 flex items-center justify-center">
+        <div className="on-dark lg:col-span-7 relative h-72 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950/90 flex items-center justify-center">
           <canvas ref={radarCanvasRef} className="w-full h-full" />
           
           <div className="absolute top-2 left-3 text-[10px] font-mono font-bold text-cyan-300 bg-slate-900/90 px-2 py-0.5 rounded border border-cyan-500/40">
@@ -370,7 +370,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
               <button
                 id="start-flash-timer-btn"
                 onClick={startFlashTimer}
-                className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95"
+                className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-400 text-white dark:text-slate-950 dark:text-slate-950 flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95"
               >
                 <Zap className="w-4 h-4 fill-current" />
                 1. Ho Visto il Lampo (Avvia Timer)
@@ -379,7 +379,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
 
             {timerState === 'running' && (
               <div className="flex flex-col gap-2">
-                <div className="text-center py-2 bg-slate-900 rounded-xl font-mono text-2xl font-black text-amber-400 animate-pulse border border-amber-500/50">
+                <div className="on-dark text-center py-2 bg-slate-900 rounded-xl font-mono text-2xl font-black text-amber-400 animate-pulse border border-amber-500/50">
                   {elapsedSeconds.toFixed(2)} s
                 </div>
                 <button
@@ -394,7 +394,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
             )}
 
             {timerState === 'calculated' && calculatedDistanceKm !== null && (
-              <div className="p-3 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-center animate-in zoom-in-95 duration-200">
+              <div className="p-3 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-center animate-toast-in">
                 <div className="text-xs text-slate-600 dark:text-slate-300 font-medium">Distanza Calcolata dal Fronte:</div>
                 <div className="text-2xl font-black text-cyan-400 mt-0.5">
                   {calculatedDistanceKm} km

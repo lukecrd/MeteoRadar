@@ -210,7 +210,7 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
                 type="button"
                 id="confirm-close-ai-modal-btn"
                 onClick={onClose}
-                className="px-6 py-2.5 rounded-xl font-bold text-xs bg-teal-500 hover:bg-teal-400 text-white shadow-md transition-colors"
+                className="px-6 py-2.5 rounded-xl font-bold text-xs bg-teal-500 hover:bg-teal-400 text-white dark:text-slate-950 shadow-md transition-colors"
               >
                 Chiudi Report
               </button>

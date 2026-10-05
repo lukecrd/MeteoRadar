@@ -26,7 +26,7 @@ export const HubStatusStrip: React.FC<HubStatusStripProps> = ({ weather, humidit
     return () => clearInterval(t);
   }, []);
 
-  const link = hasError ? { text: 'OFFLINE', tone: 'var(--hub-red)' } : isLoading ? { text: 'SYNC…', tone: 'var(--hub-amber)' } : { text: 'ONLINE', tone: '#34d399' };
+  const link = hasError ? { text: 'OFFLINE', tone: 'var(--hub-red)' } : isLoading ? { text: 'SYNC…', tone: 'var(--hub-amber)' } : { text: 'ONLINE', tone: 'var(--success)' };
   const c = weather?.current;
   const loc = weather?.location;
 

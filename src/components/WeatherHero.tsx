@@ -56,17 +56,17 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
 
   // Helper for weather icons
   const getWeatherIcon = (code: number, size = 'w-16 h-16') => {
-    if (code === 0) return <Sun className={`${size} text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]`} />;
-    if (code === 1) return <SunMedium className={`${size} text-amber-300 drop-shadow-[0_0_15px_rgba(252,211,77,0.5)]`} />;
-    if (code === 2) return <CloudSun className={`${size} text-amber-300 drop-shadow-[0_0_15px_rgba(252,211,77,0.4)]`} />;
-    if (code === 3) return <Cloud className={`${size} text-slate-300 drop-shadow-[0_0_15px_rgba(203,213,225,0.3)]`} />;
-    if (code >= 45 && code <= 48) return <CloudFog className={`${size} text-teal-300`} />;
+    if (code === 0) return <Sun className={`${size} text-amber-400`} />;
+    if (code === 1) return <SunMedium className={`${size} text-amber-400`} />;
+    if (code === 2) return <CloudSun className={`${size} text-amber-400`} />;
+    if (code === 3) return <Cloud className={`${size} text-slate-300`} />;
+    if (code >= 45 && code <= 48) return <CloudFog className={`${size} text-teal-400`} />;
     if (code >= 51 && code <= 55) return <CloudDrizzle className={`${size} text-sky-400`} />;
-    if (code >= 61 && code <= 65) return <CloudRain className={`${size} text-sky-400 drop-shadow-[0_0_20px_rgba(56,189,248,0.6)]`} />;
-    if (code >= 71 && code <= 75) return <CloudSnow className={`${size} text-indigo-200`} />;
+    if (code >= 61 && code <= 65) return <CloudRain className={`${size} text-sky-400`} />;
+    if (code >= 71 && code <= 75) return <CloudSnow className={`${size} text-sky-400`} />;
     if (code >= 80 && code <= 82) return <CloudRainWind className={`${size} text-sky-500`} />;
-    if (code >= 95) return <CloudLightning className={`${size} text-amber-300 animate-pulse drop-shadow-[0_0_25px_rgba(251,191,36,0.9)]`} />;
-    return <CloudSun className={`${size} text-amber-300`} />;
+    if (code >= 95) return <CloudLightning className={`${size} text-amber-400`} />;
+    return <CloudSun className={`${size} text-amber-400`} />;
   };
 
   // Alert styling helper
@@ -296,12 +296,12 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-start gap-3">
-              <div className={`p-2 rounded-xl bg-slate-900/60 border ${alertStyle.border} ${alertStyle.text} shrink-0 mt-0.5`}>
+              <div className={`p-2 rounded-xl bg-white/70 dark:bg-slate-900/60 border ${alertStyle.border} ${alertStyle.text} shrink-0 mt-0.5`}>
                 <AlertIcon className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`text-xs font-black px-2.5 py-0.5 rounded-full border ${alertStyle.border} ${alertStyle.text} bg-slate-950/40`}>
+                  <span className={`text-xs font-black px-2.5 py-0.5 rounded-full border ${alertStyle.border} ${alertStyle.text} bg-white/70 dark:bg-slate-950/40`}>
                     {alertStyle.badge}
                   </span>
                   <span className="text-xs text-slate-400 font-medium">
@@ -316,7 +316,7 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
                 </p>
                 {isAlertExpanded && (
                   <div className="mt-3 pt-3 border-t border-slate-700/50 text-xs text-slate-300">
-                    <p className="font-bold text-amber-300 mb-1">Indicazioni di sicurezza per la popolazione:</p>
+                    <p className="font-bold text-amber-400 mb-1">Indicazioni di sicurezza per la popolazione:</p>
                     <p>{activeAlert.instructions}</p>
                   </div>
                 )}
@@ -357,7 +357,7 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
                 key={idx}
                 className={`shrink-0 p-3 rounded-2xl border flex flex-col items-center min-w-[78px] transition-all hover:scale-105 ${
                   idx === 0
-                    ? 'bg-gradient-to-b from-cyan-500/20 to-teal-500/10 border-cyan-500/40 text-cyan-300 shadow-md shadow-cyan-500/10'
+                    ? 'bg-gradient-to-b from-cyan-500/20 to-teal-500/10 border-cyan-500/40 text-cyan-400 shadow-md shadow-cyan-500/10'
                     : isDark
                     ? 'bg-slate-800/60 border-slate-700/70 text-slate-200 hover:border-slate-600'
                     : 'bg-white/85 border-slate-200 text-slate-800 hover:border-slate-300'
@@ -385,7 +385,7 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
 
                 {/* CAPE thunderstorm warning pill if risk exists */}
                 {item.cape > 500 && (
-                  <div className="mt-1 px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-0.5">
+                  <div className="mt-1 px-1.5 py-0.5 rounded text-[9px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-0.5">
                     <Zap className="w-2 h-2" />
                     <span>CAPE</span>
                   </div>

@@ -101,12 +101,12 @@ export const HumiditySensorCard: React.FC<HumiditySensorCardProps> = ({
 
       {/* Alert Banner if spike detected */}
       {alertState.isSpikeActive && (
-        <div className="mb-4 p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-start gap-3 text-rose-400 animate-in fade-in slide-in-from-top duration-300">
+        <div className="mb-4 p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-start gap-3 text-rose-400 animate-toast-in">
           <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 animate-bounce" />
           <div className="text-xs">
             <div className="font-bold uppercase tracking-wider text-[11px]">Allarme Variazione Rapida Rilevata</div>
             <div className="text-slate-800 dark:text-slate-100 font-bold mt-0.5">{alertState.message}</div>
-            <div className="text-[11px] text-rose-300 font-semibold mt-1">
+            <div className="text-[11px] text-rose-400 font-semibold mt-1">
               Variazione: {alertState.changeRate > 0 ? '+' : ''}{alertState.changeRate.toFixed(1)}%/h (Soglia di allerta: ±{spikeThreshold}%)
             </div>
           </div>
