@@ -181,10 +181,10 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Analisi Ambientale: Indice UV & Qualità Aria
               </h3>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 font-bold border border-teal-500/30">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 font-bold border border-teal-500/30">
                 Live Sensorica
               </span>
             </div>
@@ -210,14 +210,14 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
                 <Sun className="w-4 h-4 text-amber-400" />
                 Radiazione Solare UV
               </span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-black border ${uvTier.bg} ${uvTier.color}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${uvTier.bg} ${uvTier.color}`}>
                 Livello {uvTier.label}
               </span>
             </div>
 
             {/* Giant Metric Display */}
             <div className="flex items-baseline gap-2 mt-4">
-              <span className="text-5xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white">
+              <span className="text-5xl sm:text-6xl font-bold tracking-tight text-slate-900 dark:text-white">
                 {aqi.uvIndex.toFixed(1)}
               </span>
               <span className="text-xl font-bold text-slate-400">/ 11+ Max</span>
@@ -231,7 +231,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
                   style={{ width: `${Math.min(100, Math.max(8, (aqi.uvIndex / 11) * 100))}%` }}
                 />
               </div>
-              <div className="flex justify-between text-[10px] text-slate-400 mt-1.5 font-bold">
+              <div className="flex justify-between text-xs text-slate-400 mt-1.5 font-bold">
                 <span>0 Basso</span>
                 <span>3 Mod.</span>
                 <span>6 Alto</span>
@@ -247,7 +247,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
 
           {/* Protection Checklist */}
           <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700/60">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
               Protocollo Protezione Solare:
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -291,7 +291,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
                 <Activity className="w-4 h-4 text-teal-400" />
                 Indice Europeo Qualità dell'Aria (EAQI)
               </span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-black border ${aqiInfo.bg} ${aqiInfo.color} flex items-center gap-1.5`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${aqiInfo.bg} ${aqiInfo.color} flex items-center gap-1.5`}>
                 <span className={`w-2 h-2 rounded-full ${aqiInfo.indicator} animate-pulse`} />
                 {aqiInfo.badge} ({aqi.europeanAqi})
               </span>
@@ -305,74 +305,74 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
               {/* PM2.5 */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>PM 2.5</span>
-                  <span className="text-[10px] text-emerald-400">&lt; 15 ok</span>
+                  <span className="text-xs text-emerald-400">&lt; 15 ok</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.pm2_5} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Particolato Fine</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Particolato Fine</div>
               </div>
 
               {/* PM10 */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>PM 10</span>
-                  <span className="text-[10px] text-teal-400">&lt; 40 ok</span>
+                  <span className="text-xs text-teal-400">&lt; 40 ok</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.pm10} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Polveri Inalabili</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Polveri Inalabili</div>
               </div>
 
               {/* O3 */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>Ozono (O₃)</span>
-                  <span className="text-[10px] text-cyan-400">&lt; 120 ok</span>
+                  <span className="text-xs text-cyan-400">&lt; 120 ok</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.ozone} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Ossigeno Triatomico</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Ossigeno Triatomico</div>
               </div>
 
               {/* NO2 */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>NO₂</span>
-                  <span className="text-[10px] text-indigo-400">&lt; 40 ok</span>
+                  <span className="text-xs text-indigo-400">&lt; 40 ok</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.nitrogenDioxide} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Biossido di Azoto</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Biossido di Azoto</div>
               </div>
 
               {/* CO */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>CO</span>
-                  <span className="text-[10px] text-emerald-400">Ottimo</span>
+                  <span className="text-xs text-emerald-400">Ottimo</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.carbonMonoxide} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Monossido Carbonio</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Monossido Carbonio</div>
               </div>
 
               {/* Sensor Reliability Status */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-center">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Stato Rete</span>
                 </div>
-                <div className="text-xs font-extrabold text-emerald-500 dark:text-emerald-400 mt-1">
+                <div className="text-xs font-bold text-emerald-500 dark:text-emerald-400 mt-1">
                   Telemetria Attiva
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Copernicus CAMS</div>
+                <div className="text-xs text-slate-400 mt-0.5">Copernicus CAMS</div>
               </div>
             </div>
           </div>

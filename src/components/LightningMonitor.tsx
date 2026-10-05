@@ -228,7 +228,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
             <h3 className="font-bold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
               Monitor Tuoni & Lampi Convettivi
               {strikes.length > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500 text-white">
                   {strikes.length} SCARICHE SIMULATE
                 </span>
               )}
@@ -266,7 +266,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
       </div>
 
       {/* Zone Color Legend Bar */}
-      <div className="grid grid-cols-4 gap-1.5 mb-4 text-center text-[10px] font-bold">
+      <div className="grid grid-cols-4 gap-1.5 mb-4 text-center text-xs font-bold">
         {/* Neutral grey, never "safe": strikes can hit well beyond 30 km */}
         <div className="p-1.5 rounded-lg bg-slate-500/15 border border-slate-500/30 text-slate-600 dark:text-slate-300">
           ⚪ &gt;30 km: Lontano
@@ -288,12 +288,12 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
         <div className="on-dark lg:col-span-7 relative h-72 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950/90 flex items-center justify-center">
           <canvas ref={radarCanvasRef} className="w-full h-full" />
           
-          <div className="absolute top-2 left-3 text-[10px] font-mono font-bold text-cyan-300 bg-slate-900/90 px-2 py-0.5 rounded border border-cyan-500/40">
+          <div className="absolute top-2 left-3 text-xs font-mono font-bold text-cyan-300 bg-slate-900/90 px-2 py-0.5 rounded border border-cyan-500/40">
             RAGGIO RADAR: 40 KM
           </div>
 
           {closestStrike && (
-            <div className="absolute bottom-2 right-3 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-900/95 border border-slate-700 text-slate-100 backdrop-blur-md">
+            <div className="absolute bottom-2 right-3 text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-900/95 border border-slate-700 text-slate-100 backdrop-blur-md">
               Più vicina: <span className={closestStrike.distanceKm <= 5 ? 'text-rose-400' : closestStrike.distanceKm <= 15 ? 'text-orange-400' : 'text-amber-400'}>{closestStrike.distanceKm} km</span>
             </div>
           )}
@@ -301,12 +301,12 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
 
         {/* Doppler dBZ Reflectivity Scale Bar matching Stitch radar */}
         <div className="lg:col-span-12 -mt-2 p-2.5 rounded-xl bg-slate-800/40 border border-slate-700/50">
-          <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 mb-1.5">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 mb-1.5">
             <span>Scala Riflettività Radar Doppler (dBZ) & Tipo Precipitazione:</span>
             <span className="text-cyan-400 font-mono">15 - 65+ dBZ</span>
           </div>
           <div className="h-2.5 w-full rounded-full overflow-hidden bg-gradient-to-r from-emerald-500 via-amber-400 via-orange-500 via-rose-600 to-purple-600" />
-          <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-semibold">
+          <div className="flex justify-between text-xs text-slate-400 mt-1 font-semibold">
             <span className="text-emerald-400">15-30: Debole</span>
             <span className="text-amber-400">30-40: Moderata</span>
             <span className="text-orange-400">40-50: Rovesci Forti</span>
@@ -328,10 +328,10 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
               : 'bg-slate-50 border-slate-200 text-slate-800'
           }`}>
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">Stato Attività Temporalesca</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Stato Attività Temporalesca</span>
               <Radio className="w-4 h-4 animate-pulse text-amber-400" />
             </div>
-            <div className="text-base font-black mt-1">
+            <div className="text-base font-bold mt-1">
               {isSevere
                 ? 'ALLERTA ROSSA: FULMINI RAVVICINATI (<5 KM)'
                 : isWarning
@@ -355,14 +355,14 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
               {timerState !== 'idle' && (
                 <button
                   onClick={resetTimer}
-                  className="text-[10px] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white underline font-semibold"
+                  className="text-xs text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white underline font-semibold"
                 >
                   Azzera
                 </button>
               )}
             </div>
 
-            <p className="text-[11px] text-slate-600 dark:text-slate-300 mb-3">
+            <p className="text-xs text-slate-600 dark:text-slate-300 mb-3">
               Premi quando vedi il lampo, poi premi quando senti il tuono per calcolare la distanza acustica (v = 343 m/s).
             </p>
 
@@ -379,7 +379,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
 
             {timerState === 'running' && (
               <div className="flex flex-col gap-2">
-                <div className="on-dark text-center py-2 bg-slate-900 rounded-xl font-mono text-2xl font-black text-amber-400 animate-pulse border border-amber-500/50">
+                <div className="on-dark text-center py-2 bg-slate-900 rounded-xl font-mono text-2xl font-bold text-amber-400 animate-pulse border border-amber-500/50">
                   {elapsedSeconds.toFixed(2)} s
                 </div>
                 <button
@@ -396,10 +396,10 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
             {timerState === 'calculated' && calculatedDistanceKm !== null && (
               <div className="p-3 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-center animate-toast-in">
                 <div className="text-xs text-slate-600 dark:text-slate-300 font-medium">Distanza Calcolata dal Fronte:</div>
-                <div className="text-2xl font-black text-cyan-400 mt-0.5">
+                <div className="text-2xl font-bold text-cyan-400 mt-0.5">
                   {calculatedDistanceKm} km
                 </div>
-                <div className="text-[11px] text-slate-700 dark:text-slate-200 mt-1 font-semibold">
+                <div className="text-xs text-slate-700 dark:text-slate-200 mt-1 font-semibold">
                   Ritardo: {elapsedSeconds.toFixed(2)} secondi (Distanza = {elapsedSeconds.toFixed(1)}s × 343 m/s)
                 </div>
               </div>
@@ -409,7 +409,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
           {/* Recent Strikes Log Mini List */}
           {strikes.length > 0 && (
             <div className="space-y-1.5 max-h-28 overflow-y-auto pr-1">
-              <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300">Ultime Scariche Registrate:</div>
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300">Ultime Scariche Registrate:</div>
               {strikes.slice(0, 3).map((s) => (
                 <div
                   key={s.id}
@@ -425,7 +425,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
                     {s.polarity}{s.peakCurrentKa} kA ({s.type === 'CG' ? 'Nube-Suolo' : 'Intranube'})
                   </span>
                   <span className="font-bold">{s.distanceKm} km</span>
-                  <span className="text-[10px] opacity-80">{s.bearingDeg}°</span>
+                  <span className="text-xs opacity-80">{s.bearingDeg}°</span>
                 </div>
               ))}
             </div>

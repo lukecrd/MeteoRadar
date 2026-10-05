@@ -426,7 +426,7 @@ export const GlobalHub: React.FC = () => {
                   key={a.id}
                   type="button"
                   onClick={() => select(newsMarkerId(a.id), a)}
-                  className="pointer-events-auto hub-chip !h-7 !text-[10px]"
+                  className="pointer-events-auto hub-chip !h-7 !text-xs"
                   aria-pressed={selectedId === newsMarkerId(a.id)}
                   style={{ ['--chip-color' as any]: GEO_REGION_META[a.region].color }}
                 >
@@ -438,7 +438,7 @@ export const GlobalHub: React.FC = () => {
           )}
 
           {/* Legend */}
-          <div className="absolute left-3 bottom-3 z-10 flex flex-wrap items-center gap-x-3 gap-y-1 font-hud text-[10px] text-[var(--hub-dim)] pointer-events-none max-w-[80%]">
+          <div className="absolute left-3 bottom-3 z-10 flex flex-wrap items-center gap-x-3 gap-y-1 font-hud text-xs text-[var(--hub-dim)] pointer-events-none max-w-[80%]">
             {layers.news && (
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[var(--hub-cyan)] shadow-[0_0_6px_var(--hub-cyan)]" /> Notizie

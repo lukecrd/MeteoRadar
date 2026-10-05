@@ -124,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isSearching ? (
               <Loader2 className="w-4 h-4 text-[var(--hub-cyan)] animate-spin shrink-0" />
             ) : (
-              <span className="font-hud text-[10px] text-[var(--hub-dim)] hidden md:inline truncate max-w-[110px]" title={currentLocation.name}>
+              <span className="font-hud text-xs text-[var(--hub-dim)] hidden md:inline truncate max-w-[110px]" title={currentLocation.name}>
                 {currentLocation.name}
               </span>
             )}
@@ -145,7 +145,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <span className="font-semibold">{loc.name}</span>
                       {loc.admin1 && <span className="text-[var(--hub-dim)] text-xs">({loc.admin1})</span>}
                     </div>
-                    <span className="font-hud text-[10px] text-[var(--hub-dim)]">{loc.country}</span>
+                    <span className="font-hud text-xs text-[var(--hub-dim)]">{loc.country}</span>
                   </button>
                 ))}
               </div>

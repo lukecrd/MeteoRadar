@@ -405,7 +405,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
           <div class="relative group cursor-pointer transform -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-110">
             <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full shadow-xl backdrop-blur-md ${
               isCurrentActive
-                ? 'bg-teal-500 text-slate-950 ring-2 ring-white font-extrabold'
+                ? 'bg-teal-500 text-slate-950 ring-2 ring-white font-bold'
                 : isSelectedInRegion
                 ? 'bg-slate-900/95 text-white border-2 border-teal-400 shadow-teal-500/20'
                 : 'bg-slate-900/90 text-white border border-slate-700'
@@ -421,8 +421,8 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                   ? 'bg-teal-300'
                   : 'bg-amber-400'
               }"></span>
-              <span class="text-[11px] font-bold tracking-tight">${st.name}</span>
-              <span class="text-[11px] font-black text-amber-300">${st.temperature}°</span>
+              <span class="text-xs font-bold tracking-tight">${st.name}</span>
+              <span class="text-xs font-bold text-amber-300">${st.temperature}°</span>
             </div>
           </div>
         `,
@@ -455,7 +455,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
           <div class="relative flex items-center justify-center -translate-x-1/2 -translate-y-1/2">
             <span class="absolute w-8 h-8 rounded-full bg-purple-500/30 animate-ping"></span>
             <span class="absolute w-5 h-5 rounded-full bg-amber-400/40"></span>
-            <div class="w-3.5 h-3.5 rounded-full bg-amber-300 border-2 border-purple-600 shadow-lg flex items-center justify-center text-[8px] font-black text-slate-950">
+            <div class="w-3.5 h-3.5 rounded-full bg-amber-300 border-2 border-purple-600 shadow-lg flex items-center justify-center text-xs font-bold text-slate-950">
               ⚡
             </div>
           </div>
@@ -493,7 +493,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 <polyline points="5 12 12 5 19 12"></polyline>
               </svg>
             </div>
-            <span class="text-[10px] font-extrabold text-cyan-300">${p.speed} <span class="text-[8px] font-normal text-slate-400">km/h</span></span>
+            <span class="text-xs font-bold text-cyan-300">${p.speed} <span class="text-xs font-normal text-slate-400">km/h</span></span>
           </div>
         `,
         iconSize: [60, 20],
@@ -623,7 +623,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               <Building2 className="w-4 h-4" />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                 Regione Monitorata
               </div>
               <div className="flex flex-wrap items-center gap-2 mt-0.5">
@@ -631,7 +631,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                   id="select-italy-region"
                   value={selectedRegionId}
                   onChange={(e) => handleSelectRegion(e.target.value)}
-                  className={`text-xs sm:text-sm font-black rounded-xl px-3 py-1.5 border transition-colors cursor-pointer outline-none max-w-full truncate ${
+                  className={`text-xs sm:text-sm font-bold rounded-xl px-3 py-1.5 border transition-colors cursor-pointer outline-none max-w-full truncate ${
                     selectedRegionId !== 'all'
                       ? 'bg-teal-500/15 border-teal-500/40 text-teal-400'
                       : isDark
@@ -688,7 +688,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
         {/* Right: Macro-Area Quick Filter Pills */}
         <div className="flex flex-wrap items-center gap-1.5 max-w-full">
-          <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 mr-1 flex items-center gap-1">
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-300 mr-1 flex items-center gap-1">
             <Filter className="w-3 h-3 text-teal-400" /> Area:
           </span>
           {[
@@ -734,7 +734,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-500/20 text-teal-400 text-xs font-black border border-teal-500/30 uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-500/20 text-teal-400 text-xs font-bold border border-teal-500/30 uppercase tracking-wider">
                 <Radio className="w-3.5 h-3.5 animate-pulse text-teal-400" />
                 {selectedRegionId === 'all' ? 'Mappa Satellitare Live Italia' : `Monitoraggio Regionale: ${currentRegionInfo.name}`}
               </span>
@@ -742,7 +742,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 EUMETSAT Meteosat & Radar Doppler
               </span>
             </div>
-            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               {selectedRegionId === 'all' 
                 ? 'Quadro Sinottico & Fenomeni Atmosferici Italia'
                 : `Analisi Satellitare e Stazioni: ${currentRegionInfo.name}`}
@@ -757,31 +757,31 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
           {/* Key Regional/National Telemetry Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
             <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200'}`}>
-              <div className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="text-xs uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <Thermometer className="w-3 h-3 text-amber-500" /> Temp Max
               </div>
-              <div className="text-xs font-black text-amber-500 dark:text-amber-400 mt-0.5 truncate">{dynamicStats.maxTemp}</div>
+              <div className="text-xs font-bold text-amber-500 dark:text-amber-400 mt-0.5 truncate">{dynamicStats.maxTemp}</div>
             </div>
 
             <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200'}`}>
-              <div className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="text-xs uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <Thermometer className="w-3 h-3 text-cyan-400" /> Temp Min
               </div>
-              <div className="text-xs font-black text-cyan-400 dark:text-cyan-300 mt-0.5 truncate">{dynamicStats.minTemp}</div>
+              <div className="text-xs font-bold text-cyan-400 dark:text-cyan-300 mt-0.5 truncate">{dynamicStats.minTemp}</div>
             </div>
 
             <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200'}`}>
-              <div className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="text-xs uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <Wind className="w-3 h-3 text-teal-400" /> Vento Max
               </div>
-              <div className="text-xs font-black text-teal-400 dark:text-teal-300 mt-0.5 truncate">{dynamicStats.maxWind}</div>
+              <div className="text-xs font-bold text-teal-400 dark:text-teal-300 mt-0.5 truncate">{dynamicStats.maxWind}</div>
             </div>
 
             <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200'}`}>
-              <div className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="text-xs uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <CloudRain className="w-3 h-3 text-sky-400" /> {selectedRegionId === 'all' ? 'Pioggia Nazionale' : 'Pioggia Regione'}
               </div>
-              <div className="text-xs font-black text-sky-400 dark:text-sky-300 mt-0.5">{dynamicStats.rainCount} / {dynamicStats.totalStations} staz.</div>
+              <div className="text-xs font-bold text-sky-400 dark:text-sky-300 mt-0.5">{dynamicStats.rainCount} / {dynamicStats.totalStations} staz.</div>
             </div>
           </div>
         </div>
@@ -948,11 +948,11 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
             {/* Quick Level Preset Pills (Nazionale, Regione, Città) */}
             <div
-              className={`p-1.5 rounded-2xl border shadow-2xl backdrop-blur-xl flex flex-col gap-1 text-[11px] font-black ${
+              className={`p-1.5 rounded-2xl border shadow-2xl backdrop-blur-xl flex flex-col gap-1 text-xs font-bold ${
                 isDark ? 'bg-slate-900/90 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-300 text-slate-800'
               }`}
             >
-              <div className="px-2 py-0.5 text-[9px] uppercase tracking-wider text-slate-600 dark:text-slate-300 font-bold text-center">
+              <div className="px-2 py-0.5 text-xs uppercase tracking-wider text-slate-600 dark:text-slate-300 font-bold text-center">
                 Zoom Rapido
               </div>
               <button
@@ -1001,7 +1001,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               </button>
 
               {/* Current Zoom badge */}
-              <div className="text-[9px] font-bold text-center text-slate-600 dark:text-slate-300 pt-0.5 border-t border-slate-700/50">
+              <div className="text-xs font-bold text-center text-slate-600 dark:text-slate-300 pt-0.5 border-t border-slate-700/50">
                 {currentZoomLevel >= 14 ? '🔍 Città' : currentZoomLevel >= 9 ? '📍 Regione' : '🇮🇹 Italia'} ({currentZoomLevel}x)
               </div>
             </div>
@@ -1009,13 +1009,13 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
           {/* Region Badge overlay at top-left inside map */}
           {selectedRegionId !== 'all' && (
-            <div className="on-dark absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-950/85 border border-teal-500/40 text-teal-400 backdrop-blur-md shadow-xl text-xs font-black animate-toast-in">
+            <div className="on-dark absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-950/85 border border-teal-500/40 text-teal-400 backdrop-blur-md shadow-xl text-xs font-bold animate-toast-in">
               <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
               <span>Vista Regionale: {currentRegionInfo.name}</span>
               <button
                 type="button"
                 onClick={() => handleSelectRegion('all')}
-                className="ml-1.5 text-slate-400 hover:text-white text-[10px] font-bold underline"
+                className="ml-1.5 text-slate-400 hover:text-white text-xs font-bold underline"
               >
                 Reset Italia
               </button>
@@ -1032,7 +1032,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <h3 className="font-extrabold text-base">{selectedStation.name}</h3>
+                    <h3 className="font-bold text-base">{selectedStation.name}</h3>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700">
                       {selectedStation.region}
                     </span>
@@ -1049,16 +1049,16 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
               <div className="grid grid-cols-3 gap-2 mt-3 text-center">
                 <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                  <div className="text-[10px] text-slate-400 uppercase font-bold">Temp</div>
-                  <div className="text-base font-black text-amber-400">{selectedStation.temperature}°C</div>
+                  <div className="text-xs text-slate-400 uppercase font-bold">Temp</div>
+                  <div className="text-base font-bold text-amber-400">{selectedStation.temperature}°C</div>
                 </div>
                 <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                  <div className="text-[10px] text-slate-400 uppercase font-bold">Umidità</div>
-                  <div className="text-base font-black text-cyan-400">{selectedStation.humidity}%</div>
+                  <div className="text-xs text-slate-400 uppercase font-bold">Umidità</div>
+                  <div className="text-base font-bold text-cyan-400">{selectedStation.humidity}%</div>
                 </div>
                 <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                  <div className="text-[10px] text-slate-400 uppercase font-bold">Vento</div>
-                  <div className="text-base font-black text-teal-400">{selectedStation.windSpeed}k</div>
+                  <div className="text-xs text-slate-400 uppercase font-bold">Vento</div>
+                  <div className="text-base font-bold text-teal-400">{selectedStation.windSpeed}k</div>
                 </div>
               </div>
 
@@ -1104,7 +1104,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               isDark ? 'bg-slate-950/85 border-slate-800 text-slate-200' : 'bg-white/90 border-slate-200 text-slate-800'
             }`}
           >
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
               <Info className="w-3 h-3 text-teal-400" /> Pioggia radar (mm/h)
             </div>
             {/* Discrete classes matching the RainViewer "Universal Blue" tiles actually requested */}
@@ -1112,11 +1112,11 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               {RADAR_RAIN_LEGEND.map(c => (
                 <div key={c.dbz} className="flex flex-col items-center w-6" title={`${c.dbz} dBZ ≈ ${c.mmh} mm/h`}>
                   <span className="w-full h-2.5 border-y border-slate-700/40 first:rounded-l" style={{ backgroundColor: c.color }} />
-                  <span className="text-[9px] font-semibold tabular-nums mt-0.5 opacity-80">{c.mmh}</span>
+                  <span className="text-xs font-semibold tabular-nums mt-0.5 opacity-80">{c.mmh}</span>
                 </div>
               ))}
             </div>
-            <div className="flex items-center gap-1.5 mt-1.5 text-[9px] font-semibold opacity-80">
+            <div className="flex items-center gap-1.5 mt-1.5 text-xs font-semibold opacity-80">
               <span>Neve</span>
               <div className="flex">
                 {RADAR_SNOW_LEGEND.map(c => (
@@ -1134,7 +1134,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
             }`}
           >
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-[10px] font-bold text-slate-400">Opacità Radar:</span>
+              <span className="text-xs font-bold text-slate-400">Opacità Radar:</span>
               <input
                 type="range"
                 min="0.2"
@@ -1146,7 +1146,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               />
             </div>
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-[10px] font-bold text-slate-400">Opacità Nubi:</span>
+              <span className="text-xs font-bold text-slate-400">Opacità Nubi:</span>
               <input
                 type="range"
                 min="0.1"
@@ -1191,7 +1191,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
             <div className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
               <span>Orario Radar:</span>
-              <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-teal-400 font-black">
+              <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-teal-400 font-bold">
                 {currentFrameTimestamp}
               </span>
             </div>
@@ -1200,7 +1200,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
           {/* Frame Slider */}
           {radarFrames.length > 0 && (
             <div className="flex-1 max-w-md flex items-center gap-2 w-full">
-              <span className="text-[10px] text-slate-400 font-semibold">-1h30</span>
+              <span className="text-xs text-slate-400 font-semibold">-1h30</span>
               <input
                 id="radar-frame-slider"
                 type="range"
@@ -1213,7 +1213,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 }}
                 className="w-full h-2 accent-teal-500 cursor-pointer bg-slate-300 dark:bg-slate-700 rounded-lg"
               />
-              <span className="text-[10px] text-teal-400 font-bold">Live</span>
+              <span className="text-xs text-teal-400 font-bold">Live</span>
             </div>
           )}
         </div>
@@ -1227,7 +1227,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="font-extrabold text-lg tracking-tight flex items-center gap-2 text-slate-900 dark:text-white">
+            <h3 className="font-bold text-lg tracking-tight flex items-center gap-2 text-slate-900 dark:text-white">
               <span>{selectedRegionId === 'all' ? "Rete Osservativa d'Italia" : `Stazioni Meteo: ${currentRegionInfo.name}`}</span>
               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20">
                 {filteredStations.length} stazioni
@@ -1254,14 +1254,14 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
         {/* 20 Regions Quick Selection Bar (with scroll and grid toggle) */}
         <div className="space-y-2 pt-1 pb-1 w-full max-w-full overflow-hidden">
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-300">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
             <span>Seleziona Regione specifica (20 Regioni Italiane):</span>
             <div className="flex items-center gap-2">
               {selectedRegionId !== 'all' && (
                 <button
                   type="button"
                   onClick={() => handleSelectRegion('all')}
-                  className="text-teal-400 hover:underline font-bold text-[11px]"
+                  className="text-teal-400 hover:underline font-bold text-xs"
                 >
                   Mostra tutte le 20 regioni
                 </button>
@@ -1293,7 +1293,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 type="button"
                 id="pill-region-all"
                 onClick={() => handleSelectRegion('all')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all shrink-0 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
                   selectedRegionId === 'all'
                     ? 'bg-teal-500 text-white dark:text-slate-950 shadow-md shadow-teal-500/20'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -1322,7 +1322,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               <button
                 type="button"
                 onClick={() => handleSelectRegion('all')}
-                className={`px-2.5 py-1.5 rounded-xl text-xs font-extrabold truncate transition-all text-left ${
+                className={`px-2.5 py-1.5 rounded-xl text-xs font-bold truncate transition-all text-left ${
                   selectedRegionId === 'all'
                     ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
@@ -1418,26 +1418,26 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-extrabold text-sm text-slate-900 dark:text-white group-hover:text-teal-400 transition-colors">
+                    <span className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-teal-400 transition-colors">
                       {st.name}
                     </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-300 font-semibold">({st.region})</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-300 font-semibold">({st.region})</span>
                   </div>
-                  <span className="text-base font-black text-amber-500 dark:text-amber-400">{formatTemp(st.temperature)}</span>
+                  <span className="text-base font-bold text-amber-500 dark:text-amber-400">{formatTemp(st.temperature)}</span>
                 </div>
 
                 <div className="text-xs text-slate-700 dark:text-slate-200 mt-1 truncate font-medium">
                   {st.weatherDescription}
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300 mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-700/50">
+                <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-700/50">
                   <span className="flex items-center gap-1">
                     <Droplets className="w-3 h-3 text-cyan-400" /> {st.humidity}%
                   </span>
                   <span className="flex items-center gap-1">
                     <Wind className="w-3 h-3 text-teal-400" /> {st.windSpeed} km/h
                   </span>
-                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
                     st.alertLevel === 'red' ? 'bg-rose-500/20 text-rose-400' :
                     st.alertLevel === 'orange' ? 'bg-amber-500/20 text-amber-400' :
                     st.alertLevel === 'yellow' ? 'bg-yellow-400/20 text-yellow-400' :

@@ -45,7 +45,7 @@ const CategoryTag: React.FC<{ item: NewsItem }> = ({ item }) => {
   const meta = NEWS_CATEGORY_META[item.category];
   return (
     <span
-      className="font-hud text-[10px] font-bold tracking-[0.14em] px-1.5 py-0.5 rounded border"
+      className="font-hud text-xs font-bold tracking-[0.14em] px-1.5 py-0.5 rounded border"
       style={{ color: meta.color, borderColor: `${meta.color}55`, background: `${meta.color}14` }}
     >
       {meta.short}
@@ -54,13 +54,13 @@ const CategoryTag: React.FC<{ item: NewsItem }> = ({ item }) => {
 };
 
 const FreshBadge = () => (
-  <span className="font-hud text-[10px] font-bold tracking-[0.14em] px-1.5 py-0.5 rounded bg-[var(--hub-cyan)] text-slate-950">
+  <span className="font-hud text-xs font-bold tracking-[0.14em] px-1.5 py-0.5 rounded bg-[var(--hub-cyan)] text-slate-950">
     NUOVO
   </span>
 );
 
 const StoryMeta: React.FC<{ item: NewsItem; fresh: boolean }> = ({ item, fresh }) => (
-  <div className="flex items-center flex-wrap gap-2 text-[11px] text-[var(--hub-dim)]">
+  <div className="flex items-center flex-wrap gap-2 text-xs text-[var(--hub-dim)]">
     <CategoryTag item={item} />
     {fresh && <FreshBadge />}
     <span className="font-semibold text-[var(--hub-text)] opacity-80">{item.source}</span>
@@ -259,7 +259,7 @@ export const NewsHub: React.FC = () => {
                       rel="noopener noreferrer"
                       className={`group grid grid-cols-[56px_1fr] gap-3 py-3 rounded-lg ${freshIds.has(item.id) ? 'hub-fresh' : ''}`}
                     >
-                      <time className="font-hud text-[11px] text-[var(--hub-dim)] pt-0.5 tabular-nums">
+                      <time className="font-hud text-xs text-[var(--hub-dim)] pt-0.5 tabular-nums">
                         {new Date(item.publishedAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
                       </time>
                       <div className="space-y-1.5 min-w-0">

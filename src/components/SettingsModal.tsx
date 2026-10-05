@@ -63,7 +63,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Sliders className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">Impostazioni Avanzate di Sistema</h2>
+              <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Impostazioni Avanzate di Sistema</h2>
               <p className="text-xs text-slate-500 dark:text-slate-300">Personalizzazione soglie di allarme e notifiche</p>
             </div>
           </div>

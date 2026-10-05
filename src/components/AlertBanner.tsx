@@ -132,9 +132,9 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                     <Droplets className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xs font-black uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                    <div className="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
                       <span>Avviso Sensore Igrometrico</span>
-                      <span className="px-1.5 py-0.2 rounded bg-rose-500 text-white text-[9px] font-extrabold">
+                      <span className="px-1.5 py-0.2 rounded bg-rose-500 text-white text-xs font-bold">
                         CRITICO
                       </span>
                     </div>
@@ -217,10 +217,10 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                   <Zap className="w-4 h-4 fill-current animate-bounce" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-black tracking-tight flex items-center gap-1.5">
+                  <span className="text-xs font-bold tracking-tight flex items-center gap-1.5">
                     <span>Allerta Lampi: {closestStrike.distanceKm} km</span>
                     <span
-                      className={`px-1.5 py-0.2 rounded text-[9px] font-black uppercase text-slate-950 ${
+                      className={`px-1.5 py-0.2 rounded text-xs font-bold uppercase text-slate-950 ${
                         closestStrike.distanceKm <= 5 ? 'bg-rose-400' : 'bg-amber-400'
                       }`}
                     >
@@ -274,10 +274,10 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                     <Zap className="w-5 h-5 fill-current animate-bounce" />
                   </div>
                   <div>
-                    <div className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
                       <span>Allerta Radar Lampi</span>
                       <span
-                        className={`px-2 py-0.5 rounded-full text-slate-950 text-[10px] font-black ${
+                        className={`px-2 py-0.5 rounded-full text-slate-950 text-xs font-bold ${
                           closestStrike.distanceKm <= 5 ? 'bg-rose-400' : 'bg-amber-400'
                         }`}
                       >
@@ -324,7 +324,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
 
               {/* Bottom Quick Actions Toolbar */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/15 text-xs">
-                <div className="text-[11px] opacity-75">
+                <div className="text-xs opacity-75">
                   Protezione automatica attiva
                 </div>
 
@@ -357,7 +357,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                     type="button"
                     id="btn-close-lightning-alert"
                     onClick={onDismissLightningAlert}
-                    className={`px-3 py-1.5 rounded-xl font-black text-white flex items-center gap-1 transition-all shadow-md ${
+                    className={`px-3 py-1.5 rounded-xl font-bold text-white flex items-center gap-1 transition-all shadow-md ${
                       closestStrike.distanceKm <= 5
                         ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/30'
                         : 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/30'

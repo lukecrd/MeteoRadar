@@ -53,10 +53,10 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                   Esporta su Vercel
                 </h2>
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">
                   Pre-configurato
                 </span>
               </div>
@@ -129,7 +129,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
         {activeTab === 'quick' && (
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 to-blue-500/10 border border-teal-500/20 text-xs text-slate-700 dark:text-slate-200">
-              <h3 className="font-extrabold text-teal-500 dark:text-teal-400 text-sm mb-1 flex items-center gap-1.5">
+              <h3 className="font-bold text-teal-500 dark:text-teal-400 text-sm mb-1 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
                 L'applicazione è già pronta per Vercel
               </h3>
@@ -141,7 +141,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
             {/* 3 Simple Steps */}
             <div className="space-y-3">
               <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-start gap-3 bg-slate-50 dark:bg-slate-800/40">
-                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-black text-xs flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">
                   1
                 </div>
                 <div>
@@ -155,7 +155,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               </div>
 
               <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-start gap-3 bg-slate-50 dark:bg-slate-800/40">
-                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-black text-xs flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">
                   2
                 </div>
                 <div>
@@ -169,7 +169,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               </div>
 
               <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-start gap-3 bg-slate-50 dark:bg-slate-800/40">
-                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-black text-xs flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-teal-500 text-white dark:text-slate-950 font-bold text-xs flex items-center justify-center shrink-0">
                   3
                 </div>
                 <div>
@@ -218,7 +218,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
                 <span className="text-slate-500">Output:</span> dist &nbsp;|&nbsp;
                 <span className="text-slate-500">Build:</span> vite build
               </div>
-              <span className="text-emerald-400 text-[11px] font-bold">100% Compatibile</span>
+              <span className="text-emerald-400 text-xs font-bold">100% Compatibile</span>
             </div>
           </div>
         )}
@@ -264,7 +264,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/40 text-[11px] text-slate-500 dark:text-slate-400">
+            <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/40 text-xs text-slate-500 dark:text-slate-400">
               La CLI leggerà automaticamente il file <code>vercel.json</code> e pubblicherà la tua applicazione generando un dominio HTTPS gratuito.
             </div>
           </div>
@@ -282,36 +282,36 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-teal-400" />
                   <span className="font-mono font-bold text-slate-900 dark:text-white">vercel.json</span>
-                  <span className="text-slate-400 text-[11px]">Configurazione routing Vite + API</span>
+                  <span className="text-slate-400 text-xs">Configurazione routing Vite + API</span>
                 </div>
-                <span className="text-emerald-400 font-semibold text-[11px]">Pronto</span>
+                <span className="text-emerald-400 font-semibold text-xs">Pronto</span>
               </div>
 
               <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-cyan-400" />
                   <span className="font-mono font-bold text-slate-900 dark:text-white">api/weather/predict-changes.ts</span>
-                  <span className="text-slate-400 text-[11px]">Serverless Gemini AI</span>
+                  <span className="text-slate-400 text-xs">Serverless Gemini AI</span>
                 </div>
-                <span className="text-emerald-400 font-semibold text-[11px]">Pronto</span>
+                <span className="text-emerald-400 font-semibold text-xs">Pronto</span>
               </div>
 
               <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-indigo-400" />
                   <span className="font-mono font-bold text-slate-900 dark:text-white">api/health.ts</span>
-                  <span className="text-slate-400 text-[11px]">Healthcheck Serverless</span>
+                  <span className="text-slate-400 text-xs">Healthcheck Serverless</span>
                 </div>
-                <span className="text-emerald-400 font-semibold text-[11px]">Pronto</span>
+                <span className="text-emerald-400 font-semibold text-xs">Pronto</span>
               </div>
 
               <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-amber-400" />
                   <span className="font-mono font-bold text-slate-900 dark:text-white">VERCEL_DEPLOY_GUIDE.md</span>
-                  <span className="text-slate-400 text-[11px]">Guida passo-passo</span>
+                  <span className="text-slate-400 text-xs">Guida passo-passo</span>
                 </div>
-                <span className="text-emerald-400 font-semibold text-[11px]">Incluso</span>
+                <span className="text-emerald-400 font-semibold text-xs">Incluso</span>
               </div>
             </div>
           </div>

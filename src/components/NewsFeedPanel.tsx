@@ -41,7 +41,7 @@ export const NewsFeedPanel: React.FC<{ onOpenHub: () => void }> = ({ onOpenHub }
         {top.map((item) => (
           <li key={item.id}>
             <a href={item.url} target="_blank" rel="noopener noreferrer" className="group block py-2.5">
-              <div className="font-hud text-[10px] text-[var(--hub-dim)] mb-0.5">
+              <div className="font-hud text-xs text-[var(--hub-dim)] mb-0.5">
                 {timeAgo(item.publishedAt)} · {item.source}
               </div>
               <div className="text-sm font-medium leading-snug line-clamp-2 group-hover:text-[var(--hub-cyan)] transition-colors">

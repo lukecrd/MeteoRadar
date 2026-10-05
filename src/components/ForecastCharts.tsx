@@ -304,18 +304,18 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
             <ResponsiveContainer width="100%" height="100%">
               {chartMetric === 'temp-rain' ? (
                 <ComposedChart data={hourly} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="hourLabel" tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }} />
+                  <XAxis dataKey="hourLabel" tick={{ fontSize: 12, fill: isDark ? '#cbd5e1' : '#475569' }} />
                   <YAxis
                     yAxisId="left"
                     domain={['auto', 'auto']}
-                    tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }}
+                    tick={{ fontSize: 12, fill: isDark ? '#cbd5e1' : '#475569' }}
                     unit="°"
                   />
                   <YAxis
                     yAxisId="right"
                     orientation="right"
                     domain={[0, 100]}
-                    tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }}
+                    tick={{ fontSize: 12, fill: isDark ? '#cbd5e1' : '#475569' }}
                     unit="%"
                   />
                   <Tooltip
@@ -348,18 +348,18 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 </ComposedChart>
               ) : (
                 <ComposedChart data={hourly} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="hourLabel" tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }} />
+                  <XAxis dataKey="hourLabel" tick={{ fontSize: 12, fill: isDark ? '#cbd5e1' : '#475569' }} />
                   <YAxis
                     yAxisId="left"
                     domain={[0, 100]}
-                    tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }}
+                    tick={{ fontSize: 12, fill: isDark ? '#cbd5e1' : '#475569' }}
                     unit="%"
                   />
                   <YAxis
                     yAxisId="right"
                     orientation="right"
                     domain={['auto', 'auto']}
-                    tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }}
+                    tick={{ fontSize: 12, fill: isDark ? '#cbd5e1' : '#475569' }}
                     unit="J"
                   />
                   <Tooltip
@@ -404,18 +404,18 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 }`}
               >
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-200">{item.hourLabel}</span>
-                <span className="text-sm font-black text-slate-900 dark:text-white">{item.temperature}°C</span>
-                <div className="flex items-center gap-1 text-[11px] text-cyan-500 dark:text-cyan-300 font-semibold">
+                <span className="text-sm font-bold text-slate-900 dark:text-white">{item.temperature}°C</span>
+                <div className="flex items-center gap-1 text-xs text-cyan-500 dark:text-cyan-300 font-semibold">
                   <Droplets className="w-2.5 h-2.5" />
                   {item.humidity}%
                 </div>
                 {item.precipitationProbability > 0 ? (
-                  <div className="flex items-center gap-1 text-[11px] text-sky-400 font-bold">
+                  <div className="flex items-center gap-1 text-xs text-sky-400 font-bold">
                     <CloudRain className="w-2.5 h-2.5" />
                     {item.precipitationProbability}%
                   </div>
                 ) : (
-                  <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">0%</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-300 font-medium">0%</span>
                 )}
               </div>
             ))}
@@ -438,10 +438,10 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                   <dominantPhenomenon.icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                  <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
                     Fenomeno Prevalente 24h
                   </div>
-                  <div className="text-sm font-extrabold text-slate-900 dark:text-white">
+                  <div className="text-sm font-bold text-slate-900 dark:text-white">
                     {dominantPhenomenon.name}
                   </div>
                   <div className="text-xs text-slate-600 dark:text-slate-300">
@@ -460,10 +460,10 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 <CloudRain className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
                   Finestra Precipitazioni
                 </div>
-                <div className="text-sm font-extrabold text-slate-900 dark:text-white">
+                <div className="text-sm font-bold text-slate-900 dark:text-white">
                   {totalRainHours > 0 ? `${totalRainHours} ore con pioggia / temporali` : 'Nessuna pioggia prevista'}
                 </div>
                 <div className="text-xs text-slate-600 dark:text-slate-300">
@@ -481,10 +481,10 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 <Zap className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
                   Attività Convettiva CAPE
                 </div>
-                <div className="text-sm font-extrabold text-slate-900 dark:text-white">
+                <div className="text-sm font-bold text-slate-900 dark:text-white">
                   {phenomenaData.some((p) => p.categoryKey === 'storm')
                     ? 'Rischio temporali attivo'
                     : 'Atmosfera stabile'}
@@ -549,9 +549,9 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
 
               {/* Center Donut Label */}
               <div className="absolute inset-0 m-auto w-24 h-24 rounded-full flex flex-col items-center justify-center pointer-events-none text-center">
-                <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300">Totale</span>
-                <span className="text-xl font-black text-slate-900 dark:text-white">24h</span>
-                <span className="text-[9px] text-teal-400 font-bold">Previsione</span>
+                <span className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300">Totale</span>
+                <span className="text-xl font-bold text-slate-900 dark:text-white">24h</span>
+                <span className="text-xs text-teal-400 font-bold">Previsione</span>
               </div>
             </div>
 
@@ -593,10 +593,10 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-slate-900 dark:text-white">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
                           {item.hours}h
                         </span>
-                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300">
+                        <span className="text-xs font-semibold text-slate-500 dark:text-slate-300">
                           ({item.percentage}%)
                         </span>
                       </div>
@@ -614,7 +614,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                     </div>
 
                     {/* Time slots preview */}
-                    <div className="mt-1.5 flex flex-wrap gap-1 text-[10px] text-slate-500 dark:text-slate-300">
+                    <div className="mt-1.5 flex flex-wrap gap-1 text-xs text-slate-500 dark:text-slate-300">
                       <span>Ore:</span>
                       {item.timeSlots.slice(0, 8).map((slot, sIdx) => (
                         <span
@@ -653,7 +653,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
             >
               <div className="w-24 font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 <span>{item.dayLabel}</span>
-                {idx === 0 && <span className="text-[10px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-400">Oggi</span>}
+                {idx === 0 && <span className="text-xs px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-400">Oggi</span>}
               </div>
 
               <div className="flex-1 px-4 text-xs font-semibold text-slate-800 dark:text-slate-200">
@@ -669,7 +669,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 <div className="w-20 text-xs text-slate-500 dark:text-slate-300 font-semibold">0%</div>
               )}
 
-              <div className="flex items-center gap-2 text-sm font-extrabold w-28 justify-end">
+              <div className="flex items-center gap-2 text-sm font-bold w-28 justify-end">
                 <span className="text-amber-500 dark:text-amber-400">{formatTemp(item.maxTemp, { unit: false })}</span>
                 <span className="text-slate-500 dark:text-slate-300 font-normal">/</span>
                 <span className="text-cyan-400 dark:text-cyan-300">{formatTemp(item.minTemp, { unit: false })}</span>

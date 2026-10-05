@@ -216,7 +216,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
           {/* Map Location Badge */}
-          <div className="on-dark absolute top-3 left-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md border border-slate-700/80 text-[11px] text-slate-200 shadow-md">
+          <div className="on-dark absolute top-3 left-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md border border-slate-700/80 text-xs text-slate-200 shadow-md">
             <MapPin className="w-3.5 h-3.5 text-teal-400" />
             <span className="font-semibold">{location.name}</span>
             <span className="text-slate-400">({location.latitude.toFixed(2)}°, {location.longitude.toFixed(2)}°)</span>
@@ -236,16 +236,16 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
             {/* Outer Ring with Degrees & Cardinal Points */}
             <div className="on-dark absolute inset-0 rounded-full border-2 border-teal-500/40 bg-slate-900/60 backdrop-blur-md shadow-2xl flex items-center justify-center">
               {/* Cardinal Labels */}
-              <span className="absolute top-2 font-black text-rose-500 text-xs tracking-wider">N</span>
+              <span className="absolute top-2 font-bold text-rose-500 text-xs tracking-wider">N</span>
               <span className="absolute right-2.5 font-bold text-slate-300 text-xs">E</span>
               <span className="absolute bottom-2 font-bold text-slate-300 text-xs">S</span>
               <span className="absolute left-2.5 font-bold text-slate-300 text-xs">W</span>
 
               {/* Intercardinal Labels */}
-              <span className="absolute top-5 right-6 font-semibold text-[10px] text-teal-400/80">NE</span>
-              <span className="absolute bottom-5 right-6 font-semibold text-[10px] text-slate-400">SE</span>
-              <span className="absolute bottom-5 left-6 font-semibold text-[10px] text-slate-400">SW</span>
-              <span className="absolute top-5 left-6 font-semibold text-[10px] text-slate-400">NW</span>
+              <span className="absolute top-5 right-6 font-semibold text-xs text-teal-400/80">NE</span>
+              <span className="absolute bottom-5 right-6 font-semibold text-xs text-slate-400">SE</span>
+              <span className="absolute bottom-5 left-6 font-semibold text-xs text-slate-400">SW</span>
+              <span className="absolute top-5 left-6 font-semibold text-xs text-slate-400">NW</span>
 
               {/* Dial Ticks (every 30 deg) */}
               {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
@@ -263,8 +263,8 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
 
               {/* Center Hub */}
               <div className="w-16 h-16 rounded-full bg-slate-800/90 border border-teal-400/30 flex flex-col items-center justify-center z-20 shadow-inner">
-                <span className="text-sm font-extrabold text-teal-400">{windDirection}°</span>
-                <span className="text-[9px] font-bold text-slate-400 uppercase">Gradi</span>
+                <span className="text-sm font-bold text-teal-400">{windDirection}°</span>
+                <span className="text-xs font-bold text-slate-400 uppercase">Gradi</span>
               </div>
 
               {/* Wind Vector Pointer Arrow */}
@@ -288,11 +288,11 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
         <div className="lg:col-span-5 flex flex-col gap-3">
           {/* Main Direction Box */}
           <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'}`}>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center justify-between">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center justify-between">
               <span>Direzione Vento (Rosa Nautica)</span>
               <span className="text-teal-400 font-bold">{windDirection}°</span>
             </div>
-            <div className="text-xl font-black text-slate-900 dark:text-white mt-1 flex items-center gap-2">
+            <div className="text-xl font-bold text-slate-900 dark:text-white mt-1 flex items-center gap-2">
               {/* lucide Navigation is drawn pointing NE (45°): compensate so it points along the flow */}
               <Navigation className="w-5 h-5 text-teal-400" aria-hidden="true" style={{ transform: `rotate(${windFlowBearing(windDirection) - 45}deg)` }} />
               da {windDirLabel}
@@ -302,12 +302,12 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
           {/* Speed & Gusts with Unit Toggle */}
           <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'}`}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
                 <Wind className="w-3.5 h-3.5 text-teal-400" />
                 Velocità & Raffiche
               </span>
               {/* Unit Switcher */}
-              <div className="flex items-center gap-1 text-[10px] font-bold bg-slate-200 dark:bg-slate-700 p-0.5 rounded-md">
+              <div className="flex items-center gap-1 text-xs font-bold bg-slate-200 dark:bg-slate-700 p-0.5 rounded-md">
                 <button
                   onClick={() => setUnit('kmh')}
                   className={`px-1.5 py-0.5 rounded font-bold ${unit === 'kmh' ? 'bg-teal-500 text-white dark:text-slate-950' : 'text-slate-600 dark:text-slate-200'}`}
@@ -332,13 +332,13 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
             <div className="grid grid-cols-2 gap-3 mt-1">
               <div>
                 <div className="text-xs text-slate-500 dark:text-slate-300 font-semibold">Velocità Media</div>
-                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                <div className="text-2xl font-bold text-slate-900 dark:text-white">
                   {formatSpeed(windSpeed)}
                 </div>
               </div>
               <div>
                 <div className="text-xs text-slate-500 dark:text-slate-300 font-semibold">Raffiche Max</div>
-                <div className="text-2xl font-black text-amber-400">
+                <div className="text-2xl font-bold text-amber-400">
                   {formatSpeed(windGusts)}
                 </div>
               </div>
@@ -355,7 +355,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
                 <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
                   Scala Beaufort {beaufort.scale} / 12
                 </div>
-                <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">{beaufort.description}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-300 font-medium">{beaufort.description}</div>
               </div>
             </div>
             <div className="flex gap-0.5">

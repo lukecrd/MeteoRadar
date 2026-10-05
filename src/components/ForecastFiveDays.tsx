@@ -98,7 +98,7 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
             <Calendar className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <h3 className="font-bold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
               Previsioni a 5 Giorni
             </h3>
             <p className="text-xs text-slate-600 dark:text-slate-300">
@@ -141,12 +141,12 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
               {/* Day & Date Header */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-xs font-black uppercase tracking-wider capitalize ${
+                  <span className={`text-xs font-bold uppercase tracking-wider capitalize ${
                     isSelected ? 'text-teal-400 dark:text-teal-300' : 'text-slate-700 dark:text-slate-200'
                   }`}>
                     {dayName}
                   </span>
-                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-300">
                     {dateFormatted}
                   </span>
                 </div>
@@ -164,7 +164,7 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
                       <span>{day.precipitationProbability}%</span>
                     </div>
                   ) : (
-                    <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300">
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-300">
                       Sereno (0%)
                     </span>
                   )}
@@ -179,7 +179,7 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
               <div>
                 <div className="flex items-baseline justify-between mb-1.5">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-black text-amber-500 dark:text-amber-400">
+                    <span className="text-xl font-bold text-amber-500 dark:text-amber-400">
                       {formatTemp(day.maxTemp, { unit: false })}
                     </span>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-300">Max</span>
@@ -204,7 +204,7 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
                 </div>
 
                 {/* Wind snippet */}
-                <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-700/40 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-700/40 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span className="flex items-center gap-1">
                     <Wind className="w-3 h-3 text-teal-400" />
                     <span>{day.maxWindSpeed} km/h</span>
@@ -260,10 +260,10 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
                 <Droplets className="w-3.5 h-3.5 text-sky-400" />
                 <span>Rischio Pioggia</span>
               </div>
-              <div className="text-lg font-black text-sky-400">
+              <div className="text-lg font-bold text-sky-400">
                 {selectedDay.precipitationProbability}%
               </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
+              <div className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
                 {selectedDay.precipitationProbability > 50
                   ? 'Precipitazioni probabili'
                   : selectedDay.precipitationProbability > 20
@@ -279,10 +279,10 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
                 <Wind className="w-3.5 h-3.5 text-teal-400" />
                 <span>Vento Massimo</span>
               </div>
-              <div className="text-lg font-black text-slate-900 dark:text-white">
+              <div className="text-lg font-bold text-slate-900 dark:text-white">
                 {selectedDay.maxWindSpeed} <span className="text-xs font-normal">km/h</span>
               </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
+              <div className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
                 {getWindDirectionLabel(selectedDay.dominantWindDirection)}
               </div>
             </div>
@@ -294,10 +294,10 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
                 <Sun className="w-3.5 h-3.5 text-amber-400" />
                 <span>Indice UV Max</span>
               </div>
-              <div className="text-lg font-black text-amber-400">
+              <div className="text-lg font-bold text-amber-400">
                 {selectedDay.uvMax} <span className="text-xs font-normal">/ 11</span>
               </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
+              <div className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
                 {selectedDay.uvMax > 7 ? 'Molto Alto (Protezione)' : selectedDay.uvMax > 4 ? 'Moderato' : 'Basso'}
               </div>
             </div>
@@ -309,14 +309,14 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Attività all'Aperto</span>
               </div>
-              <div className="text-lg font-black text-emerald-400">
+              <div className="text-lg font-bold text-emerald-400">
                 {selectedDay.precipitationProbability > 60
                   ? 'Sconsigliate'
                   : selectedDay.precipitationProbability > 30
                   ? 'Variabili'
                   : 'Favorevoli'}
               </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-300 mt-0.5">
+              <div className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
                 Indice outdoor
               </div>
             </div>

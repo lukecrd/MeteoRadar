@@ -11,7 +11,7 @@ interface HubStatusStripProps {
 
 const Readout: React.FC<{ label: string; value: React.ReactNode; tone?: string }> = ({ label, value, tone }) => (
   <div className="flex flex-col justify-center px-4 py-2.5 min-w-[104px] border-r border-[var(--hub-line)] last:border-r-0">
-    <span className="hub-label !text-[9px]">{label}</span>
+    <span className="hub-label !text-xs">{label}</span>
     <span className="font-hud text-sm font-semibold tabular-nums whitespace-nowrap" style={tone ? { color: tone } : undefined}>
       {value}
     </span>

@@ -36,7 +36,7 @@ export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, err
           </button>
         }
       />
-      <div className="flex items-center justify-between mb-2 font-hud text-[11px] text-[var(--hub-dim)]">
+      <div className="flex items-center justify-between mb-2 font-hud text-xs text-[var(--hub-dim)]">
         <span>
           <span className="text-[var(--hub-text)] font-bold">{openCount}</span>/{indexCount} piazze aperte
         </span>
@@ -72,11 +72,11 @@ export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, err
                             )}
                             <span className="font-hud text-xs font-bold truncate">{q.short}</span>
                           </span>
-                          <span className="block text-[10px] text-[var(--hub-dim)] truncate">{q.name}</span>
+                          <span className="block text-xs text-[var(--hub-dim)] truncate">{q.name}</span>
                         </span>
                         <span className="text-right">
                           <span className="block font-hud text-xs font-semibold tabular-nums">{formatPrice(q.price)}</span>
-                          <span className="block font-hud text-[10px] font-bold tabular-nums" style={{ color: trendColor(q.changePct) }}>
+                          <span className="block font-hud text-xs font-bold tabular-nums" style={{ color: trendColor(q.changePct) }}>
                             {formatPct(q.changePct)}
                           </span>
                         </span>

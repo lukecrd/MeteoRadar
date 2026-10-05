@@ -116,7 +116,7 @@ export const QuakePanel: React.FC<QuakePanelProps> = ({
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[13px] font-medium leading-snug truncate">{q.place}</span>
-                    <span className="flex items-center gap-1.5 font-hud text-[10px] text-[var(--hub-dim)]">
+                    <span className="flex items-center gap-1.5 font-hud text-xs text-[var(--hub-dim)]">
                       <time dateTime={new Date(q.time).toISOString()}>{timeAgo(q.time)}</time>
                       <span aria-hidden>·</span>
                       <span>prof. {formatNumber(q.depthKm, q.depthKm < 10 ? 1 : 0)} km</span>

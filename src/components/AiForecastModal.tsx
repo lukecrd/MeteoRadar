@@ -78,9 +78,9 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+              <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
                 <span>Diagnostica AI Predittiva</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-400 font-bold border border-teal-500/30">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-400 font-bold border border-teal-500/30">
                   Gemini 3.7
                 </span>
               </h2>
@@ -136,16 +136,16 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
                   <ShieldCheck className="w-6 h-6 shrink-0" />
                 )}
                 <div>
-                  <div className="text-xs font-black uppercase tracking-wider">
+                  <div className="text-xs font-bold uppercase tracking-wider">
                     Indice di Rischio Cambiamenti Atmosferici
                   </div>
-                  <div className="text-lg font-extrabold">{risk}</div>
+                  <div className="text-lg font-bold">{risk}</div>
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-300">Accuratezza Modello</div>
-                <div className="text-base font-black text-teal-400">{safeReport.confidence ?? 94}%</div>
+                <div className="text-xs uppercase font-bold text-slate-500 dark:text-slate-300">Accuratezza Modello</div>
+                <div className="text-base font-bold text-teal-400">{safeReport.confidence ?? 94}%</div>
               </div>
             </div>
 
