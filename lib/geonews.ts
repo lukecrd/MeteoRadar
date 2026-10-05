@@ -3,7 +3,7 @@
 // Google News search, so every story on the globe reads in Italian.
 // Shared by the Express server (server.ts) and the Vercel function.
 
-import { fetchFeed, NewsItem } from './news';
+import { fetchFeed, type NewsItem } from './news.js';
 
 export type GeoRegion = 'europa' | 'americhe' | 'mena' | 'asia';
 
