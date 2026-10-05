@@ -10,7 +10,9 @@ import {
   Layers,
   Sparkles,
   ShieldCheck,
-  Check
+  Check,
+  BookOpen,
+  Lightbulb,
 } from 'lucide-react';
 
 interface AndroidModalProps {
@@ -204,7 +206,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
               </div>
 
               <div className="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs flex items-center gap-2">
-                <span>📘</span>
+                <BookOpen className="w-4 h-4 shrink-0" aria-hidden="true" />
                 <span>Consulta la guida completa in <strong>FLUTTER_GUIDE.md</strong> per tutte le istruzioni dettagliate.</span>
               </div>
             </div>
@@ -312,7 +314,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
               </div>
 
               <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center gap-2">
-                <span>💡</span>
+                <Lightbulb className="w-4 h-4 shrink-0" aria-hidden="true" />
                 <span>In Android Studio fai clic su <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong> per avere il file <code>.apk</code> pronto per l'installazione su qualsiasi telefono! Consulta anche il file <code>ANDROID_STUDIO_GUIDE.md</code>.</span>
               </div>
             </div>

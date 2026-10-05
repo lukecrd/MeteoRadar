@@ -299,7 +299,7 @@ export const GlobalHub: React.FC = () => {
       <section className="hub-panel hub-panel--glow p-4 sm:p-5 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <div className="hub-label flex items-center gap-2">
-            <span className="hub-live-dot" /> MOD-00 // Centro di comando globale
+            <span className="hub-live-dot" /> Centro di comando globale
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-bold mt-1 flex items-center gap-3">
             <Orbit className="w-8 h-8 text-[var(--hub-cyan)]" />

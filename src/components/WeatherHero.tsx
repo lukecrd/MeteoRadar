@@ -123,9 +123,6 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
           : 'bg-white/95 backdrop-blur-xl border-slate-200 text-slate-900 shadow-xl shadow-slate-200/60'
       }`}
     >
-      {/* Decorative Atmospheric Glow */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none -z-0" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-500/15 rounded-full blur-3xl pointer-events-none -z-0" />
 
       {/* HUD targeting reticle + slow scan sweep — the instrument-panel signature */}
       {isDark && (
@@ -176,7 +173,7 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 hover:from-teal-400 hover:to-cyan-400 text-white shadow-lg shadow-teal-500/25 transition-transform active:scale-95"
             title="Diagnostica previsionale AI avanzata Gemini"
           >
-            <Sparkles className="w-4 h-4 animate-spin" style={{ animationDuration: '4s' }} />
+            <Sparkles className="w-4 h-4" aria-hidden="true" />
             <span>Diagnostica AI</span>
           </button>
 

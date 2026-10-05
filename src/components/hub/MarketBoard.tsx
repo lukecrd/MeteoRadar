@@ -27,7 +27,7 @@ export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, err
   return (
     <section className="hub-panel p-4 flex flex-col flex-1 min-w-0 min-h-0" aria-label="Borse mondiali">
       <PanelHeader
-        code="MOD-00.B // Mercati"
+        code="Mercati"
         title="Borse mondiali"
         icon={<CandlestickChart className="w-4 h-4 text-[var(--hub-amber)]" />}
         right={

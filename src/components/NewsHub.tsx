@@ -96,7 +96,7 @@ export const NewsHub: React.FC = () => {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <div className="hub-label flex items-center gap-2">
-            <span className="hub-live-dot" /> MOD-08 // Feed in tempo reale
+            <span className="hub-live-dot" /> Feed in tempo reale
           </div>
           <h2 id="news-hub-title" className="font-display text-3xl sm:text-4xl font-bold mt-1 flex items-center gap-3">
             <SatelliteDish className="w-7 h-7 text-[var(--hub-cyan)]" />
@@ -195,11 +195,6 @@ export const NewsHub: React.FC = () => {
                 freshIds.has(lead.id) ? 'hub-fresh' : ''
               }`}
             >
-              <div
-                aria-hidden
-                className="absolute -top-24 -right-24 w-72 h-72 rounded-full blur-3xl opacity-25 pointer-events-none"
-                style={{ background: NEWS_CATEGORY_META[lead.category].color }}
-              />
               {/* Oversized outlined category code as a HUD watermark */}
               <span
                 aria-hidden

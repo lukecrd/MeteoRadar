@@ -455,8 +455,8 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
           <div class="relative flex items-center justify-center -translate-x-1/2 -translate-y-1/2">
             <span class="absolute w-8 h-8 rounded-full bg-purple-500/30 animate-ping"></span>
             <span class="absolute w-5 h-5 rounded-full bg-amber-400/40"></span>
-            <div class="w-3.5 h-3.5 rounded-full bg-amber-300 border-2 border-purple-600 shadow-lg flex items-center justify-center text-xs font-bold text-slate-950">
-              ⚡
+            <div class="w-4 h-4 rounded-full bg-amber-300 border-2 border-slate-900 shadow-lg flex items-center justify-center text-slate-950">
+              <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             </div>
           </div>
         `,
@@ -813,7 +813,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
               }`}
             >
-              🛰️ Satellite HD
+              <Globe className="w-3.5 h-3.5 inline -mt-0.5" aria-hidden="true" /> Satellite HD
             </button>
             <button
               id="btn-basemap-dark"
@@ -824,7 +824,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
               }`}
             >
-              🌑 Radar Dark
+              <Layers className="w-3.5 h-3.5 inline -mt-0.5" aria-hidden="true" /> Radar Dark
             </button>
             <button
               id="btn-basemap-streets"
@@ -835,7 +835,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                   : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700'
               }`}
             >
-              🗺️ Geografica
+              <MapPin className="w-3.5 h-3.5 inline -mt-0.5" aria-hidden="true" /> Geografica
             </button>
           </div>
 
@@ -981,7 +981,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 }`}
                 title="Zoom centrato sulla regione selezionata"
               >
-                <span>📍</span>
+                <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Regione</span>
               </button>
 
@@ -996,13 +996,13 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 }`}
                 title="Zoom ravvicinato ad alta risoluzione (livello città e strade)"
               >
-                <span>🏙️</span>
+                <Building2 className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Città HD</span>
               </button>
 
               {/* Current Zoom badge */}
               <div className="text-xs font-bold text-center text-slate-600 dark:text-slate-300 pt-0.5 border-t border-slate-700/50">
-                {currentZoomLevel >= 14 ? '🔍 Città' : currentZoomLevel >= 9 ? '📍 Regione' : '🇮🇹 Italia'} ({currentZoomLevel}x)
+                {currentZoomLevel >= 14 ? 'Città' : currentZoomLevel >= 9 ? 'Regione' : 'Italia'} ({currentZoomLevel}x)
               </div>
             </div>
           </div>
@@ -1355,11 +1355,11 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
             <span className="text-xs font-bold text-slate-600 dark:text-slate-300 mr-1">Filtro meteo:</span>
             {[
               { id: 'all', label: 'Tutti' },
-              { id: 'rain', label: '🌧️ Pioggia' },
-              { id: 'storm', label: '⚡ Temporali' },
-              { id: 'wind', label: '💨 Vento >25k' },
-              { id: 'fog', label: '🌫️ Nebbia' },
-              { id: 'snow', label: '❄️ Neve' },
+              { id: 'rain', label: 'Pioggia' },
+              { id: 'storm', label: 'Temporali' },
+              { id: 'wind', label: 'Vento ≥ 25 km/h' },
+              { id: 'fog', label: 'Nebbia' },
+              { id: 'snow', label: 'Neve' },
             ].map(f => (
               <button
                 key={f.id}

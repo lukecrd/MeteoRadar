@@ -47,7 +47,7 @@ export const QuakePanel: React.FC<QuakePanelProps> = ({
   return (
     <section className="hub-panel p-4 flex flex-col flex-1 min-w-0 min-h-0" aria-label="Terremoti">
       <PanelHeader
-        code="MOD-00.C // Sismica"
+        code="Sismica"
         title="Terremoti"
         icon={<Activity className="w-4 h-4 text-[#f97316]" />}
         right={

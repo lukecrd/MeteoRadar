@@ -269,16 +269,16 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
       <div className="grid grid-cols-4 gap-1.5 mb-4 text-center text-xs font-bold">
         {/* Neutral grey, never "safe": strikes can hit well beyond 30 km */}
         <div className="p-1.5 rounded-lg bg-slate-500/15 border border-slate-500/30 text-slate-600 dark:text-slate-300">
-          ⚪ &gt;30 km: Lontano
+          <span className="inline-block w-2 h-2 rounded-full bg-slate-400 mr-1.5" aria-hidden="true" />&gt;30 km: Lontano
         </div>
         <div className="p-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400">
-          🟡 15-30 km: Monitor
+          <span className="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5" aria-hidden="true" />15-30 km: Monitor
         </div>
         <div className="p-1.5 rounded-lg bg-orange-500/15 border border-orange-500/30 text-orange-400">
-          🟠 5-15 km: Allarme
+          <span className="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1.5" aria-hidden="true" />5-15 km: Allarme
         </div>
-        <div className="p-1.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 animate-pulse">
-          🔴 &lt;5 km: Imminente
+        <div className="p-1.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400">
+          <span className="inline-block w-2 h-2 rounded-full bg-rose-400 mr-1.5" aria-hidden="true" />&lt;5 km: Imminente
         </div>
       </div>
 

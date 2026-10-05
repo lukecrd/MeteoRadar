@@ -195,7 +195,7 @@ export const FlightPanel: React.FC<FlightPanelProps> = ({
   return (
     <section className="hub-panel p-4 flex flex-col flex-1 min-w-0 min-h-0" aria-label="Traffico aereo">
       <PanelHeader
-        code="MOD-00.D // ADS-B live"
+        code="ADS-B live"
         title="Traffico aereo"
         icon={<Plane className="w-4 h-4 text-[#38bdf8]" />}
         right={

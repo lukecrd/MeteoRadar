@@ -61,10 +61,6 @@ export const HumiditySensorCard: React.FC<HumiditySensorCardProps> = ({
           : 'bg-white/95 border-slate-200 text-slate-900 shadow-lg shadow-slate-200/50'
       } ${alertState.isSpikeActive ? 'ring-2 ring-rose-500/80' : ''}`}
     >
-      {/* Background ambient glow for alert */}
-      {alertState.isSpikeActive && (
-        <div className="absolute top-0 right-0 w-48 h-48 bg-rose-500/15 rounded-full blur-3xl -z-0 pointer-events-none animate-pulse" />
-      )}
 
       {/* Header */}
       <div className="flex items-center justify-between mb-4 relative z-10">

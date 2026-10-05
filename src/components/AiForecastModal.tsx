@@ -69,7 +69,6 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
         }`}
       >
         {/* Glow background */}
-        <div className="absolute top-0 right-0 w-72 h-72 bg-teal-500/15 rounded-full blur-3xl -z-0 pointer-events-none" />
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6 relative z-10">
