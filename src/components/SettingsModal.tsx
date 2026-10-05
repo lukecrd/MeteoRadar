@@ -299,6 +299,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* Developer / demo tools */}
+          <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/40 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-white">Modalità sviluppatore</div>
+                <div className="text-xs text-slate-500 dark:text-slate-300">
+                  Mostra esportazione Android/Vercel e i simulatori di fulmini e umidità
+                </div>
+              </div>
+              <button
+                role="switch"
+                aria-checked={!!settings.developerMode}
+                aria-label="Modalità sviluppatore"
+                onClick={() => onUpdateSettings({ developerMode: !settings.developerMode })}
+                className={`shrink-0 w-12 h-6 rounded-full p-1 transition-colors duration-200 ${
+                  settings.developerMode ? 'bg-teal-500' : 'bg-slate-700'
+                }`}
+              >
+                <div
+                  className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                    settings.developerMode ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+
           {/* Test Notification Action */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-800">
             <button

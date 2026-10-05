@@ -303,7 +303,7 @@ export const GlobalHub: React.FC = () => {
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-bold mt-1 flex items-center gap-3">
             <Orbit className="w-8 h-8 text-[var(--hub-cyan)]" />
-            Global Hub
+            Mondo
           </h2>
           <p className="text-sm text-[var(--hub-dim)] mt-1">
             {totalStories > 0 ? `${totalStories} notizie da ${areas.length} aree` : 'Notizie geolocalizzate'}

@@ -9,7 +9,7 @@ interface HumiditySensorCardProps {
   temperature: number;
   readings: HumiditySensorReading[];
   alertState: HumidityAlertState;
-  onSimulateSpike: (delta: number) => void;
+  onSimulateSpike?: (delta: number) => void;
   onCalibrate: () => void;
   isDark: boolean;
   spikeThreshold: number;
@@ -245,7 +245,8 @@ export const HumiditySensorCard: React.FC<HumiditySensorCardProps> = ({
         </div>
       </div>
 
-      {/* Interactive Spike Simulation Bar */}
+      {/* Interactive Spike Simulation Bar (developer mode only) */}
+      {onSimulateSpike && (
       <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
         <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
           <Zap className="w-3.5 h-3.5 text-amber-400" />
@@ -268,6 +269,7 @@ export const HumiditySensorCard: React.FC<HumiditySensorCardProps> = ({
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 };

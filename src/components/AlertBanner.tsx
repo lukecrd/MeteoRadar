@@ -54,7 +54,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
   return (
     <div
       id="floating-alert-banner-container"
-      className="fixed bottom-5 right-4 sm:right-6 z-50 flex flex-col gap-2.5 max-w-md w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[360px] pointer-events-none transition-all duration-300"
+      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-5 right-4 sm:right-6 z-50 flex flex-col gap-2.5 max-w-md w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[360px] pointer-events-none transition-all duration-300"
     >
       {/* 1. Test Toast Notification */}
       {testToastMessage && (
