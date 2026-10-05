@@ -3,6 +3,7 @@ import { Compass, Wind, Navigation, Layers, Rotate3d, ArrowUpRight, Gauge, MapPi
 import { getWindDirectionLabel, getBeaufortScale } from '../services/weatherApi';
 import { LocationInfo } from '../types';
 import { windFlowBearing } from '../services/weatherFormat';
+import { windColor } from '../theme/colorScales';
 
 interface WindCompassMapProps {
   windSpeed: number; // km/h
@@ -93,6 +94,8 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
     const dx = Math.cos(rad);
     const dy = Math.sin(rad);
 
+    const particleColor = windColor(windSpeed);
+
     const render = () => {
       // Semi-transparent clear for smooth trail effect
       ctx.fillStyle = 'rgba(11, 15, 25, 0.22)'; // the scope is always dark
@@ -118,9 +121,9 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
         const opacity = Math.sin(progress * Math.PI) * 0.75;
 
         // Color based on wind intensity
-        let strokeColor = `rgba(56, 189, 248, ${opacity})`;
-        if (windSpeed > 40) strokeColor = `rgba(249, 115, 22, ${opacity})`;
-        if (windSpeed > 65) strokeColor = `rgba(239, 68, 68, ${opacity})`;
+        // Same Beaufort-aligned scale as the map vectors (theme/colorScales)
+        const alpha = Math.round(Math.max(0, Math.min(1, opacity)) * 255).toString(16).padStart(2, '0');
+        const strokeColor = `${particleColor}${alpha}`;
 
         ctx.strokeStyle = strokeColor;
         ctx.beginPath();

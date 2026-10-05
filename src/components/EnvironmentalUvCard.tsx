@@ -16,6 +16,9 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { AirQualityData } from '../types';
+import { UV_SCALE } from '../theme/colorScales';
+
+const UV_MAX = 14;
 
 interface EnvironmentalUvCardProps {
   uvIndex: number;
@@ -44,8 +47,10 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
   };
 
   // UV Classification helper
-  const getUvTier = (val: number) => {
-    if (val <= 2.5) {
+  const getUvTier = (raw: number) => {
+    // WHO classes are defined on the rounded index
+    const val = Math.round(raw);
+    if (val <= 2) {
       return {
         label: 'Basso',
         color: 'text-emerald-400',
@@ -55,7 +60,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
         spf: 'Non necessaria'
       };
     }
-    if (val <= 5.5) {
+    if (val <= 5) {
       return {
         label: 'Moderato',
         color: 'text-amber-400',
@@ -65,7 +70,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
         spf: 'SPF 30 consigliato'
       };
     }
-    if (val <= 7.5) {
+    if (val <= 7) {
       return {
         label: 'Alto',
         color: 'text-orange-400',
@@ -75,7 +80,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
         spf: 'SPF 50+ indispensabile'
       };
     }
-    if (val <= 10.5) {
+    if (val <= 10) {
       return {
         label: 'Molto Alto',
         color: 'text-rose-400',
@@ -222,18 +227,24 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
 
             {/* UV Progress Spectrum Bar */}
             <div className="mt-4">
-              <div className="h-3 w-full bg-slate-200 dark:bg-slate-700/80 rounded-full overflow-hidden p-0.5 relative">
-                <div
-                  className="h-full rounded-full transition-all duration-700 bg-gradient-to-r from-emerald-400 via-amber-400 via-orange-500 via-rose-500 to-purple-600"
-                  style={{ width: `${Math.min(100, Math.max(8, (aqi.uvIndex / 11) * 100))}%` }}
+              {/* WHO classes as proportional segments (0-3-6-8-11-14) with a cursor on the value */}
+              <div className="relative pt-1" role="img" aria-label={`Indice UV ${aqi.uvIndex.toFixed(1)}, livello ${uvTier.label}`}>
+                <div className="flex h-2.5 w-full rounded-full overflow-hidden">
+                  {UV_SCALE.map((c, i) => {
+                    const from = i === 0 ? 0 : c.min;
+                    const to = UV_SCALE[i + 1]?.min ?? UV_MAX;
+                    return <span key={c.label} style={{ width: `${((to - from) / UV_MAX) * 100}%`, background: c.color }} />;
+                  })}
+                </div>
+                <span
+                  className="absolute top-0 w-1 h-4.5 -ml-0.5 rounded-full bg-slate-900 dark:bg-white ring-2 ring-white dark:ring-slate-900 transition-all duration-700"
+                  style={{ left: `${(Math.min(aqi.uvIndex, UV_MAX) / UV_MAX) * 100}%` }}
                 />
               </div>
-              <div className="flex justify-between text-xs text-slate-400 mt-1.5 font-bold">
-                <span>0 Basso</span>
-                <span>3 Mod.</span>
-                <span>6 Alto</span>
-                <span>8 Molto Alto</span>
-                <span>11+ Estremo</span>
+              <div className="relative h-4 text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-semibold tabular-nums">
+                {[0, 3, 6, 8, 11].map((t) => (
+                  <span key={t} className="absolute -translate-x-1/2 first:translate-x-0" style={{ left: `${(t / UV_MAX) * 100}%` }}>{t}</span>
+                ))}
               </div>
             </div>
 

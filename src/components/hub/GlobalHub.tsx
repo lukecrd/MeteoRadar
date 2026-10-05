@@ -30,6 +30,7 @@ import { QuakePanel, QuakeMinMag, quakeMarkerId, QuakeWindow } from './QuakePane
 import { FlightPanel, flightMarkerId } from './FlightPanel';
 import { WorldClocks } from './HubWidgets';
 import { EMPTY_FILTERS, FlightFilters, FlightShowMode, matchesFilters } from './flightFilters';
+import { FLIGHT_ALT_SCALE } from '../../theme/colorScales';
 
 const NEWS_REFRESH_MS = 5 * 60_000;
 const MARKETS_REFRESH_MS = 60_000;
@@ -313,7 +314,7 @@ export const GlobalHub: React.FC = () => {
                 {quakes24h.length} terremoti in 24 h
                 {strongest24h && (
                   <>
-                    {' '}(max <span style={{ color: quakeColor(strongest24h.mag) }}>M{formatNumber(strongest24h.mag, 1)}</span>)
+                    {' '}(max <span className="inline-block w-2 h-2 rounded-full align-middle" style={{ background: quakeColor(strongest24h.mag) }} aria-hidden="true" /> M{formatNumber(strongest24h.mag, 1)})
                   </>
                 )}
               </>
@@ -446,13 +447,22 @@ export const GlobalHub: React.FC = () => {
             )}
             {layers.quakes && (
               <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full" style={{ background: quakeColor(3) }} />
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: quakeColor(5.5) }} /> Terremoti
+                Terremoti
+                {[3, 4, 5, 6].map((m) => (
+                  <span key={m} className="flex items-center gap-0.5">
+                    <span className="rounded-full" style={{ background: quakeColor(m), width: 4 + (m - 2) * 2, height: 4 + (m - 2) * 2 }} />M{m}
+                  </span>
+                ))}
               </span>
             )}
             {globeFlights.length > 0 && (
               <span className="flex items-center gap-1.5">
-                <Plane className="w-3 h-3" style={{ color: flightColor(30000) }} /> Voli (colore = quota)
+                <Plane className="w-3 h-3" /> Voli
+                {FLIGHT_ALT_SCALE.map((b) => (
+                  <span key={b.label} className="flex items-center gap-0.5">
+                    <span className="w-2 h-2 rounded-full" style={{ background: b.color }} />{b.label}
+                  </span>
+                ))}
               </span>
             )}
             <span className="hidden sm:inline">Trascina per ruotare · tocca un punto</span>

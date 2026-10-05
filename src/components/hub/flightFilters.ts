@@ -1,13 +1,14 @@
 import type { Flight } from '../../services/hubApi';
+import { FLIGHT_ALT_SCALE } from '../../theme/colorScales';
 
 export type AltBand = 'low' | 'climb' | 'mid' | 'cruise';
 
-/** Same bands (and colours) as flightColor(). */
+/** Same bands (and colours) as flightColor(): defined once in theme/colorScales. */
 export const ALT_BANDS: { id: AltBand; label: string; hint: string; color: string; max: number }[] = [
-  { id: 'low', label: '< FL100', hint: 'Decollo e atterraggio', color: '#fbbf24', max: 10000 },
-  { id: 'climb', label: 'FL100–250', hint: 'Salita e discesa', color: '#34d399', max: 25000 },
-  { id: 'mid', label: 'FL250–350', hint: 'Crociera bassa', color: '#38bdf8', max: 35000 },
-  { id: 'cruise', label: '> FL350', hint: 'Crociera alta', color: '#c4b5fd', max: Infinity },
+  { id: 'low', label: '< FL100', hint: 'Decollo e atterraggio', color: FLIGHT_ALT_SCALE[0].color, max: 10000 },
+  { id: 'climb', label: 'FL100–250', hint: 'Salita e discesa', color: FLIGHT_ALT_SCALE[1].color, max: 25000 },
+  { id: 'mid', label: 'FL250–350', hint: 'Crociera bassa', color: FLIGHT_ALT_SCALE[2].color, max: 35000 },
+  { id: 'cruise', label: '> FL350', hint: 'Crociera alta', color: FLIGHT_ALT_SCALE[3].color, max: Infinity },
 ];
 
 export const altBandOf = (altFt: number): AltBand => ALT_BANDS.find((b) => altFt < b.max)!.id;

@@ -684,7 +684,8 @@ export const HubGlobe3D: React.FC<HubGlobe3DProps> = ({ markers, flights = [], r
         hit,
         marker,
         phase: (i * 0.37) % 2,
-        baseScale: kind === 'quake' ? 0.6 + marker.heat * 1.1 : kind === 'airport' ? 0.8 : 1,
+        // heat = (M-2)/5: size grows exponentially with magnitude (~1.35x per unit)
+        baseScale: kind === 'quake' ? 0.5 * 1.35 ** (marker.heat * 5) : kind === 'airport' ? 0.8 : 1,
       };
     });
   }, [markers]);

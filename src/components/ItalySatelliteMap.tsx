@@ -59,6 +59,7 @@ import {
   RADAR_RAIN_LEGEND,
   RADAR_SNOW_LEGEND,
 } from '../services/weatherFormat';
+import { tempColor, tempTextColor, windColor } from '../theme/colorScales';
 
 interface ItalySatelliteMapProps {
   currentLocation: LocationInfo;
@@ -412,7 +413,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
             } ${alertBorder}">
               <span class="w-2 h-2 rounded-full ${
                 st.phenomenon === 'storm'
-                  ? 'bg-purple-400 animate-ping'
+                  ? 'bg-purple-400'
                   : st.phenomenon === 'rain'
                   ? 'bg-sky-400'
                   : st.phenomenon === 'snow'
@@ -422,7 +423,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                   : 'bg-amber-400'
               }"></span>
               <span class="text-xs font-bold tracking-tight">${st.name}</span>
-              <span class="text-xs font-bold text-amber-300">${st.temperature}°</span>
+              <span class="text-xs font-bold px-1.5 rounded-full tabular-nums" style="background:${tempColor(st.temperature)};color:${tempTextColor(st.temperature)}">${formatTemp(st.temperature, { unit: false })}</span>
             </div>
           </div>
         `,
@@ -488,12 +489,12 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
         html: `
           <div class="flex items-center gap-1 bg-slate-900/80 backdrop-blur-sm border border-slate-700/80 px-2 py-0.5 rounded-full text-white -translate-x-1/2 -translate-y-1/2 shadow-md">
             <div style="transform: rotate(${windFlowBearing(p.deg)}deg);" class="transition-transform duration-500">
-              <svg class="w-3 h-3 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="w-3 h-3" style="color:${windColor(p.speed)}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="19" x2="12" y2="5"></line>
                 <polyline points="5 12 12 5 19 12"></polyline>
               </svg>
             </div>
-            <span class="text-xs font-bold text-cyan-300">${p.speed} <span class="text-xs font-normal text-slate-400">km/h</span></span>
+            <span class="text-xs font-bold text-white">${p.speed} <span class="text-xs font-normal text-slate-400">km/h</span></span>
           </div>
         `,
         iconSize: [60, 20],
@@ -1110,7 +1111,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
             {/* Discrete classes matching the RainViewer "Universal Blue" tiles actually requested */}
             <div className="flex" role="img" aria-label={`Scala pioggia da ${RADAR_RAIN_LEGEND[0].mmh} a oltre 400 millimetri l'ora`}>
               {RADAR_RAIN_LEGEND.map(c => (
-                <div key={c.dbz} className="flex flex-col items-center w-6" title={`${c.dbz} dBZ ≈ ${c.mmh} mm/h`}>
+                <div key={c.dbz} className="flex flex-col items-center w-7" title={`${c.dbz} dBZ ≈ ${c.mmh} mm/h`}>
                   <span className="w-full h-2.5 border-y border-slate-700/40 first:rounded-l" style={{ backgroundColor: c.color }} />
                   <span className="text-xs font-semibold tabular-nums mt-0.5 opacity-80">{c.mmh}</span>
                 </div>
@@ -1423,7 +1424,10 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                     </span>
                     <span className="text-xs text-slate-500 dark:text-slate-300 font-semibold">({st.region})</span>
                   </div>
-                  <span className="text-base font-bold text-amber-500 dark:text-amber-400">{formatTemp(st.temperature)}</span>
+                  <span className="text-base font-bold tabular-nums flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full ring-1 ring-black/10" style={{ background: tempColor(st.temperature) }} aria-hidden="true" />
+                    {formatTemp(st.temperature)}
+                  </span>
                 </div>
 
                 <div className="text-xs text-slate-700 dark:text-slate-200 mt-1 truncate font-medium">
