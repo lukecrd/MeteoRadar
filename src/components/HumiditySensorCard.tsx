@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Droplets, AlertTriangle, Activity, Zap, RotateCcw, CheckCircle2, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { HumiditySensorReading, HumidityAlertState } from '../types';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
+import { chartTheme } from '../theme/chartTheme';
 
 interface HumiditySensorCardProps {
   currentHumidity: number;
@@ -215,8 +216,8 @@ export const HumiditySensorCard: React.FC<HumiditySensorCardProps> = ({
                   <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="timeLabel" tick={{ fontSize: 12, fill: isDark ? '#94a3b8' : '#64748b' }} />
-              <YAxis domain={['dataMin - 5', 'dataMax + 5']} tick={{ fontSize: 12, fill: isDark ? '#94a3b8' : '#64748b' }} />
+              <XAxis dataKey="timeLabel" tick={{ fontSize: 12, fill: chartTheme(isDark).axis }} tickLine={false} axisLine={false} minTickGap={16} />
+              <YAxis width={40} unit="%" domain={[(min: number) => Math.max(0, Math.floor(min - 5)), (max: number) => Math.min(100, Math.ceil(max + 5))]} tick={{ fontSize: 12, fill: chartTheme(isDark).axis }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: isDark ? '#0f172a' : '#ffffff',
