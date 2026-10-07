@@ -24,7 +24,6 @@ import { EnvironmentalUvCard } from './components/EnvironmentalUvCard';
 import { AiForecastModal } from './components/AiForecastModal';
 import { SettingsModal } from './components/SettingsModal';
 import { AtmosphericCanvas } from './components/AtmosphericCanvas';
-import { RadarGlobe3D } from './components/RadarGlobe3D';
 import { AlertBanner } from './components/AlertBanner';
 import { ItalySatelliteMap } from './components/ItalySatelliteMap';
 import { AndroidModal } from './components/AndroidModal';
@@ -32,7 +31,7 @@ import { VercelModal } from './components/VercelModal';
 import { HubStatusStrip } from './components/HubStatusStrip';
 import { NewsTicker } from './components/NewsTicker';
 import { NewsHub } from './components/NewsHub';
-import { GlobalHub } from './components/hub/GlobalHub';
+import { NewsGlobeStage } from './components/NewsGlobeStage';
 import { Loader2 } from 'lucide-react';
 
 export default function App() {
@@ -45,7 +44,7 @@ export default function App() {
     return true;
   });
 
-  // Primary navigation: hash routes (#/meteo is the home), real history entries
+  // Primary navigation: hash routes (#/mondo — the WorldHub globe — is the home), real history entries
   const { route, section, navigate } = useHashRoute();
   useAndroidBackButton();
 
@@ -448,9 +447,6 @@ export default function App() {
 
   return (
     <div className="hub-root min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg">
-      {/* Ambient 3D tracking globe — decorative, only behind the world view */}
-      {route === 'mondo' && <RadarGlobe3D isDark={isDark} intensity={0.35} />}
-
       {/* Dynamic Atmospheric Particle and Flash Background */}
       {weatherData && route === 'meteo' && (
         <AtmosphericCanvas
@@ -482,7 +478,22 @@ export default function App() {
         <AppTopNav active={route} onNavigate={navigate} />
       </Navbar>
 
+      {/* MONDO (home): the WorldHub real-time globe with its side windows.
+          Full width (outside <main>) so the windows can dock to the edges;
+          bottom padding leaves room for the mobile bottom nav. */}
+      {route === 'mondo' && (
+        <div key="route-mondo" className="pt-4 sm:pt-6 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-4">
+          <NewsGlobeStage
+            isDark={isDark}
+            location={currentLocation}
+            alerts={weatherData?.alerts ?? []}
+            strikes={lightningStrikes}
+          />
+        </div>
+      )}
+
       {/* Main Container — bottom padding leaves room for the mobile bottom nav */}
+      {route !== 'mondo' && (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10 space-y-6 relative z-10">
         {/* Live telemetry bus: weather view only, tablet and up */}
         {route === 'meteo' && (
@@ -637,13 +648,6 @@ export default function App() {
           </div>
         )}
 
-        {/* MONDO: global hub — world news globe, quakes, flights, markets */}
-        {route === 'mondo' && (
-          <div key="route-mondo" className="animate-tab-enter">
-            <GlobalHub />
-          </div>
-        )}
-
         {/* NOTIZIE: the only place with the headline ticker */}
         {route === 'notizie' && (
           <div key="route-notizie" className="space-y-4 animate-tab-enter">
@@ -654,6 +658,7 @@ export default function App() {
           </div>
         )}
       </main>
+      )}
 
       <AppBottomNav active={route} onNavigate={navigate} />
 

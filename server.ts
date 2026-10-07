@@ -4,15 +4,16 @@ import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { getNews, isNewsCategory } from './lib/news';
+import { getDisasters, getEarthquakes, getFlights, getSatellites, isSatelliteGroup } from './lib/worldEvents';
+import { getFlightInfo, getFlightLive, searchFlights } from './lib/flightTracker';
 import { getGeoNews } from './lib/geonews';
 import { getMarkets } from './lib/markets';
-import { getQuakes } from './lib/quakes';
-import { getHubFlights, getFlightInfo, isCallsign, isHex, isHubId } from './lib/flights';
 
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+// Override with PORT=3100 npm run dev to run a second instance side by side.
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
@@ -49,7 +50,57 @@ app.get('/api/news', async (req, res) => {
   }
 });
 
-// Global Hub: geo-located world headlines (cached 5 min)
+// WorldHub globe layers (upstream feeds cached in lib/worldEvents.ts; the
+// loaders never throw — failures come back as { stale: true, error }).
+app.get('/api/earthquakes', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=30');
+  res.json(await getEarthquakes());
+});
+app.get('/api/flights', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  res.json(await getFlights());
+});
+// Single-flight features: search by number, live state ("Segui volo"),
+// route / aircraft enrichment. See lib/flightTracker.ts.
+app.get('/api/flights/search', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=15');
+    res.json(await searchFlights(typeof req.query.q === 'string' ? req.query.q : ''));
+  } catch (error: any) {
+    res.status(502).json({ error: error?.message || 'Ricerca non disponibile' });
+  }
+});
+app.get('/api/flights/live', async (req, res) => {
+  const icao24 = typeof req.query.icao24 === 'string' ? req.query.icao24 : '';
+  if (!/^[0-9a-fA-F]{6}$/.test(icao24)) return res.status(400).json({ error: 'icao24 non valido' });
+  try {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(await getFlightLive(icao24));
+  } catch (error: any) {
+    res.status(502).json({ error: error?.message || 'Dati del volo non disponibili' });
+  }
+});
+app.get('/api/flights/info', async (req, res) => {
+  const callsign = typeof req.query.callsign === 'string' && req.query.callsign.trim() ? req.query.callsign.trim() : null;
+  const icao24 = typeof req.query.icao24 === 'string' && /^[0-9a-fA-F]{6}$/.test(req.query.icao24) ? req.query.icao24 : null;
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.json(await getFlightInfo(callsign, icao24));
+  } catch (error: any) {
+    res.status(502).json({ error: error?.message || 'Informazioni non disponibili' });
+  }
+});
+app.get('/api/disasters', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=120');
+  res.json(await getDisasters());
+});
+app.get('/api/satellites', async (req, res) => {
+  const group = isSatelliteGroup(req.query.group) ? req.query.group : 'stations';
+  res.setHeader('Cache-Control', 'public, max-age=1800');
+  res.json(await getSatellites(group));
+});
+
+// WorldHub: geo-located world headlines (globe layer) (cached 5 min)
 app.get('/api/geonews', async (req, res) => {
   try {
     res.setHeader('Cache-Control', 'public, max-age=120');
@@ -60,50 +111,7 @@ app.get('/api/geonews', async (req, res) => {
   }
 });
 
-// Global Hub: recent earthquakes, USGS + INGV (cached 2 min)
-app.get('/api/quakes', async (req, res) => {
-  try {
-    res.setHeader('Cache-Control', 'public, max-age=60');
-    res.json(await getQuakes());
-  } catch (error: any) {
-    console.error('Earthquake feed error:', error?.message || error);
-    res.status(502).json({ error: 'Earthquake feed unavailable' });
-  }
-});
-
-// Global Hub: live air traffic around one major hub (cached 60 s per hub)
-app.get('/api/flights', async (req, res) => {
-  const { hub } = req.query;
-  if (!isHubId(hub)) {
-    res.status(400).json({ error: 'Parametro hub non valido' });
-    return;
-  }
-  try {
-    res.setHeader('Cache-Control', 'public, max-age=30');
-    res.json(await getHubFlights(hub));
-  } catch (error: any) {
-    console.error('Flight feed error:', error?.message || error);
-    res.status(502).json({ error: 'Flight feed unavailable' });
-  }
-});
-
-// Global Hub: route, airline and aircraft for one flight (cached 6 h)
-app.get('/api/flight', async (req, res) => {
-  const { callsign, hex } = req.query;
-  if (!isCallsign(callsign)) {
-    res.status(400).json({ error: 'Parametro callsign non valido' });
-    return;
-  }
-  try {
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.json(await getFlightInfo(callsign, isHex(hex) ? hex : null));
-  } catch (error: any) {
-    console.error('Flight info error:', error?.message || error);
-    res.status(502).json({ error: 'Flight info unavailable' });
-  }
-});
-
-// Global Hub: world indices, FX and commodities (cached 45 s)
+// WorldHub: world indices, FX and commodities (cached 45 s)
 app.get('/api/markets', async (req, res) => {
   try {
     res.setHeader('Cache-Control', 'public, max-age=30');

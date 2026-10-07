@@ -26,10 +26,10 @@ export const CryptoDeck: React.FC = () => {
   const btc = quotes.BTCUSDT;
 
   return (
-    <section className="hub-panel hub-panel--glow p-4 sm:p-5" aria-labelledby="hub-crypto-title">
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+    <section aria-labelledby="hub-crypto-title">
+      <div className="flex flex-col gap-4">
         {/* Headline BTC */}
-        <div className="flex items-center gap-4 min-w-0 lg:w-[380px] shrink-0">
+        <div className="flex items-center gap-4 min-w-0">
           <div className="w-12 h-12 rounded-2xl grid place-items-center shrink-0 bg-[#f7931a]/15 border border-[#f7931a]/40 shadow-[0_0_24px_-6px_#f7931a]">
             <Bitcoin className="w-7 h-7 text-[#f7931a]" />
           </div>
@@ -42,7 +42,7 @@ export const CryptoDeck: React.FC = () => {
               <div className="flex items-baseline gap-3 flex-wrap">
                 <span
                   key={btc.price}
-                  className={`font-hud text-3xl sm:text-4xl font-bold tabular-nums ${btc.tick === 'up' ? 'hub-tick-up' : btc.tick === 'down' ? 'hub-tick-down' : ''}`}
+                  className={`font-hud text-3xl font-bold tabular-nums ${btc.tick === 'up' ? 'hub-tick-up' : btc.tick === 'down' ? 'hub-tick-down' : ''}`}
                 >
                   ${formatNumber(btc.price, 2)}
                 </span>
@@ -62,7 +62,7 @@ export const CryptoDeck: React.FC = () => {
           </div>
         </div>
 
-        <Sparkline values={history.BTCUSDT ?? []} width={260} height={56} className="hidden xl:block shrink-0" />
+        <Sparkline values={history.BTCUSDT ?? []} width={300} height={56} className="w-full shrink-0" />
 
         {/* Secondary pairs */}
         <div className="grid grid-cols-2 gap-3 flex-1 min-w-0">
@@ -89,7 +89,7 @@ export const CryptoDeck: React.FC = () => {
                     <div className="hub-skeleton h-6 w-24 mt-1" />
                   )}
                 </div>
-                <Sparkline values={history[id] ?? []} width={72} height={30} className="shrink-0 hidden sm:block" />
+                <Sparkline values={history[id] ?? []} width={56} height={28} className="shrink-0" />
               </div>
             );
           })}

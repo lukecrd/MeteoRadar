@@ -3,9 +3,10 @@ import { CloudSun, Map as MapIcon, Globe2, Newspaper, LucideIcon } from 'lucide-
 import { AppRoute } from '../types';
 
 const DESTINATIONS: Array<{ id: AppRoute; label: string; icon: LucideIcon }> = [
+  // The WorldHub globe (home) comes first.
+  { id: 'mondo', label: 'Mondo', icon: Globe2 },
   { id: 'meteo', label: 'Meteo', icon: CloudSun },
   { id: 'mappa', label: 'Mappa', icon: MapIcon },
-  { id: 'mondo', label: 'Mondo', icon: Globe2 },
   { id: 'notizie', label: 'Notizie', icon: Newspaper },
 ];
 

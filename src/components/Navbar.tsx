@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, Moon, Sun, Sliders, Orbit, Loader2, Navigation, Smartphone } from 'lucide-react';
+import { Search, MapPin, Moon, Sun, Sliders, Globe2, Loader2, Navigation, Smartphone } from 'lucide-react';
 import { LocationInfo } from '../types';
 import { searchLocations } from '../services/weatherApi';
 
@@ -96,11 +96,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               </defs>
               <polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="rgba(34,211,238,0.08)" stroke="url(#hub-brand-grad)" strokeWidth="1.5" />
             </svg>
-            <Orbit className="w-5 h-5 relative text-[var(--hub-cyan)]" />
+            <Globe2 className="w-5 h-5 relative text-[var(--hub-cyan)]" />
           </div>
           <div className="leading-tight hidden sm:block">
             <div className="font-display font-bold text-lg sm:text-xl tracking-[0.08em] whitespace-nowrap hub-brand-text">
-              MeteoRadar
+              WorldHub
             </div>
           </div>
         </div>

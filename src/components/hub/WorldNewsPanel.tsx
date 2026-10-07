@@ -35,7 +35,7 @@ export const WorldNewsPanel: React.FC<WorldNewsPanelProps> = ({ areas, region, s
   const accent = selectedArea ? GEO_REGION_META[selectedArea.region].color : GEO_REGION_META[region].color;
 
   return (
-    <section className="hub-panel p-4 flex flex-col flex-1 min-w-0 min-h-0" aria-label="Notizie dal mondo">
+    <section className="flex flex-col min-w-0" aria-label="Notizie dal mondo">
       <PanelHeader
         code={selectedArea ? `${GEO_REGION_META[selectedArea.region].label}` : 'Feed geolocalizzato'}
         title={selectedArea ? selectedArea.name : `Notizie · ${GEO_REGION_META[region].label}`}
@@ -51,7 +51,7 @@ export const WorldNewsPanel: React.FC<WorldNewsPanelProps> = ({ areas, region, s
 
       {error && items.length === 0 && <div className="text-sm text-[var(--hub-red)] py-4">{error}</div>}
 
-      <ol className="overflow-y-auto -mx-1 px-1 space-y-1 hub-scroll min-h-0 flex-1">
+      <ol className="-mx-1 px-1 space-y-1">
         {items.length === 0 && isLoading &&
           Array.from({ length: 7 }, (_, i) => <li key={i} className="hub-skeleton h-14" />)}
         {items.length === 0 && !isLoading && !error && (

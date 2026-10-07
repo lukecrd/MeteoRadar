@@ -1,4 +1,4 @@
-// MeteoRadar - Service Worker (PWA / offline support)
+// WorldHub - Service Worker (PWA / offline support)
 //
 // Strategy:
 // - Page navigations: network first, cached copy only when offline. The old

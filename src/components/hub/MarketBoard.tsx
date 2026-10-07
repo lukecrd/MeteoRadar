@@ -1,9 +1,9 @@
 import React from 'react';
-import { CandlestickChart, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import type { MarketQuote } from '../../services/hubApi';
 import { formatPct, formatPrice, trendColor } from '../../services/hubApi';
 import { timeAgo } from '../../services/newsApi';
-import { PanelHeader, Sparkline } from './HubWidgets';
+import { Sparkline } from './HubWidgets';
 
 const GROUPS: { id: MarketQuote['region']; label: string }[] = [
   { id: 'europa', label: 'Europa' },
@@ -25,26 +25,21 @@ export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, err
   const indexCount = quotes.filter((q) => q.kind === 'index').length;
 
   return (
-    <section className="hub-panel p-4 flex flex-col flex-1 min-w-0 min-h-0" aria-label="Borse mondiali">
-      <PanelHeader
-        code="Mercati"
-        title="Borse mondiali"
-        icon={<CandlestickChart className="w-4 h-4 text-[var(--hub-amber)]" />}
-        right={
-          <button type="button" className="hub-icon-btn !h-8 !min-w-8 !p-0" onClick={onRefresh} aria-label="Aggiorna mercati" disabled={isLoading}>
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-[var(--hub-cyan)]' : ''}`} />
-          </button>
-        }
-      />
-      <div className="flex items-center justify-between mb-2 font-hud text-xs text-[var(--hub-dim)]">
+    <section className="flex flex-col min-w-0" aria-label="Borse mondiali">
+      <div className="flex items-center justify-between gap-2 mb-2 font-hud text-xs text-[var(--hub-dim)]">
         <span>
           <span className="text-[var(--hub-text)] font-bold">{openCount}</span>/{indexCount} piazze aperte
         </span>
-        <span>{fetchedAt ? `agg. ${timeAgo(fetchedAt)}` : '—'} · ritardo fino a 15 min</span>
+        <span className="flex items-center gap-2">
+          {fetchedAt ? `agg. ${timeAgo(fetchedAt)}` : '—'} · ritardo fino a 15 min
+          <button type="button" className="hub-icon-btn !h-8 !min-w-8 !p-0" onClick={onRefresh} aria-label="Aggiorna mercati" disabled={isLoading}>
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-[var(--hub-cyan)]' : ''}`} />
+          </button>
+        </span>
       </div>
       {error && quotes.length === 0 && <div className="text-sm text-[var(--hub-red)] py-4">{error}</div>}
 
-      <div className="overflow-y-auto -mx-1 px-1 space-y-3 hub-scroll min-h-0 flex-1">
+      <div className="space-y-3">
         {quotes.length === 0 && !error &&
           Array.from({ length: 8 }, (_, i) => <div key={i} className="hub-skeleton h-10" />)}
         {GROUPS.map(({ id, label }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useId } from 'react';
 
 /** Tiny area sparkline; colour follows the first→last trend. */
 export const Sparkline: React.FC<{ values: number[]; width?: number; height?: number; color?: string; className?: string }> = ({
@@ -28,34 +28,6 @@ export const Sparkline: React.FC<{ values: number[]; width?: number; height?: nu
       <path d={line} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinejoin="round" />
       <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="2.2" fill={stroke} />
     </svg>
-  );
-};
-
-/** Ticking clocks for the world's main trading cities. */
-const CLOCKS: { city: string; tz: string }[] = [
-  { city: 'New York', tz: 'America/New_York' },
-  { city: 'Londra', tz: 'Europe/London' },
-  { city: 'Milano', tz: 'Europe/Rome' },
-  { city: 'Tokyo', tz: 'Asia/Tokyo' },
-];
-
-export const WorldClocks: React.FC = () => {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <div className="flex items-center gap-4 overflow-x-auto">
-      {CLOCKS.map(({ city, tz }) => (
-        <div key={city} className="leading-tight shrink-0">
-          <div className="hub-label">{city}</div>
-          <div className="font-hud text-sm font-semibold tabular-nums">
-            {now.toLocaleTimeString('it-IT', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-          </div>
-        </div>
-      ))}
-    </div>
   );
 };
 

@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppRoute, MeteoSection } from '../types';
 
-const ROUTES: AppRoute[] = ['meteo', 'mappa', 'mondo', 'notizie'];
+const ROUTES: AppRoute[] = ['mondo', 'meteo', 'mappa', 'notizie'];
+/** WorldHub opens on the globe page (#/mondo); an empty or unknown hash lands there. */
+const DEFAULT_ROUTE: AppRoute = 'mondo';
 const SECTIONS: MeteoSection[] = ['oggi', 'previsioni', 'grafici', 'vento', 'ambiente', 'fulmini'];
 
 export interface RouteState {
@@ -13,7 +15,7 @@ export interface RouteState {
 // WebView without server rewrites, and every change is a real history entry.
 function parseHash(hash: string): RouteState {
   const [rawRoute, rawSection] = hash.replace(/^#\/?/, '').split('/');
-  const route = ROUTES.includes(rawRoute as AppRoute) ? (rawRoute as AppRoute) : 'meteo';
+  const route = ROUTES.includes(rawRoute as AppRoute) ? (rawRoute as AppRoute) : DEFAULT_ROUTE;
   const section = route === 'meteo' && SECTIONS.includes(rawSection as MeteoSection) ? (rawSection as MeteoSection) : null;
   return { route, section };
 }

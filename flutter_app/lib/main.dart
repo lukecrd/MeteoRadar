@@ -45,7 +45,7 @@ class MeteoRadarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MeteoRadar 3D & Storm Track',
+      title: 'WorldHub',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: ThemeData(
@@ -174,7 +174,7 @@ class _MainRadarScreenState extends State<MainRadarScreen> {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'meteoradar_alerts_channel',
-      'MeteoRadar Avvisi',
+      'WorldHub Avvisi',
       channelDescription: 'Notifiche e allarmi temporali imminenti',
       importance: Importance.max,
       priority: Priority.high,
