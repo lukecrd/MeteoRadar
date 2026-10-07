@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, Moon, Sun, Sliders, CloudLightning, Loader2, Navigation, Smartphone } from 'lucide-react';
+import { Search, MapPin, Moon, Sun, Sliders, Globe2, Loader2, Navigation, Smartphone } from 'lucide-react';
 import { LocationInfo } from '../types';
 import { searchLocations } from '../services/weatherApi';
 
@@ -89,16 +89,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               </defs>
               <polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="rgba(34,211,238,0.08)" stroke="url(#hub-brand-grad)" strokeWidth="1.5" />
             </svg>
-            <CloudLightning className="w-5 h-5 relative text-[var(--hub-cyan)]" />
+            <Globe2 className="w-5 h-5 relative text-[var(--hub-cyan)]" />
           </div>
           <div className="leading-tight hidden sm:block">
             <div className="font-display font-bold text-base tracking-[0.12em] flex items-center gap-1.5">
-              <span>METEORADAR</span>
-              <span className="font-hud text-[10px] px-1.5 py-0.5 rounded border border-[var(--hub-line-strong)] text-[var(--hub-cyan)]">
-                HUB
+              <span>
+                WORLD<span className="text-[var(--hub-cyan)]">HUB</span>
               </span>
             </div>
-            <p className="hub-label !text-[9px] hidden sm:block">Centro di comando atmosferico</p>
+            <p className="hub-label !text-[9px] hidden sm:block">Notizie e meteo dal mondo</p>
           </div>
         </div>
 

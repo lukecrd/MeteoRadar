@@ -11,15 +11,16 @@ interface ModuleDef {
   tone: string;
 }
 
+// 'news' leads the deck: it is the WorldHub home view shown on launch.
 const MODULES: ModuleDef[] = [
-  { id: 'station', code: '01', label: 'Console', hint: 'Tutti i moduli', icon: Layers, tone: '#22d3ee' },
-  { id: 'today', code: '02', label: 'Oggi', hint: 'Condizioni e allerte', icon: Sun, tone: '#fbbf24' },
-  { id: 'radar', code: '03', label: 'Radar', hint: 'Fulmini e CAPE', icon: Zap, tone: '#fde047' },
-  { id: 'italy_map', code: '04', label: 'Satellite', hint: 'Mappa Italia live', icon: Radio, tone: '#fb7185' },
-  { id: 'forecast5', code: '05', label: '5 Giorni', hint: 'Previsioni estese', icon: Calendar, tone: '#818cf8' },
-  { id: 'wind', code: '06', label: 'Vento', hint: 'Vento e umidità', icon: Wind, tone: '#67e8f9' },
-  { id: 'ambient', code: '07', label: 'Ambiente', hint: 'UV e qualità aria', icon: Trees, tone: '#4ade80' },
-  { id: 'news', code: '08', label: 'News', hint: 'Feed in tempo reale', icon: SatelliteDish, tone: '#a78bfa' },
+  { id: 'news', code: '01', label: 'Notizie', hint: 'Mappamondo e feed live', icon: SatelliteDish, tone: '#a78bfa' },
+  { id: 'station', code: '02', label: 'Console', hint: 'Tutti i moduli', icon: Layers, tone: '#22d3ee' },
+  { id: 'today', code: '03', label: 'Oggi', hint: 'Condizioni e allerte', icon: Sun, tone: '#fbbf24' },
+  { id: 'radar', code: '04', label: 'Radar', hint: 'Fulmini e CAPE', icon: Zap, tone: '#fde047' },
+  { id: 'italy_map', code: '05', label: 'Satellite', hint: 'Mappa Italia live', icon: Radio, tone: '#fb7185' },
+  { id: 'forecast5', code: '06', label: '5 Giorni', hint: 'Previsioni estese', icon: Calendar, tone: '#818cf8' },
+  { id: 'wind', code: '07', label: 'Vento', hint: 'Vento e umidità', icon: Wind, tone: '#67e8f9' },
+  { id: 'ambient', code: '08', label: 'Ambiente', hint: 'UV e qualità aria', icon: Trees, tone: '#4ade80' },
 ];
 
 interface HubCommandDeckProps {

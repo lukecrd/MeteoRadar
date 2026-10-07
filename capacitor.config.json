@@ -1,6 +1,6 @@
 {
   "appId": "com.meteoradar.italy",
-  "appName": "MeteoRadar 3D & Storm Track",
+  "appName": "WorldHub",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {

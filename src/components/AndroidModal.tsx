@@ -228,7 +228,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
                   <img src="/icon.svg" alt="App Icon" className="w-14 h-14" />
                 </div>
                 <div>
-                  <div className="font-black text-base text-slate-100">MeteoRadar 3D & Storm Track</div>
+                  <div className="font-black text-base text-slate-100">WorldHub</div>
                   <div className="text-xs text-slate-400">Pacchetto: com.meteoradar.italy</div>
                 </div>
 

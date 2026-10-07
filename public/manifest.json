@@ -1,7 +1,7 @@
 {
-  "name": "MeteoRadar 3D & Storm Track",
-  "short_name": "MeteoRadar",
-  "description": "Applicazione meteo predittiva con mappa satellitare e radar dell'Italia in tempo reale, sensore di umidità, bussola del vento e monitor fulmini.",
+  "name": "WorldHub",
+  "short_name": "WorldHub",
+  "description": "WorldHub: notizie in tempo reale e meteo predittivo con mappa satellitare e radar dell'Italia in tempo reale, sensore di umidità, bussola del vento e monitor fulmini.",
   "start_url": "/",
   "id": "/",
   "scope": "/",

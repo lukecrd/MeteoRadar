@@ -3,13 +3,19 @@ import { ArrowRight, SatelliteDish } from 'lucide-react';
 import { useNewsFeed } from '../hooks/useNewsFeed';
 import { timeAgo } from '../services/newsApi';
 
-/** Compact meteo-news column for the main console; links into the full hub. */
-export const NewsFeedPanel: React.FC<{ onOpenHub: () => void }> = ({ onOpenHub }) => {
+/**
+ * Compact meteo-news column for the main console; links into the full hub.
+ * `embedded` drops the glass frame when it sits inside a side window.
+ */
+export const NewsFeedPanel: React.FC<{ onOpenHub: () => void; embedded?: boolean }> = ({ onOpenHub, embedded = false }) => {
   const { items, isLoading, error } = useNewsFeed('meteo', 180_000);
   const top = items.slice(0, 6);
 
   return (
-    <section className="hub-panel hub-panel--glow p-5 h-full flex flex-col" aria-labelledby="news-panel-title">
+    <section
+      className={`h-full flex flex-col ${embedded ? '' : 'hub-panel hub-panel--glow p-5'}`}
+      aria-labelledby="news-panel-title"
+    >
       <div className="flex items-center justify-between gap-3 mb-4">
         <div>
           <div className="hub-label flex items-center gap-2">

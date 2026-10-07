@@ -5,6 +5,8 @@ import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { getNews, isNewsCategory } from './lib/news';
+import { getDisasters, getEarthquakes, getFlights, getSatellites, isSatelliteGroup } from './lib/worldEvents';
+import { getFlightInfo, getFlightLive, searchFlights } from './lib/flightTracker';
 
 dotenv.config();
 
@@ -12,7 +14,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 3000;
+// Override with PORT=3100 npm run dev to run a second instance side by side.
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
@@ -47,6 +50,56 @@ app.get('/api/news', async (req, res) => {
     console.error('News feed error:', error?.message || error);
     res.status(502).json({ error: 'News feed unavailable' });
   }
+});
+
+// WorldHub globe layers (upstream feeds cached in lib/worldEvents.ts; the
+// loaders never throw — failures come back as { stale: true, error }).
+app.get('/api/earthquakes', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=30');
+  res.json(await getEarthquakes());
+});
+app.get('/api/flights', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=60');
+  res.json(await getFlights());
+});
+// Single-flight features: search by number, live state ("Segui volo"),
+// route / aircraft enrichment. See lib/flightTracker.ts.
+app.get('/api/flights/search', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=15');
+    res.json(await searchFlights(typeof req.query.q === 'string' ? req.query.q : ''));
+  } catch (error: any) {
+    res.status(502).json({ error: error?.message || 'Ricerca non disponibile' });
+  }
+});
+app.get('/api/flights/live', async (req, res) => {
+  const icao24 = typeof req.query.icao24 === 'string' ? req.query.icao24 : '';
+  if (!/^[0-9a-fA-F]{6}$/.test(icao24)) return res.status(400).json({ error: 'icao24 non valido' });
+  try {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(await getFlightLive(icao24));
+  } catch (error: any) {
+    res.status(502).json({ error: error?.message || 'Dati del volo non disponibili' });
+  }
+});
+app.get('/api/flights/info', async (req, res) => {
+  const callsign = typeof req.query.callsign === 'string' && req.query.callsign.trim() ? req.query.callsign.trim() : null;
+  const icao24 = typeof req.query.icao24 === 'string' && /^[0-9a-fA-F]{6}$/.test(req.query.icao24) ? req.query.icao24 : null;
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.json(await getFlightInfo(callsign, icao24));
+  } catch (error: any) {
+    res.status(502).json({ error: error?.message || 'Informazioni non disponibili' });
+  }
+});
+app.get('/api/disasters', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=120');
+  res.json(await getDisasters());
+});
+app.get('/api/satellites', async (req, res) => {
+  const group = isSatelliteGroup(req.query.group) ? req.query.group : 'stations';
+  res.setHeader('Cache-Control', 'public, max-age=1800');
+  res.json(await getSatellites(group));
 });
 
 // AI Meteorological Predictive Analysis endpoint

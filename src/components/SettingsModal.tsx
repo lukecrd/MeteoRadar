@@ -27,7 +27,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
         onUpdateSettings({ enableBrowserPush: true });
-        new Notification('MeteoRadar 3D', {
+        new Notification('WorldHub', {
           body: 'Notifiche meteo avanzate attivate con successo!',
           icon: '/favicon.ico'
         });

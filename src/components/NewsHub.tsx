@@ -71,7 +71,11 @@ const StoryMeta: React.FC<{ item: NewsItem; fresh: boolean }> = ({ item, fresh }
   </div>
 );
 
-export const NewsHub: React.FC = () => {
+/**
+ * Full news feed. Layout uses container queries so it adapts to the box it
+ * lives in: a wide page section or a narrow side window (`embedded`).
+ */
+export const NewsHub: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const [filter, setFilter] = useState<NewsFilter>('all');
   const [query, setQuery] = useState('');
   const { items, fetchedAt, isLoading, error, freshIds, nextRefreshAt, refresh } = useNewsFeed(filter, REFRESH_MS);
@@ -91,17 +95,25 @@ export const NewsHub: React.FC = () => {
   const sourceCount = new Set(items.map((i) => i.source)).size;
 
   return (
-    <section className="hub-panel hub-panel--glow p-4 sm:p-6 space-y-5" aria-labelledby="news-hub-title">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+    <section
+      className={`@container space-y-5 ${embedded ? '' : 'hub-panel hub-panel--glow p-4 sm:p-6'}`}
+      aria-labelledby={embedded ? undefined : 'news-hub-title'}
+      aria-label={embedded ? 'Feed notizie' : undefined}
+    >
+      {/* Header (the side window supplies its own title when embedded) */}
+      <div className="flex flex-col @3xl:flex-row @3xl:items-end justify-between gap-4">
         <div>
-          <div className="hub-label flex items-center gap-2">
-            <span className="hub-live-dot" /> MOD-08 // Feed in tempo reale
-          </div>
-          <h2 id="news-hub-title" className="font-display text-3xl sm:text-4xl font-bold mt-1 flex items-center gap-3">
-            <SatelliteDish className="w-7 h-7 text-[var(--hub-cyan)]" />
-            News Hub
-          </h2>
+          {!embedded && (
+            <>
+              <div className="hub-label flex items-center gap-2">
+                <span className="hub-live-dot" /> MOD-01 // Feed in tempo reale
+              </div>
+              <h2 id="news-hub-title" className="font-display text-2xl @3xl:text-4xl font-bold mt-1 flex items-center gap-3">
+                <SatelliteDish className="w-7 h-7 text-[var(--hub-cyan)]" />
+                Notizie
+              </h2>
+            </>
+          )}
           <p className="text-sm text-[var(--hub-dim)] mt-1">
             {items.length > 0
               ? `${items.length} notizie da ${sourceCount} testate · aggiornamento automatico ogni 2 minuti`
@@ -118,7 +130,7 @@ export const NewsHub: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3">
+      <div className="flex flex-col @2xl:flex-row @2xl:items-center gap-3">
         <div className="flex gap-2 overflow-x-auto pb-1 -mb-1 [scrollbar-width:none]" role="group" aria-label="Filtra per categoria">
           {FILTERS.map((f) => (
             <button
@@ -134,7 +146,7 @@ export const NewsHub: React.FC = () => {
             </button>
           ))}
         </div>
-        <label className="md:ml-auto flex items-center gap-2 h-9 px-3 rounded-xl border border-[var(--hub-line)] bg-[var(--hub-panel)] focus-within:border-[var(--hub-line-strong)] md:w-64">
+        <label className="@2xl:ml-auto flex items-center gap-2 h-9 px-3 rounded-xl border border-[var(--hub-line)] bg-[var(--hub-panel)] focus-within:border-[var(--hub-line-strong)] @2xl:w-64">
           <Search className="w-4 h-4 text-[var(--hub-dim)] shrink-0" />
           <input
             type="search"
@@ -158,14 +170,14 @@ export const NewsHub: React.FC = () => {
       )}
 
       {isLoading && items.length === 0 && !error && (
-        <div className="grid lg:grid-cols-12 gap-4" aria-busy="true">
-          <div className="lg:col-span-7 hub-panel p-6 space-y-3">
+        <div className="grid @3xl:grid-cols-12 gap-4" aria-busy="true">
+          <div className="@3xl:col-span-7 hub-panel p-6 space-y-3">
             <div className="hub-skeleton h-3 w-32" />
             <div className="hub-skeleton h-8 w-full" />
             <div className="hub-skeleton h-8 w-4/5" />
             <div className="hub-skeleton h-4 w-2/3" />
           </div>
-          <div className="lg:col-span-5 space-y-3">
+          <div className="@3xl:col-span-5 space-y-3">
             {[0, 1, 2, 3].map((i) => (
               <div key={i} className="hub-panel p-4 space-y-2">
                 <div className="hub-skeleton h-3 w-24" />
@@ -185,13 +197,13 @@ export const NewsHub: React.FC = () => {
 
       {lead && (
         <>
-          <div className="grid lg:grid-cols-12 gap-4">
+          <div className="grid @3xl:grid-cols-12 gap-4">
             {/* Lead story */}
             <a
               href={lead.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`group lg:col-span-7 hub-panel p-5 sm:p-7 flex flex-col justify-between gap-6 overflow-hidden hover:border-[var(--hub-line-strong)] transition-colors ${
+              className={`group @3xl:col-span-7 hub-panel p-5 @3xl:p-7 flex flex-col justify-between gap-6 overflow-hidden hover:border-[var(--hub-line-strong)] transition-colors ${
                 freshIds.has(lead.id) ? 'hub-fresh' : ''
               }`}
             >
@@ -203,17 +215,17 @@ export const NewsHub: React.FC = () => {
               {/* Oversized outlined category code as a HUD watermark */}
               <span
                 aria-hidden
-                className="absolute right-4 bottom-10 font-display font-bold text-[96px] sm:text-[128px] leading-none pointer-events-none select-none opacity-[0.07]"
+                className="absolute right-4 bottom-10 font-display font-bold text-[96px] @3xl:text-[128px] leading-none pointer-events-none select-none opacity-[0.07]"
                 style={{ WebkitTextStroke: `2px ${NEWS_CATEGORY_META[lead.category].color}`, color: 'transparent' }}
               >
                 {NEWS_CATEGORY_META[lead.category].short}
               </span>
               <div className="relative space-y-3">
                 <div className="hub-label">In evidenza</div>
-                <h3 className="font-display text-2xl sm:text-3xl font-bold leading-tight group-hover:text-[var(--hub-cyan)] transition-colors">
+                <h3 className="font-display text-xl @3xl:text-3xl font-bold leading-tight group-hover:text-[var(--hub-cyan)] transition-colors">
                   {lead.title}
                 </h3>
-                {lead.summary && <p className="text-sm sm:text-base text-[var(--hub-dim)] max-w-prose">{lead.summary}</p>}
+                {lead.summary && <p className="text-sm @3xl:text-base text-[var(--hub-dim)] max-w-prose">{lead.summary}</p>}
               </div>
               <div className="relative flex items-center justify-between gap-3">
                 <StoryMeta item={lead} fresh={freshIds.has(lead.id)} />
@@ -222,7 +234,7 @@ export const NewsHub: React.FC = () => {
             </a>
 
             {/* Side stack */}
-            <div className="lg:col-span-5 flex flex-col gap-3">
+            <div className="@3xl:col-span-5 flex flex-col gap-3">
               {side.map((item) => (
                 <a
                   key={item.id}
@@ -250,7 +262,7 @@ export const NewsHub: React.FC = () => {
                 <span className="flex-1 h-px bg-[var(--hub-line)]" />
                 {stream.length} elementi
               </div>
-              <ol className="grid md:grid-cols-2 gap-x-6">
+              <ol className="grid @3xl:grid-cols-2 gap-x-6">
                 {stream.map((item) => (
                   <li key={item.id} className="border-t border-[var(--hub-line)]">
                     <a

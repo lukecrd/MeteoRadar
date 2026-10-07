@@ -30,7 +30,7 @@ import { VercelModal } from './components/VercelModal';
 import { HubCommandDeck } from './components/HubCommandDeck';
 import { HubStatusStrip } from './components/HubStatusStrip';
 import { NewsTicker } from './components/NewsTicker';
-import { NewsHub } from './components/NewsHub';
+import { NewsGlobeStage } from './components/NewsGlobeStage';
 import { NewsFeedPanel } from './components/NewsFeedPanel';
 import { Loader2 } from 'lucide-react';
 
@@ -45,7 +45,8 @@ export default function App() {
   });
 
   // Main application Tab based on Stitch navigation architecture
-  const [activeAppTab, setActiveAppTab] = useState<AppTab>('station');
+  // WorldHub opens on the news globe ("Notizie"); other modules stay one click away.
+  const [activeAppTab, setActiveAppTab] = useState<AppTab>('news');
 
   // Location & Weather Data
   const [currentLocation, setCurrentLocation] = useState<LocationInfo>(DEFAULT_LOCATION);
@@ -453,8 +454,9 @@ export default function App() {
 
   return (
     <div className="hub-root min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg">
-      {/* Ambient 3D tracking globe — furthest-back decorative layer */}
-      <RadarGlobe3D isDark={isDark} intensity={0.85} />
+      {/* Ambient 3D globe — furthest-back decorative layer. The news view
+          mounts its own full-width globe, so only one WebGL context runs. */}
+      {activeAppTab !== 'news' && <RadarGlobe3D isDark={isDark} intensity={0.5} />}
 
       {/* Dynamic Atmospheric Particle and Flash Background */}
       {weatherData && (
@@ -487,7 +489,7 @@ export default function App() {
       {/* Live headline band, visible from every module */}
       <NewsTicker category="meteo" onOpenHub={() => setActiveAppTab('news')} />
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 relative z-10">
+      <main className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 ${activeAppTab === 'news' ? 'pb-2' : 'pb-6 sm:pb-8'} space-y-6 relative z-10`}>
         {/* Hub command deck + live telemetry bus */}
         <div className="space-y-3">
           <HubCommandDeck
@@ -520,13 +522,6 @@ export default function App() {
           <div className="hub-panel p-4 !border-[var(--hub-red)]/40 text-[var(--hub-red)] text-sm font-medium">
             <span className="hub-label !text-[var(--hub-red)] mr-2">ERR</span>
             {errorMsg}
-          </div>
-        )}
-
-        {/* VIEW 8: Real-time News Hub (independent from weather data) */}
-        {activeAppTab === 'news' && (
-          <div key="tab-news" className="animate-tab-enter">
-            <NewsHub />
           </div>
         )}
 
@@ -748,6 +743,20 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* VIEW 1 (home): centred real-time event globe with the news feed and
+          event categories in toggleable side windows. Lives outside <main> so
+          the windows can dock to the viewport edges; it does not depend on
+          weather data. */}
+      {activeAppTab === 'news' && (
+        <NewsGlobeStage
+          key="tab-news"
+          isDark={isDark}
+          location={currentLocation}
+          alerts={weatherData?.alerts ?? []}
+          strikes={lightningStrikes}
+        />
+      )}
 
       {/* Global Interactive Alert Banner for Sudden Changes & Lightning */}
       <AlertBanner

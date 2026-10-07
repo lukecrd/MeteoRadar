@@ -1,4 +1,4 @@
-// MeteoRadar 3D & Storm Track - Service Worker for Android PWA
+// WorldHub - Service Worker for Android PWA
 const CACHE_NAME = 'meteoradar-v1';
 const ASSETS_TO_CACHE = [
   '/',

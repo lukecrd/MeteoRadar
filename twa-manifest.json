@@ -1,8 +1,8 @@
 {
   "packageId": "com.meteoradar.italy",
   "host": "meteoradar.app",
-  "name": "MeteoRadar 3D & Storm Track",
-  "launcherName": "MeteoRadar",
+  "name": "WorldHub",
+  "launcherName": "WorldHub",
   "themeColor": "#0d1f33",
   "navigationColor": "#091422",
   "backgroundColor": "#091422",
