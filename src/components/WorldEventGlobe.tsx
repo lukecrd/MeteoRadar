@@ -729,7 +729,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
         <button type="button" className="hub-icon-btn !h-8 !min-w-8 !px-0" onClick={resetView} aria-label="Ripristina vista" title="Ripristina vista">
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
-        <span className="font-hud text-[10px] text-center text-[var(--hub-dim)] tabular-nums" aria-live="polite">
+        <span className="font-hud text-xs text-center text-[var(--hub-dim)] tabular-nums" aria-live="polite">
           {zoomLabel.toFixed(1)}×
         </span>
       </div>

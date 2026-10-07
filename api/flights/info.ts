@@ -1,4 +1,4 @@
-import { getFlightInfo } from '../../lib/flightTracker';
+import { getFlightInfo } from '../../lib/flightTracker.js';
 
 // Route + aircraft enrichment from adsbdb (cached 12–24 h server-side).
 export default async function handler(req: any, res: any) {

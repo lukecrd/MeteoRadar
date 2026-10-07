@@ -1,4 +1,4 @@
-import { getDisasters } from '../lib/worldEvents';
+import { getDisasters } from '../lib/worldEvents.js';
 
 // WorldHub globe layer: see lib/worldEvents.ts for source and caching notes.
 export default async function handler(req: any, res: any) {

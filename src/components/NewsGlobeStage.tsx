@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Activity, Crosshair, Eye, EyeOff, Newspaper, Plane, Satellite, ShieldAlert, Square, X, LucideIcon } from 'lucide-react';
+import { Activity, Bitcoin, CandlestickChart, Crosshair, Eye, EyeOff, Newspaper, Plane, Satellite, ShieldAlert, Square, X, LucideIcon } from 'lucide-react';
 import { LightningStrike, LocationInfo, WeatherAlertInfo } from '../types';
 import { timeAgo } from '../services/newsApi';
 import {
@@ -15,8 +15,17 @@ import {
   SatelliteGroup,
   WORLD_ENDPOINTS,
   WorldLayer,
+  ALT_BANDS,
+  AltBand,
+  altBandOf,
+  flightColor,
   quakeColor,
 } from '../services/worldEventsApi';
+import { fetchGeoNews, fetchMarkets, GEO_REGION_META } from '../services/hubApi';
+import { usePolledResource } from '../hooks/usePolledResource';
+import { MarketBoard } from './hub/MarketBoard';
+import { CryptoDeck } from './hub/CryptoDeck';
+import { WorldNewsPanel } from './hub/WorldNewsPanel';
 import { usePolledJson } from '../hooks/usePolledJson';
 import { orbitTrack, useSatellites } from '../hooks/useSatellites';
 import { destinationPoint, greatCircle, useFlightTracker } from '../hooks/useFlightTracker';
@@ -26,7 +35,7 @@ import { NewsHub } from './NewsHub';
 import { AlertsList, FlightsList, QuakesList, SatellitesList } from './WorldEventPanels';
 
 type Side = 'left' | 'right';
-type WindowId = 'news' | 'flights' | 'satellites' | 'quakes' | 'alerts';
+type WindowId = 'news' | 'flights' | 'satellites' | 'markets' | 'quakes' | 'alerts' | 'crypto';
 
 interface WindowDef {
   id: WindowId;
@@ -40,12 +49,67 @@ interface WindowDef {
 // Any number of windows can be open at once; each side stacks its open
 // windows vertically and the page grows / scrolls instead of hiding them.
 const WINDOWS: WindowDef[] = [
-  { id: 'news', side: 'left', title: 'Notizie', icon: Newspaper },
+  { id: 'news', side: 'left', title: 'Notizie', icon: Newspaper, layer: 'news' },
   { id: 'flights', side: 'left', title: 'Voli', icon: Plane, layer: 'flights' },
   { id: 'satellites', side: 'left', title: 'Satelliti', icon: Satellite, layer: 'satellites' },
+  { id: 'markets', side: 'left', title: 'Mercati', icon: CandlestickChart },
   { id: 'quakes', side: 'right', title: 'Terremoti', icon: Activity, layer: 'quakes' },
   { id: 'alerts', side: 'right', title: 'Allerte', icon: ShieldAlert, layer: 'alerts' },
+  { id: 'crypto', side: 'right', title: 'Cripto', icon: Bitcoin },
 ];
+
+const GEO_NEWS_REFRESH_MS = 5 * 60_000;
+const MARKETS_REFRESH_MS = 60_000;
+
+/** Markets poll only while their window is mounted (open). */
+const MarketsWindow: React.FC = () => {
+  const markets = usePolledResource(fetchMarkets, MARKETS_REFRESH_MS);
+  return (
+    <MarketBoard
+      quotes={markets.data?.quotes ?? []}
+      isLoading={markets.isLoading}
+      error={markets.error}
+      fetchedAt={markets.data?.fetchedAt ?? null}
+      onRefresh={markets.refresh}
+    />
+  );
+};
+
+/** Altitude-band filter for the flight layer (ported from the former Global Hub). */
+const FlightFilterBar: React.FC<{ bands: AltBand[]; onToggle: (b: AltBand) => void; query: string; onQuery: (q: string) => void }> = ({
+  bands,
+  onToggle,
+  query,
+  onQuery,
+}) => (
+  <div className="space-y-2">
+    <div className="hub-label">Quota (filtro sul globo)</div>
+    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtra per quota">
+      {ALT_BANDS.map((b) => (
+        <button
+          key={b.id}
+          type="button"
+          className="hub-chip !h-8"
+          aria-pressed={bands.length === 0 || bands.includes(b.id)}
+          onClick={() => onToggle(b.id)}
+          title={b.hint}
+          style={{ ['--chip-color' as any]: b.color }}
+        >
+          <span className="w-2 h-2 rounded-full" style={{ background: b.color }} />
+          {b.label}
+        </button>
+      ))}
+    </div>
+    <input
+      type="search"
+      value={query}
+      onChange={(e) => onQuery(e.target.value)}
+      placeholder="Filtra i voli mostrati (nominativo o Paese)…"
+      aria-label="Filtra i voli mostrati"
+      className="w-full h-9 px-3 rounded-lg border border-[var(--hub-line)] bg-[var(--hub-panel)] text-sm focus:outline-none focus:border-[var(--hub-line-strong)] placeholder:text-[var(--hub-dim)]"
+    />
+  </div>
+);
 
 const LOCAL_LEVEL_COLOR: Record<WeatherAlertInfo['level'], string> = {
   green: '#4ade80',
@@ -87,7 +151,7 @@ function seedFromSample(f: SampleFlight): FlightDetail {
 
 const MOBILE_QUERY = '(max-width: 767px)';
 // Globe column sizing (see useGlobeHeight).
-const STICKY_TOP_PX = 72; // matches `sticky top-[4.5rem]`
+const STICKY_GAP_PX = 8; // space under the sticky app header
 const BOTTOM_GAP_PX = 16;
 const MIN_GLOBE_COLUMN = { desktop: 440, mobile: 380 };
 
@@ -110,19 +174,27 @@ function useMediaQuery(query: string): boolean {
  * without scrolling. Capped to what fits under the navbar once the column
  * is sticky, and on phones to roughly a square globe.
  */
-function useGlobeHeight(sectionRef: React.RefObject<HTMLElement | null>, isMobile: boolean): number | null {
+function useGlobeHeight(sectionRef: React.RefObject<HTMLElement | null>, isMobile: boolean): { height: number | null; stickyTop: number } {
   const [height, setHeight] = useState<number | null>(null);
+  const [stickyTop, setStickyTop] = useState(120);
   useLayoutEffect(() => {
     const measure = () => {
       const el = sectionRef.current;
       if (!el) return;
       const vh = window.innerHeight;
+      // Sticky app header (navbar + top nav) and, on phones, the fixed bottom nav.
+      const header = document.querySelector('header')?.getBoundingClientRect().height ?? 64;
+      const bottomNav = [...document.querySelectorAll<HTMLElement>('nav[aria-label="Sezioni principali"]')]
+        .filter((n) => getComputedStyle(n).position === 'fixed' && n.offsetHeight > 0)
+        .reduce((h, n) => Math.max(h, n.offsetHeight), 0);
       const top = el.getBoundingClientRect().top + window.scrollY;
-      const available = vh - top - BOTTOM_GAP_PX;
+      const bottomGap = BOTTOM_GAP_PX + bottomNav;
+      const available = vh - top - bottomGap;
       const max = isMobile
-        ? Math.min(vh - BOTTOM_GAP_PX, Math.round(window.innerWidth * 1.05) + 110) // ≈ square globe + 2 toolbar rows
-        : vh - STICKY_TOP_PX - BOTTOM_GAP_PX;
+        ? Math.min(vh - header - bottomGap, Math.round(window.innerWidth * 1.05) + 110) // ≈ square globe + 2 toolbar rows
+        : vh - header - STICKY_GAP_PX - bottomGap;
       const min = isMobile ? MIN_GLOBE_COLUMN.mobile : MIN_GLOBE_COLUMN.desktop;
+      setStickyTop(Math.round(header + STICKY_GAP_PX));
       setHeight(Math.round(Math.max(min, Math.min(max, available))));
     };
     measure();
@@ -135,7 +207,7 @@ function useGlobeHeight(sectionRef: React.RefObject<HTMLElement | null>, isMobil
       window.removeEventListener('resize', measure);
     };
   }, [sectionRef, isMobile]);
-  return height;
+  return { height, stickyTop };
 }
 
 interface NewsGlobeStageProps {
@@ -213,13 +285,13 @@ const WindowTab: React.FC<{ def: WindowDef; open: boolean; badge?: number; verti
     >
       <Icon className="w-4 h-4 shrink-0" style={def.layer ? { color: LAYER_META[def.layer].color } : undefined} />
       {vertical ? (
-        <span className="font-hud text-[10px] font-bold tracking-[0.2em] uppercase [writing-mode:vertical-rl] rotate-180">{def.title}</span>
+        <span className="font-hud text-xs font-bold tracking-[0.2em] uppercase [writing-mode:vertical-rl] rotate-180">{def.title}</span>
       ) : (
         <span className={open ? 'text-[var(--hub-text)]' : ''}>{def.title}</span>
       )}
       {badgeText && (
         <span
-          className={`font-hud text-[10px] font-bold px-1 rounded bg-[var(--hub-red)] text-white leading-4 ${
+          className={`font-hud text-xs font-bold px-1 rounded bg-[var(--hub-red)] text-white leading-4 ${
             vertical ? 'absolute -top-1.5 -right-1.5' : ''
           }`}
         >
@@ -239,16 +311,20 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [open, setOpen] = useState<Record<WindowId, boolean>>(() =>
     typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches
-      ? { news: true, flights: false, satellites: false, quakes: false, alerts: false }
-      : { news: true, flights: false, satellites: true, quakes: true, alerts: false }
+      ? { news: true, flights: false, satellites: false, markets: false, quakes: false, alerts: false, crypto: false }
+      : { news: true, flights: false, satellites: true, markets: false, quakes: true, alerts: false, crypto: false }
   );
-  const [layers, setLayers] = useState<Record<WorldLayer, boolean>>({ quakes: true, flights: true, alerts: true, satellites: true });
+  const [layers, setLayers] = useState<Record<WorldLayer, boolean>>({ news: true, quakes: true, flights: true, alerts: true, satellites: true });
+  const [newsTab, setNewsTab] = useState<'italia' | 'mondo'>('italia');
+  const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
+  const [altBands, setAltBands] = useState<AltBand[]>([]);
+  const [flightQuery, setFlightQuery] = useState('');
   const [satGroup, setSatGroup] = useState<SatelliteGroup>('stations');
   const [focus, setFocus] = useState<GlobeFocus | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const globeRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
-  const globeHeight = useGlobeHeight(sectionRef, isMobile);
+  const { height: globeHeight, stickyTop } = useGlobeHeight(sectionRef, isMobile);
 
   // Selected aircraft (popup) and follow mode.
   const [selectedFlight, setSelectedFlight] = useState<{ icao24: string; seed: FlightDetail | null } | null>(null);
@@ -262,6 +338,9 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   const flights = usePolledJson<FlightsResponse>(WORLD_ENDPOINTS.flights, REFRESH.flights, layers.flights || open.flights);
   const disasters = usePolledJson<FeedResponse<Disaster>>(WORLD_ENDPOINTS.disasters, REFRESH.disasters, layers.alerts || open.alerts);
   const sats = useSatellites(satGroup, layers.satellites || open.satellites);
+  const geo = usePolledResource(fetchGeoNews, GEO_NEWS_REFRESH_MS);
+  const areas = geo.data?.areas ?? [];
+  const selectedArea = selectedAreaId ? areas.find((a) => a.id === selectedAreaId) ?? null : null;
 
   const toggleWindow = (id: WindowId) => setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
   const toggleLayer = (layer: WorldLayer) => setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
@@ -269,15 +348,34 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   /* ---------- Surface markers ---------- */
   const markers = useMemo<GlobeMarker[]>(() => {
     const out: GlobeMarker[] = [];
+    if (layers.news) {
+      for (const a of areas) {
+        if (a.items.length === 0) continue;
+        out.push({
+          id: `n:${a.id}`,
+          layer: 'news',
+          lat: a.lat,
+          lon: a.lon,
+          color: GEO_REGION_META[a.region].color,
+          size: Math.min(16, 6 + a.recentCount * 1.2),
+          title: `${a.name}: ${a.items[0].title}`,
+          detail: `${a.items.length} notizie · ${a.recentCount} nelle ultime 6 h`,
+        });
+      }
+    }
     if (layers.flights) {
+      const q = flightQuery.trim().toUpperCase();
       for (const f of flights.data?.items ?? []) {
         if (trackedId === `f:${f.id}`) continue; // drawn live below
+        const altFt = (f.altitudeM ?? 0) / 0.3048;
+        if (altBands.length && !altBands.includes(altBandOf(altFt))) continue;
+        if (q && !f.callsign.toUpperCase().includes(q) && !f.country.toUpperCase().includes(q)) continue;
         out.push({
           id: `f:${f.id}`,
           layer: 'flights',
           lat: f.lat,
           lon: f.lon,
-          color: LAYER_META.flights.color,
+          color: flightColor(altFt),
           size: 3.5,
           title: `Volo ${f.callsign}`,
           detail: [f.country, f.altitudeM != null ? `${f.altitudeM.toLocaleString('it-IT')} m` : null, f.speedKmh != null ? `${f.speedKmh} km/h` : null]
@@ -357,7 +455,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       });
     }
     return out;
-  }, [layers, flights.data, quakes.data, disasters.data, strikes, alerts, location, selectedFlight, tracker.position, tracker.flight, trackedId]);
+  }, [layers, areas, flights.data, altBands, flightQuery, quakes.data, disasters.data, strikes, alerts, location, selectedFlight, tracker.position, tracker.flight, trackedId]);
 
   /* ---------- Satellites (re-propagated every second) ---------- */
   const orbitals = useMemo<GlobeMarker[]>(() => {
@@ -442,6 +540,12 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         const sample = sampleById.get(icao);
         if (sample) return openFlight(seedFromSample(sample));
       }
+      if (m.layer === 'news') {
+        // Area marker: show that area's headlines in the Notizie window.
+        setOpen((p) => ({ ...p, news: true }));
+        setNewsTab('mondo');
+        setSelectedAreaId(m.id.slice(2));
+      }
       setHighlightId(m.id);
       setFocus({ lat: m.lat, lon: m.lon, seq: Date.now() });
     },
@@ -477,6 +581,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   }, [track, selectedNorad, selectedFlight, tracker.position, tracker.info, tracker.trail, tracker.flight]);
 
   const counts: Record<WorldLayer, number> = {
+    news: areas.filter((a) => a.items.length > 0).length,
     quakes: quakes.data?.items.length ?? 0,
     flights: flights.data?.totalAirborne ?? 0,
     alerts: (disasters.data?.items.length ?? 0) + alerts.length + strikes.length,
@@ -487,7 +592,47 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   const renderWindowBody = (id: WindowId) => {
     switch (id) {
       case 'news':
-        return <NewsHub embedded />;
+        return (
+          <div className="space-y-4">
+            <div role="tablist" aria-label="Fonte notizie" className="grid grid-cols-2 gap-1 p-1 rounded-xl border border-[var(--hub-line)]">
+              {(['italia', 'mondo'] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  role="tab"
+                  aria-selected={newsTab === t}
+                  onClick={() => setNewsTab(t)}
+                  className={`h-8 rounded-lg text-sm font-semibold transition-colors ${
+                    newsTab === t ? 'bg-[var(--hub-glow)] text-[var(--hub-text)]' : 'text-[var(--hub-dim)] hover:text-[var(--hub-text)]'
+                  }`}
+                >
+                  {t === 'italia' ? 'Ultime notizie' : 'Dal mondo'}
+                </button>
+              ))}
+            </div>
+            {newsTab === 'italia' ? (
+              <NewsHub embedded />
+            ) : (
+              <WorldNewsPanel
+                areas={areas}
+                region="all"
+                selectedArea={selectedArea}
+                isLoading={geo.isLoading}
+                error={geo.error}
+                onSelectArea={(id) => {
+                  const a = areas.find((x) => x.id === id);
+                  setSelectedAreaId(id);
+                  if (a) focusOn(`n:${a.id}`, 'news', a.lat, a.lon);
+                }}
+                onClearArea={() => setSelectedAreaId(null)}
+              />
+            )}
+          </div>
+        );
+      case 'markets':
+        return <MarketsWindow />;
+      case 'crypto':
+        return <CryptoDeck />;
       case 'quakes':
         return (
           <QuakesList
@@ -506,7 +651,17 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
             isLoading={flights.isLoading}
             error={flights.error}
             onRetry={flights.retry}
-            search={<FlightSearch onSelect={openFlight} />}
+            search={
+              <div className="space-y-3">
+                <FlightSearch onSelect={openFlight} />
+                <FlightFilterBar
+                  bands={altBands}
+                  onToggle={(b) => setAltBands((prev) => (prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b]))}
+                  query={flightQuery}
+                  onQuery={setFlightQuery}
+                />
+              </div>
+            }
             activeId={highlightId}
             onFocus={(f) => openFlight(seedFromSample(f))}
           />
@@ -603,9 +758,9 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         </div>
       </div>
       {/* Fills the rest of the measured column; never clipped by the viewport. */}
-      <div className={`relative min-h-[260px] ${globeHeight ? 'flex-1' : 'h-[60vh]'}`}>
+      <div className={`hub-globe-stage relative rounded-2xl overflow-hidden min-h-[260px] ${globeHeight ? 'flex-1' : 'h-[60vh]'}`}>
         <WorldEventGlobe
-          isDark={isDark}
+          isDark /* the stage is always dark (deep space) in both app themes */
           markers={markers}
           orbitals={orbitals}
           paths={paths}
@@ -651,7 +806,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     // Phones: globe on top, then the window toggles, then every open window
     // stacked full-width below — several can be open, the page scrolls.
     return (
-      <section ref={sectionRef} className="relative z-10 w-full px-3 pb-8 space-y-3" aria-label="Mappamondo eventi in tempo reale">
+      <section ref={sectionRef} className="relative z-10 w-full px-3 pb-4 space-y-3" aria-label="Mappamondo eventi in tempo reale">
         {globe}
         {/* Phones: the popup sits right below the globe so the aircraft stays visible */}
         {cardOpen && selectedFlight && <div className="max-h-[70dvh] flex flex-col min-h-0">{flightCard}</div>}
@@ -694,7 +849,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       aria-label="Mappamondo eventi in tempo reale"
     >
       {column('left')}
-      <div className="sticky top-[4.5rem] self-start min-w-0">{globe}</div>
+      <div className="sticky self-start min-w-0" style={{ top: stickyTop }}>{globe}</div>
       {column('right')}
     </section>
   );

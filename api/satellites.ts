@@ -1,4 +1,4 @@
-import { getSatellites, isSatelliteGroup } from '../lib/worldEvents';
+import { getSatellites, isSatelliteGroup } from '../lib/worldEvents.js';
 
 // WorldHub satellites layer: CelesTrak TLE sets, cached ≥2 h (see lib/worldEvents.ts).
 export default async function handler(req: any, res: any) {

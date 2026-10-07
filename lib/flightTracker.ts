@@ -8,8 +8,8 @@
 //    following a flight therefore never spends OpenSky quota.
 //  - Enrichment uses adsbdb (free, keyless): callsign → airline + route,
 //    ICAO24 / registration → aircraft type, operator, photo.
-import { IATA_TO_ICAO } from './airlineCodes';
-import { getFlightSnapshot } from './worldEvents';
+import { IATA_TO_ICAO } from './airlineCodes.js';
+import { getFlightSnapshot } from './worldEvents.js';
 
 const USER_AGENT = 'Mozilla/5.0 (WorldHub flight tracker)';
 const TIMEOUT_MS = 10_000;
@@ -210,7 +210,7 @@ export async function searchFlights(rawQuery: string): Promise<FlightSearchRespo
     if (s[5] == null || s[6] == null) continue;
     const cs = String(s[1] || '').trim().toUpperCase();
     if (byCallsign.has(cs) || (isHex && String(s[0]).toUpperCase() === query)) exact.push(s);
-    else if (query.length >= 3 && cs.startsWith(query)) partial.push(s);
+    else if (query.length >= 3 && resolved.some((r) => cs.startsWith(r))) partial.push(s);
   }
 
   let results = [...exact, ...partial].slice(0, 20).map(fromOpenSky);

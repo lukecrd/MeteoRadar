@@ -16,6 +16,9 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { AirQualityData } from '../types';
+import { UV_SCALE } from '../theme/colorScales';
+
+const UV_MAX = 14;
 
 interface EnvironmentalUvCardProps {
   uvIndex: number;
@@ -28,22 +31,26 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
   airQuality,
   isDark
 }) => {
-  // Default fallback if airQuality API didn't load
+  // Without an air-quality response we show an explicit "unavailable" state,
+  // never plausible-looking invented numbers. UV falls back to the forecast value (0 at night is valid).
+  const hasAirQuality = !!airQuality;
   const aqi = airQuality || {
-    europeanAqi: 32,
-    pm10: 14.2,
-    pm2_5: 8.5,
-    ozone: 78.0,
-    nitrogenDioxide: 12.4,
-    carbonMonoxide: 180,
-    uvIndex: uvIndex || 5.2,
+    europeanAqi: 0,
+    pm10: 0,
+    pm2_5: 0,
+    ozone: 0,
+    nitrogenDioxide: 0,
+    carbonMonoxide: 0,
+    uvIndex,
     aqiLevel: 'buona' as const,
-    aqiDescription: 'Qualità dell\'aria soddisfacente con scarso rischio per la salute.'
+    aqiDescription: ''
   };
 
   // UV Classification helper
-  const getUvTier = (val: number) => {
-    if (val <= 2.5) {
+  const getUvTier = (raw: number) => {
+    // WHO classes are defined on the rounded index
+    const val = Math.round(raw);
+    if (val <= 2) {
       return {
         label: 'Basso',
         color: 'text-emerald-400',
@@ -53,7 +60,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
         spf: 'Non necessaria'
       };
     }
-    if (val <= 5.5) {
+    if (val <= 5) {
       return {
         label: 'Moderato',
         color: 'text-amber-400',
@@ -63,7 +70,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
         spf: 'SPF 30 consigliato'
       };
     }
-    if (val <= 7.5) {
+    if (val <= 7) {
       return {
         label: 'Alto',
         color: 'text-orange-400',
@@ -73,7 +80,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
         spf: 'SPF 50+ indispensabile'
       };
     }
-    if (val <= 10.5) {
+    if (val <= 10) {
       return {
         label: 'Molto Alto',
         color: 'text-rose-400',
@@ -93,7 +100,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
     };
   };
 
-  const uvTier = getUvTier(aqi.uvIndex || uvIndex);
+  const uvTier = getUvTier(aqi.uvIndex ?? uvIndex);
 
   // AQI color & recommendation helper
   const getAqiDetails = (level: string) => {
@@ -167,9 +174,6 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
           : 'bg-white/95 backdrop-blur-xl border-slate-200 text-slate-900 shadow-xl shadow-slate-200/50'
       }`}
     >
-      {/* Subtle ambient light gradient */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -z-0" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -z-0" />
 
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6 relative z-10 border-b border-slate-200/80 dark:border-slate-800/80 pb-4">
@@ -179,10 +183,10 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                 Analisi Ambientale: Indice UV & Qualità Aria
               </h3>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 font-bold border border-teal-500/30">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 font-bold border border-teal-500/30">
                 Live Sensorica
               </span>
             </div>
@@ -208,14 +212,14 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
                 <Sun className="w-4 h-4 text-amber-400" />
                 Radiazione Solare UV
               </span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-black border ${uvTier.bg} ${uvTier.color}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${uvTier.bg} ${uvTier.color}`}>
                 Livello {uvTier.label}
               </span>
             </div>
 
             {/* Giant Metric Display */}
             <div className="flex items-baseline gap-2 mt-4">
-              <span className="text-5xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white">
+              <span className="text-5xl sm:text-6xl font-bold tracking-tight text-slate-900 dark:text-white">
                 {aqi.uvIndex.toFixed(1)}
               </span>
               <span className="text-xl font-bold text-slate-400">/ 11+ Max</span>
@@ -223,18 +227,24 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
 
             {/* UV Progress Spectrum Bar */}
             <div className="mt-4">
-              <div className="h-3 w-full bg-slate-200 dark:bg-slate-700/80 rounded-full overflow-hidden p-0.5 relative">
-                <div
-                  className="h-full rounded-full transition-all duration-700 bg-gradient-to-r from-emerald-400 via-amber-400 via-orange-500 via-rose-500 to-purple-600"
-                  style={{ width: `${Math.min(100, Math.max(8, (aqi.uvIndex / 11) * 100))}%` }}
+              {/* WHO classes as proportional segments (0-3-6-8-11-14) with a cursor on the value */}
+              <div className="relative pt-1" role="img" aria-label={`Indice UV ${aqi.uvIndex.toFixed(1)}, livello ${uvTier.label}`}>
+                <div className="flex h-2.5 w-full rounded-full overflow-hidden">
+                  {UV_SCALE.map((c, i) => {
+                    const from = i === 0 ? 0 : c.min;
+                    const to = UV_SCALE[i + 1]?.min ?? UV_MAX;
+                    return <span key={c.label} style={{ width: `${((to - from) / UV_MAX) * 100}%`, background: c.color }} />;
+                  })}
+                </div>
+                <span
+                  className="absolute top-0 w-1 h-4.5 -ml-0.5 rounded-full bg-slate-900 dark:bg-white ring-2 ring-white dark:ring-slate-900 transition-all duration-700"
+                  style={{ left: `${(Math.min(aqi.uvIndex, UV_MAX) / UV_MAX) * 100}%` }}
                 />
               </div>
-              <div className="flex justify-between text-[10px] text-slate-400 mt-1.5 font-bold">
-                <span>0 Basso</span>
-                <span>3 Mod.</span>
-                <span>6 Alto</span>
-                <span>8 Molto Alto</span>
-                <span>11+ Estremo</span>
+              <div className="relative h-4 text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-semibold tabular-nums">
+                {[0, 3, 6, 8, 11].map((t) => (
+                  <span key={t} className="absolute -translate-x-1/2 first:translate-x-0" style={{ left: `${(t / UV_MAX) * 100}%` }}>{t}</span>
+                ))}
               </div>
             </div>
 
@@ -245,7 +255,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
 
           {/* Protection Checklist */}
           <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700/60">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
               Protocollo Protezione Solare:
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -271,13 +281,25 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
 
         {/* Right Column (7 cols): European AQI & Pollutants Grid */}
         <div className="lg:col-span-7 flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-inner">
+          {!hasAirQuality ? (
+            <div role="status" className="flex flex-col items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+                <Activity className="w-4 h-4 text-teal-400" />
+                Indice Europeo Qualità dell'Aria (EAQI)
+              </span>
+              <span className="flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4 text-slate-400" />
+                Dati sulla qualità dell'aria non disponibili al momento.
+              </span>
+            </div>
+          ) : (<>
           <div>
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
                 <Activity className="w-4 h-4 text-teal-400" />
                 Indice Europeo Qualità dell'Aria (EAQI)
               </span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-black border ${aqiInfo.bg} ${aqiInfo.color} flex items-center gap-1.5`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${aqiInfo.bg} ${aqiInfo.color} flex items-center gap-1.5`}>
                 <span className={`w-2 h-2 rounded-full ${aqiInfo.indicator} animate-pulse`} />
                 {aqiInfo.badge} ({aqi.europeanAqi})
               </span>
@@ -291,74 +313,74 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
               {/* PM2.5 */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>PM 2.5</span>
-                  <span className="text-[10px] text-emerald-400">&lt; 15 ok</span>
+                  <span className="text-xs text-emerald-400">&lt; 15 ok</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.pm2_5} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Particolato Fine</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Particolato Fine</div>
               </div>
 
               {/* PM10 */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>PM 10</span>
-                  <span className="text-[10px] text-teal-400">&lt; 40 ok</span>
+                  <span className="text-xs text-teal-400">&lt; 40 ok</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.pm10} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Polveri Inalabili</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Polveri Inalabili</div>
               </div>
 
               {/* O3 */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>Ozono (O₃)</span>
-                  <span className="text-[10px] text-cyan-400">&lt; 120 ok</span>
+                  <span className="text-xs text-cyan-400">&lt; 120 ok</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.ozone} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Ossigeno Triatomico</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Ossigeno Triatomico</div>
               </div>
 
               {/* NO2 */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>NO₂</span>
-                  <span className="text-[10px] text-indigo-400">&lt; 40 ok</span>
+                  <span className="text-xs text-indigo-400">&lt; 40 ok</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.nitrogenDioxide} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Biossido di Azoto</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Biossido di Azoto</div>
               </div>
 
               {/* CO */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                   <span>CO</span>
-                  <span className="text-[10px] text-emerald-400">Ottimo</span>
+                  <span className="text-xs text-emerald-400">Ottimo</span>
                 </div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-1">
+                <div className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {aqi.carbonMonoxide} <span className="text-xs font-normal text-slate-400">μg/m³</span>
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5 truncate">Monossido Carbonio</div>
+                <div className="text-xs text-slate-400 mt-0.5 truncate">Monossido Carbonio</div>
               </div>
 
               {/* Sensor Reliability Status */}
               <div className="p-3 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/80 flex flex-col justify-center">
-                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Stato Rete</span>
                 </div>
-                <div className="text-xs font-extrabold text-emerald-500 dark:text-emerald-400 mt-1">
+                <div className="text-xs font-bold text-emerald-500 dark:text-emerald-400 mt-1">
                   Telemetria Attiva
                 </div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Copernicus CAMS</div>
+                <div className="text-xs text-slate-400 mt-0.5">Copernicus CAMS</div>
               </div>
             </div>
           </div>
@@ -374,6 +396,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
               <span>Ambienti Chiusi: <span className="font-normal text-slate-600 dark:text-slate-300">{aqiInfo.ventilation}</span></span>
             </div>
           </div>
+          </>)}
         </div>
       </div>
     </div>

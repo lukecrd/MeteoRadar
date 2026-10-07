@@ -1,7 +1,7 @@
 // Real-time world event feeds for the WorldHub globe, shared by the Express
 // dev server (server.ts) and the Vercel functions (api/*.ts).
 //
-//  - Earthquakes: USGS GeoJSON summary feed (M2.5+, past day)
+//  - Earthquakes: USGS + INGV, merged by lib/quakes.ts
 //  - Flights:     OpenSky Network /states/all (anonymous by default; optional
 //                 OAuth client credentials via OPENSKY_CLIENT_ID/SECRET)
 //  - Disasters:   GDACS event list (cyclones, floods, volcanoes, wildfires…)
@@ -9,6 +9,8 @@
 // Every source is cached in memory for a short TTL and, when the upstream
 // fails, the last good copy is served with `stale: true` plus the error, so a
 // single broken source never blanks the globe.
+
+import { getQuakes } from './quakes.js';
 
 const FETCH_TIMEOUT_MS = 15_000;
 const USER_AGENT = 'Mozilla/5.0 (WorldHub event globe)';
@@ -23,6 +25,9 @@ export interface Earthquake {
   depthKm: number;
   url: string;
   tsunami: boolean;
+  source?: "USGS" | "INGV";
+  /** USGS PAGER impact alert, when issued */
+  alert?: "green" | "yellow" | "orange" | "red" | null;
 }
 
 export interface Flight {
@@ -132,29 +137,30 @@ function cachedFeed<R extends { fetchedAt: number; stale: boolean; error: string
   };
 }
 
-/* ---------------- Earthquakes (USGS) ---------------- */
+/* ---------------- Earthquakes (USGS + INGV) ---------------- */
 
-const USGS_URL = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson';
-
+// lib/quakes.ts merges USGS (M2.5+ / 24 h and M4.5+ / 7 days, worldwide)
+// with INGV (M2+ / 7 days around Italy, Italian place names) and drops
+// duplicates; here it is adapted to the globe feed shape.
 export const getEarthquakes = cachedFeed<FeedResponse<Earthquake>>(
   60_000,
   async () => {
-    const { json } = await fetchJson(USGS_URL);
-    const items: Earthquake[] = (json.features || [])
-      .filter((f: any) => Array.isArray(f?.geometry?.coordinates) && typeof f?.properties?.mag === 'number')
-      .map((f: any) => ({
-        id: String(f.id),
-        mag: Math.round(f.properties.mag * 10) / 10,
-        place: String(f.properties.place || 'Località sconosciuta'),
-        time: Number(f.properties.time),
-        lon: f.geometry.coordinates[0],
-        lat: f.geometry.coordinates[1],
-        depthKm: Math.round((f.geometry.coordinates[2] ?? 0) * 10) / 10,
-        url: String(f.properties.url || ''),
-        tsunami: f.properties.tsunami === 1,
-      }))
-      .sort((a: Earthquake, b: Earthquake) => b.time - a.time);
-    return { items, fetchedAt: Date.now(), stale: false, error: null };
+    const res = await getQuakes();
+    if (res.quakes.length === 0 && res.errors.length) throw new Error(res.errors.join(" · "));
+    const items: Earthquake[] = res.quakes.map((q) => ({
+      id: q.id,
+      mag: Math.round(q.mag * 10) / 10,
+      place: q.place,
+      time: q.time,
+      lat: q.lat,
+      lon: q.lon,
+      depthKm: Math.round(q.depthKm * 10) / 10,
+      url: q.url,
+      tsunami: q.tsunami,
+      source: q.source,
+      alert: q.alert,
+    }));
+    return { items, fetchedAt: res.fetchedAt, stale: false, error: res.errors.length ? res.errors.join(" · ") : null };
   },
   () => ({ items: [], fetchedAt: Date.now(), stale: true, error: null })
 );

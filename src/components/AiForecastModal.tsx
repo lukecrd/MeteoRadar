@@ -69,7 +69,6 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
         }`}
       >
         {/* Glow background */}
-        <div className="absolute top-0 right-0 w-72 h-72 bg-teal-500/15 rounded-full blur-3xl -z-0 pointer-events-none" />
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6 relative z-10">
@@ -78,9 +77,9 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black tracking-tight flex items-center gap-2">
+              <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
                 <span>Diagnostica AI Predittiva</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-400 font-bold border border-teal-500/30">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-400 font-bold border border-teal-500/30">
                   Gemini 3.7
                 </span>
               </h2>
@@ -136,16 +135,16 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
                   <ShieldCheck className="w-6 h-6 shrink-0" />
                 )}
                 <div>
-                  <div className="text-xs font-black uppercase tracking-wider">
+                  <div className="text-xs font-bold uppercase tracking-wider">
                     Indice di Rischio Cambiamenti Atmosferici
                   </div>
-                  <div className="text-lg font-extrabold">{risk}</div>
+                  <div className="text-lg font-bold">{risk}</div>
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-300">Accuratezza Modello</div>
-                <div className="text-base font-black text-teal-400">{safeReport.confidence ?? 94}%</div>
+                <div className="text-xs uppercase font-bold text-slate-500 dark:text-slate-300">Accuratezza Modello</div>
+                <div className="text-base font-bold text-teal-400">{safeReport.confidence ?? 94}%</div>
               </div>
             </div>
 
@@ -210,7 +209,7 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
                 type="button"
                 id="confirm-close-ai-modal-btn"
                 onClick={onClose}
-                className="px-6 py-2.5 rounded-xl font-bold text-xs bg-teal-500 hover:bg-teal-400 text-white shadow-md transition-colors"
+                className="px-6 py-2.5 rounded-xl font-bold text-xs bg-teal-500 hover:bg-teal-400 text-white dark:text-slate-950 shadow-md transition-colors"
               >
                 Chiudi Report
               </button>

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Compass, Wind, Navigation, Layers, Rotate3d, ArrowUpRight, Gauge, MapPin } from 'lucide-react';
 import { getWindDirectionLabel, getBeaufortScale } from '../services/weatherApi';
 import { LocationInfo } from '../types';
+import { windFlowBearing } from '../services/weatherFormat';
+import { windColor } from '../theme/colorScales';
 
 interface WindCompassMapProps {
   windSpeed: number; // km/h
@@ -86,18 +88,21 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
       });
     }
 
-    // Direction vector (wind flows towards direction + 180 or meteorological standard from angle)
-    const rad = ((windDirection - 90) * Math.PI) / 180;
+    // windDirection is where the wind comes FROM: particles travel towards windDirection + 180°.
+    // Canvas angle 0 = east, y grows downwards, so bearing b maps to (b - 90).
+    const rad = ((windFlowBearing(windDirection) - 90) * Math.PI) / 180;
     const dx = Math.cos(rad);
     const dy = Math.sin(rad);
 
+    const particleColor = windColor(windSpeed);
+
     const render = () => {
       // Semi-transparent clear for smooth trail effect
-      ctx.fillStyle = isDark ? 'rgba(11, 15, 25, 0.22)' : 'rgba(241, 245, 249, 0.25)';
+      ctx.fillStyle = 'rgba(11, 15, 25, 0.22)'; // the scope is always dark
       ctx.fillRect(0, 0, width, height);
 
       // Draw Grid / Radar rings
-      ctx.strokeStyle = isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(203, 213, 225, 0.4)';
+      ctx.strokeStyle = 'rgba(51, 65, 85, 0.3)';
       ctx.lineWidth = 1;
       const centerX = width / 2;
       const centerY = height / 2;
@@ -116,9 +121,9 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
         const opacity = Math.sin(progress * Math.PI) * 0.75;
 
         // Color based on wind intensity
-        let strokeColor = `rgba(56, 189, 248, ${opacity})`;
-        if (windSpeed > 40) strokeColor = `rgba(249, 115, 22, ${opacity})`;
-        if (windSpeed > 65) strokeColor = `rgba(239, 68, 68, ${opacity})`;
+        // Same Beaufort-aligned scale as the map vectors (theme/colorScales)
+        const alpha = Math.round(Math.max(0, Math.min(1, opacity)) * 255).toString(16).padStart(2, '0');
+        const strokeColor = `${particleColor}${alpha}`;
 
         ctx.strokeStyle = strokeColor;
         ctx.beginPath();
@@ -183,7 +188,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
             onClick={() => setIs3DMode(!is3DMode)}
             className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors ${
               is3DMode
-                ? 'bg-teal-500 text-white shadow-sm'
+                ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
             }`}
             title="Attiva/Disattiva prospettiva 3D della rosa dei venti"
@@ -195,7 +200,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
             onClick={() => setUseGyro(!useGyro)}
             className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors ${
               useGyro
-                ? 'bg-cyan-500 text-white shadow-sm'
+                ? 'bg-cyan-500 text-white dark:text-slate-950 shadow-sm'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
             }`}
             title="Sincronizza con orientamento giroscopio"
@@ -209,12 +214,12 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
       {/* Main Interactive Map & 3D Compass Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         {/* Left / Center Map with Integrated 3D Compass Overlay */}
-        <div className="lg:col-span-7 relative h-72 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950/40 flex items-center justify-center">
+        <div className="lg:col-span-7 relative h-72 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 on-dark flex items-center justify-center">
           {/* Animated Canvas Map Streamlines */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
           {/* Map Location Badge */}
-          <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md border border-slate-700/80 text-[11px] text-slate-200 shadow-md">
+          <div className="on-dark absolute top-3 left-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/80 backdrop-blur-md border border-slate-700/80 text-xs text-slate-200 shadow-md">
             <MapPin className="w-3.5 h-3.5 text-teal-400" />
             <span className="font-semibold">{location.name}</span>
             <span className="text-slate-400">({location.latitude.toFixed(2)}°, {location.longitude.toFixed(2)}°)</span>
@@ -232,18 +237,18 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
             }}
           >
             {/* Outer Ring with Degrees & Cardinal Points */}
-            <div className="absolute inset-0 rounded-full border-2 border-teal-500/40 bg-slate-900/60 backdrop-blur-md shadow-2xl flex items-center justify-center">
+            <div className="on-dark absolute inset-0 rounded-full border-2 border-teal-500/40 bg-slate-900/60 backdrop-blur-md shadow-2xl flex items-center justify-center">
               {/* Cardinal Labels */}
-              <span className="absolute top-2 font-black text-rose-500 text-xs tracking-wider">N</span>
+              <span className="absolute top-2 font-bold text-rose-500 text-xs tracking-wider">N</span>
               <span className="absolute right-2.5 font-bold text-slate-300 text-xs">E</span>
               <span className="absolute bottom-2 font-bold text-slate-300 text-xs">S</span>
               <span className="absolute left-2.5 font-bold text-slate-300 text-xs">W</span>
 
               {/* Intercardinal Labels */}
-              <span className="absolute top-5 right-6 font-semibold text-[10px] text-teal-400/80">NE</span>
-              <span className="absolute bottom-5 right-6 font-semibold text-[10px] text-slate-400">SE</span>
-              <span className="absolute bottom-5 left-6 font-semibold text-[10px] text-slate-400">SW</span>
-              <span className="absolute top-5 left-6 font-semibold text-[10px] text-slate-400">NW</span>
+              <span className="absolute top-5 right-6 font-semibold text-xs text-teal-400/80">NE</span>
+              <span className="absolute bottom-5 right-6 font-semibold text-xs text-slate-400">SE</span>
+              <span className="absolute bottom-5 left-6 font-semibold text-xs text-slate-400">SW</span>
+              <span className="absolute top-5 left-6 font-semibold text-xs text-slate-400">NW</span>
 
               {/* Dial Ticks (every 30 deg) */}
               {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
@@ -261,18 +266,18 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
 
               {/* Center Hub */}
               <div className="w-16 h-16 rounded-full bg-slate-800/90 border border-teal-400/30 flex flex-col items-center justify-center z-20 shadow-inner">
-                <span className="text-sm font-extrabold text-teal-400">{windDirection}°</span>
-                <span className="text-[9px] font-bold text-slate-400 uppercase">Gradi</span>
+                <span className="text-sm font-bold text-teal-400">{windDirection}°</span>
+                <span className="text-xs font-bold text-slate-400 uppercase">Gradi</span>
               </div>
 
               {/* Wind Vector Pointer Arrow */}
               <div
                 className="absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-out z-10 pointer-events-none"
-                style={{ transform: `rotate(${windDirection}deg)` }}
+                style={{ transform: `rotate(${windFlowBearing(windDirection)}deg)` }}
               >
-                {/* Needle pointing in wind direction */}
+                {/* Needle pointing where the wind blows to (same as the particles) */}
                 <div className="relative w-2 h-44 flex flex-col items-center justify-between">
-                  {/* Arrow Head (Wind Origin / Direction Indicator) */}
+                  {/* Arrow Head (flow direction) */}
                   <div className="w-0 h-0 border-x-[8px] border-x-transparent border-b-[24px] border-b-teal-400 drop-shadow-[0_0_8px_rgba(45,212,191,0.8)]" />
                   {/* Opposite Tail */}
                   <div className="w-0 h-0 border-x-[5px] border-x-transparent border-t-[14px] border-t-slate-500/50" />
@@ -286,40 +291,41 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
         <div className="lg:col-span-5 flex flex-col gap-3">
           {/* Main Direction Box */}
           <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'}`}>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center justify-between">
+            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center justify-between">
               <span>Direzione Vento (Rosa Nautica)</span>
               <span className="text-teal-400 font-bold">{windDirection}°</span>
             </div>
-            <div className="text-xl font-black text-slate-900 dark:text-white mt-1 flex items-center gap-2">
-              <Navigation className="w-5 h-5 text-teal-400" style={{ transform: `rotate(${windDirection}deg)` }} />
-              {windDirLabel}
+            <div className="text-xl font-bold text-slate-900 dark:text-white mt-1 flex items-center gap-2">
+              {/* lucide Navigation is drawn pointing NE (45°): compensate so it points along the flow */}
+              <Navigation className="w-5 h-5 text-teal-400" aria-hidden="true" style={{ transform: `rotate(${windFlowBearing(windDirection) - 45}deg)` }} />
+              da {windDirLabel}
             </div>
           </div>
 
           {/* Speed & Gusts with Unit Toggle */}
           <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'}`}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
                 <Wind className="w-3.5 h-3.5 text-teal-400" />
                 Velocità & Raffiche
               </span>
               {/* Unit Switcher */}
-              <div className="flex items-center gap-1 text-[10px] font-bold bg-slate-200 dark:bg-slate-700 p-0.5 rounded-md">
+              <div className="flex items-center gap-1 text-xs font-bold bg-slate-200 dark:bg-slate-700 p-0.5 rounded-md">
                 <button
                   onClick={() => setUnit('kmh')}
-                  className={`px-1.5 py-0.5 rounded font-bold ${unit === 'kmh' ? 'bg-teal-500 text-white' : 'text-slate-600 dark:text-slate-200'}`}
+                  className={`px-1.5 py-0.5 rounded font-bold ${unit === 'kmh' ? 'bg-teal-500 text-white dark:text-slate-950' : 'text-slate-600 dark:text-slate-200'}`}
                 >
                   km/h
                 </button>
                 <button
                   onClick={() => setUnit('knots')}
-                  className={`px-1.5 py-0.5 rounded font-bold ${unit === 'knots' ? 'bg-teal-500 text-white' : 'text-slate-600 dark:text-slate-200'}`}
+                  className={`px-1.5 py-0.5 rounded font-bold ${unit === 'knots' ? 'bg-teal-500 text-white dark:text-slate-950' : 'text-slate-600 dark:text-slate-200'}`}
                 >
                   kn
                 </button>
                 <button
                   onClick={() => setUnit('ms')}
-                  className={`px-1.5 py-0.5 rounded font-bold ${unit === 'ms' ? 'bg-teal-500 text-white' : 'text-slate-600 dark:text-slate-200'}`}
+                  className={`px-1.5 py-0.5 rounded font-bold ${unit === 'ms' ? 'bg-teal-500 text-white dark:text-slate-950' : 'text-slate-600 dark:text-slate-200'}`}
                 >
                   m/s
                 </button>
@@ -329,13 +335,13 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
             <div className="grid grid-cols-2 gap-3 mt-1">
               <div>
                 <div className="text-xs text-slate-500 dark:text-slate-300 font-semibold">Velocità Media</div>
-                <div className="text-2xl font-black text-slate-900 dark:text-white">
+                <div className="text-2xl font-bold text-slate-900 dark:text-white">
                   {formatSpeed(windSpeed)}
                 </div>
               </div>
               <div>
                 <div className="text-xs text-slate-500 dark:text-slate-300 font-semibold">Raffiche Max</div>
-                <div className="text-2xl font-black text-amber-400">
+                <div className="text-2xl font-bold text-amber-400">
                   {formatSpeed(windGusts)}
                 </div>
               </div>
@@ -352,7 +358,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
                 <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
                   Scala Beaufort {beaufort.scale} / 12
                 </div>
-                <div className="text-[11px] text-slate-500 dark:text-slate-300 font-medium">{beaufort.description}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-300 font-medium">{beaufort.description}</div>
               </div>
             </div>
             <div className="flex gap-0.5">

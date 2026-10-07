@@ -27,9 +27,9 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({ category = 'meteo' as Ne
         className="flex items-center gap-2 px-5 text-xs whitespace-nowrap hover:text-[var(--hub-cyan)] transition-colors"
       >
         <span className="text-[var(--hub-cyan)] opacity-70">◆</span>
-        <span className="font-hud text-[10px] text-[var(--hub-dim)]">{timeAgo(item.publishedAt)}</span>
+        <span className="font-hud text-xs text-[var(--hub-dim)]">{timeAgo(item.publishedAt)}</span>
         <span className="font-semibold">{item.title}</span>
-        <span className="font-hud text-[10px] text-[var(--hub-dim)]">/ {item.source}</span>
+        <span className="font-hud text-xs text-[var(--hub-dim)]">/ {item.source}</span>
       </a>
     ));
 

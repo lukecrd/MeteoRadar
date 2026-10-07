@@ -14,6 +14,10 @@ interface NavbarProps {
   onOpenAndroid: () => void;
   onOpenVercel: () => void;
   hasActiveAlerts: boolean;
+  /** Android/Vercel export buttons are developer tools, hidden unless developer mode is on */
+  showDevTools?: boolean;
+  /** Rendered inside the sticky header, below the main row (primary navigation) */
+  children?: React.ReactNode;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -27,6 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAndroid,
   onOpenVercel,
   hasActiveAlerts,
+  showDevTools = false,
+  children,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<LocationInfo[]>([]);
@@ -74,6 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header
       id="main-app-header"
       className="sticky top-0 z-40 backdrop-blur-xl border-b border-[var(--hub-line)] bg-[var(--hub-panel-strong)] text-[var(--hub-text)]"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
         {/* Brand */}
@@ -92,33 +99,32 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Globe2 className="w-5 h-5 relative text-[var(--hub-cyan)]" />
           </div>
           <div className="leading-tight hidden sm:block">
-            <div className="font-display font-bold text-base tracking-[0.12em] flex items-center gap-1.5">
-              <span>
-                WORLD<span className="text-[var(--hub-cyan)]">HUB</span>
-              </span>
+            <div className="font-display font-bold text-lg sm:text-xl tracking-[0.08em] whitespace-nowrap hub-brand-text">
+              WorldHub
             </div>
-            <p className="hub-label !text-[9px] hidden sm:block">Notizie e meteo dal mondo</p>
           </div>
         </div>
 
         {/* Center Search Bar */}
-        <div ref={searchContainerRef} className="relative flex-1 max-w-md">
+        <div ref={searchContainerRef} className="relative flex-1 min-w-0 max-w-md">
           <div className="flex items-center gap-2 px-3.5 h-10 rounded-xl border border-[var(--hub-line)] bg-[var(--hub-panel)] focus-within:border-[var(--hub-line-strong)] focus-within:shadow-[0_0_18px_-6px_var(--hub-cyan)] transition-all">
-            <Search className="w-4 h-4 text-[var(--hub-dim)] shrink-0" />
+            <Search className="w-4 h-4 text-[var(--hub-dim)] shrink-0 hidden sm:block" aria-hidden="true" />
+            <MapPin className="w-4 h-4 text-[var(--hub-cyan)] shrink-0 sm:hidden" aria-hidden="true" />
+            {/* On phones the current city doubles as the placeholder, so it is always visible */}
             <input
               id="city-search-input"
-              type="text"
-              placeholder="Cerca località…"
-              aria-label="Cerca città"
+              type="search"
+              placeholder={`${currentLocation.name} · cerca…`}
+              aria-label={`Località attuale: ${currentLocation.name}. Cerca un'altra città`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
-              className="w-full bg-transparent text-sm focus:outline-none placeholder:text-[var(--hub-dim)] text-[var(--hub-text)]"
+              className="w-full min-w-0 bg-transparent text-sm focus:outline-none placeholder:text-[var(--hub-text)] sm:placeholder:text-[var(--hub-dim)] text-[var(--hub-text)]"
             />
             {isSearching ? (
               <Loader2 className="w-4 h-4 text-[var(--hub-cyan)] animate-spin shrink-0" />
             ) : (
-              <span className="font-hud text-[10px] text-[var(--hub-dim)] hidden md:inline truncate max-w-[110px]" title={currentLocation.name}>
+              <span className="font-hud text-xs text-[var(--hub-dim)] hidden md:inline truncate max-w-[110px]" title={currentLocation.name}>
                 {currentLocation.name}
               </span>
             )}
@@ -139,7 +145,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <span className="font-semibold">{loc.name}</span>
                       {loc.admin1 && <span className="text-[var(--hub-dim)] text-xs">({loc.admin1})</span>}
                     </div>
-                    <span className="font-hud text-[10px] text-[var(--hub-dim)]">{loc.country}</span>
+                    <span className="font-hud text-xs text-[var(--hub-dim)]">{loc.country}</span>
                   </button>
                 ))}
               </div>
@@ -155,11 +161,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             disabled={isGpsLoading}
             className="hub-icon-btn"
             title="Rileva posizione GPS attuale"
+            aria-label="Usa la mia posizione"
           >
             <Navigation className={`w-4 h-4 text-[var(--hub-cyan)] ${isGpsLoading ? 'animate-spin' : ''}`} />
             <span className="hidden lg:inline">GPS</span>
           </button>
 
+          {showDevTools && (<>
           <button
             id="android-app-btn"
             onClick={onOpenAndroid}
@@ -181,6 +189,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </svg>
             <span className="hidden lg:inline">Vercel</span>
           </button>
+          </>)}
 
           <button
             id="theme-toggle-btn"
@@ -206,6 +215,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
       </div>
+      {children}
     </header>
   );
 };

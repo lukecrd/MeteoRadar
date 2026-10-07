@@ -6,7 +6,7 @@ import {
   Wind,
   Droplets,
   Thermometer,
-  PieChart as PieIcon,
+  BarChart3,
   Sun,
   Cloud,
   CloudLightning,
@@ -18,6 +18,7 @@ import {
   Zap
 } from 'lucide-react';
 import { HourlyForecastItem, DailyForecastItem } from '../types';
+import { formatTemp } from '../services/weatherFormat';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -27,11 +28,10 @@ import {
   YAxis,
   Tooltip,
   Legend,
-  PieChart,
-  Pie,
-  Cell,
-  Sector
+  CartesianGrid,
+  ReferenceLine
 } from 'recharts';
+import { chartTheme, PHENOMENON_COLORS } from '../theme/chartTheme';
 
 interface ForecastChartsProps {
   hourly: HourlyForecastItem[];
@@ -55,10 +55,10 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
   const [activeTab, setActiveTab] = useState<'hourly' | 'pie' | 'daily'>('hourly');
   const [dailyRange, setDailyRange] = useState<'5days' | '7days'>('5days');
   const [chartMetric, setChartMetric] = useState<'temp-rain' | 'humidity-cape'>('temp-rain');
-  const [activePieIndex, setActivePieIndex] = useState<number | null>(null);
+  const ct = chartTheme(isDark);
 
   // Compute 24-hour weather phenomena breakdown
-  const { phenomenaData, dominantPhenomenon, totalRainHours, totalDryHours } = useMemo(() => {
+  const { phenomenaData, hourStrip, dominantPhenomenon, totalRainHours, totalDryHours } = useMemo(() => {
     const next24 = hourly.slice(0, 24);
     const totalCount = next24.length || 24;
 
@@ -74,7 +74,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
       clear: {
         name: 'Sereno / Sole',
         categoryKey: 'clear',
-        color: '#f59e0b',
+        color: PHENOMENON_COLORS.clear,
         textColor: 'text-amber-400',
         bgLight: 'bg-amber-500/10 border-amber-500/30',
         icon: Sun,
@@ -83,8 +83,8 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
       cloudy: {
         name: 'Nuvoloso / Coperto',
         categoryKey: 'cloudy',
-        color: '#94a3b8',
-        textColor: 'text-slate-300',
+        color: PHENOMENON_COLORS.cloudy,
+        textColor: 'text-slate-500 dark:text-slate-300',
         bgLight: 'bg-slate-500/10 border-slate-500/30',
         icon: Cloud,
         timeSlots: [],
@@ -92,7 +92,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
       rain: {
         name: 'Pioggia & Rovesci',
         categoryKey: 'rain',
-        color: '#38bdf8',
+        color: PHENOMENON_COLORS.rain,
         textColor: 'text-sky-400',
         bgLight: 'bg-sky-500/10 border-sky-500/30',
         icon: CloudRain,
@@ -101,7 +101,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
       storm: {
         name: 'Temporali & Lampi',
         categoryKey: 'storm',
-        color: '#c084fc',
+        color: PHENOMENON_COLORS.storm,
         textColor: 'text-purple-400',
         bgLight: 'bg-purple-500/10 border-purple-500/30',
         icon: CloudLightning,
@@ -110,8 +110,8 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
       fog: {
         name: 'Nebbia / Foschia',
         categoryKey: 'fog',
-        color: '#2dd4bf',
-        textColor: 'text-teal-300',
+        color: PHENOMENON_COLORS.fog,
+        textColor: 'text-slate-500 dark:text-slate-300',
         bgLight: 'bg-teal-500/10 border-teal-500/30',
         icon: CloudFog,
         timeSlots: [],
@@ -119,8 +119,8 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
       snow: {
         name: 'Neve & Gelicidio',
         categoryKey: 'snow',
-        color: '#7dd3fc',
-        textColor: 'text-cyan-300',
+        color: PHENOMENON_COLORS.snow,
+        textColor: 'text-sky-400',
         bgLight: 'bg-cyan-500/10 border-cyan-500/30',
         icon: Snowflake,
         timeSlots: [],
@@ -128,10 +128,12 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
     };
 
     let rainHours = 0;
+    const strip: Array<{ hour: string; key: string }> = [];
 
     next24.forEach((item) => {
       const code = item.weatherCode;
       const hour = item.hourLabel;
+      const before = Object.fromEntries(Object.entries(groups).map(([k, g]) => [k, g.timeSlots.length]));
 
       if (code === 0 || code === 1) {
         groups.clear.timeSlots.push(hour);
@@ -151,6 +153,8 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
       } else {
         groups.cloudy.timeSlots.push(hour);
       }
+      const key = Object.keys(groups).find((k) => groups[k].timeSlots.length > before[k]) ?? 'cloudy';
+      strip.push({ hour, key });
     });
 
     const activeList: PhenomenonGroup[] = Object.values(groups)
@@ -172,6 +176,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
 
     return {
       phenomenaData: activeList,
+      hourStrip: strip,
       dominantPhenomenon: dominant,
       totalRainHours: rainHours,
       totalDryHours: totalCount - rainHours,
@@ -200,7 +205,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
               Grafici & Previsioni Elaborate
             </h3>
             <p className="text-xs text-slate-600 dark:text-slate-300">
-              Evoluzione atmosferica 24h, analisi a torta dei fenomeni & trend a 5-7 giorni
+              Andamento orario, fenomeni delle prossime 24 ore e tendenza a 5-7 giorni
             </p>
           </div>
         </div>
@@ -223,7 +228,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 onClick={() => setChartMetric('humidity-cape')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-colors ${
                   chartMetric === 'humidity-cape'
-                    ? 'bg-cyan-500 text-white'
+                    ? 'bg-cyan-500 text-white dark:text-slate-950'
                     : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -238,7 +243,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 onClick={() => setDailyRange('5days')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-colors ${
                   dailyRange === '5days'
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -248,7 +253,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 onClick={() => setDailyRange('7days')}
                 className={`px-2.5 py-1 rounded-lg font-bold transition-colors ${
                   dailyRange === '7days'
-                    ? 'bg-teal-500 text-white shadow-sm'
+                    ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                     : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -263,7 +268,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
               onClick={() => setActiveTab('hourly')}
               className={`px-3 py-1 rounded-lg font-bold transition-colors ${
                 activeTab === 'hourly'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -274,19 +279,19 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
               onClick={() => setActiveTab('pie')}
               className={`px-3 py-1 rounded-lg font-bold transition-colors flex items-center gap-1.5 ${
                 activeTab === 'pie'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <PieIcon className="w-3.5 h-3.5" />
-              <span>Torta Fenomeni 24h</span>
+              <BarChart3 className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Fenomeni 24h</span>
             </button>
             <button
               id="tab-daily-forecast-btn"
               onClick={() => setActiveTab('daily')}
               className={`px-3 py-1 rounded-lg font-bold transition-colors ${
                 activeTab === 'daily'
-                  ? 'bg-teal-500 text-white shadow-sm'
+                  ? 'bg-teal-500 text-white dark:text-slate-950 shadow-sm'
                   : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
@@ -302,92 +307,47 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               {chartMetric === 'temp-rain' ? (
-                <ComposedChart data={hourly} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="hourLabel" tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }} />
-                  <YAxis
-                    yAxisId="left"
-                    domain={['auto', 'auto']}
-                    tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }}
-                    unit="°"
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    domain={[0, 100]}
-                    tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }}
-                    unit="%"
-                  />
+                <ComposedChart data={hourly} margin={{ top: 10, right: 4, left: 4, bottom: 0 }}>
+                  <CartesianGrid vertical={false} stroke={ct.grid} strokeDasharray="2 4" />
+                  <XAxis dataKey="hourLabel" tick={{ fontSize: 12, fill: ct.axis, fontFamily: ct.font }} tickLine={false} axisLine={false} minTickGap={12} />
+                  <YAxis yAxisId="left" width={44} domain={['auto', 'auto']} tick={{ fontSize: 12, fill: ct.axis, fontFamily: ct.font }} tickLine={false} axisLine={false} tickFormatter={(v: number) => formatTemp(v, { unit: false })} />
+                  <YAxis yAxisId="right" orientation="right" width={44} domain={[0, 100]} tick={{ fontSize: 12, fill: ct.axis, fontFamily: ct.font }} tickLine={false} axisLine={false} unit="%" />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDark ? '#0f172a' : '#ffffff',
-                      borderColor: isDark ? '#475569' : '#cbd5e1',
-                      borderRadius: '0.75rem',
-                      fontSize: '12px',
-                      color: isDark ? '#f8fafc' : '#0f172a'
-                    }}
+                    contentStyle={ct.tooltip}
+                    labelFormatter={(l) => `Ore ${l}`}
+                    formatter={(v: number, name: string) => [name.startsWith('Temperatura') ? formatTemp(v, { decimals: 1 }) : `${v}%`, name]}
                   />
-                  <Legend wrapperStyle={{ fontSize: '12px', color: isDark ? '#e2e8f0' : '#1e293b' }} />
-                  <Bar
-                    yAxisId="right"
-                    dataKey="precipitationProbability"
-                    name="Prob. Pioggia (%)"
-                    fill="#38bdf8"
-                    opacity={0.7}
-                    radius={[4, 4, 0, 0]}
+                  <Legend
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: 12 }}
+                    formatter={(value: string) => <span style={{ color: ct.text }}>{value}</span>}
                   />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="temperature"
-                    name="Temperatura (°C)"
-                    stroke="#f59e0b"
-                    strokeWidth={3}
-                    dot={{ r: 3, fill: '#f59e0b' }}
-                  />
+                  <Bar yAxisId="right" dataKey="precipitationProbability" name="Probabilità pioggia (%)" fill={ct.series.rain} fillOpacity={0.55} radius={[3, 3, 0, 0]} />
+                  <Line yAxisId="left" type="monotone" dataKey="temperature" name="Temperatura (°C)" stroke={ct.series.temp} strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
                 </ComposedChart>
               ) : (
-                <ComposedChart data={hourly} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="hourLabel" tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }} />
-                  <YAxis
-                    yAxisId="left"
-                    domain={[0, 100]}
-                    tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }}
-                    unit="%"
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    domain={['auto', 'auto']}
-                    tick={{ fontSize: 11, fill: isDark ? '#cbd5e1' : '#475569' }}
-                    unit="J"
-                  />
+                <ComposedChart data={hourly} margin={{ top: 10, right: 4, left: 4, bottom: 0 }}>
+                  <CartesianGrid vertical={false} stroke={ct.grid} strokeDasharray="2 4" />
+                  <XAxis dataKey="hourLabel" tick={{ fontSize: 12, fill: ct.axis, fontFamily: ct.font }} tickLine={false} axisLine={false} minTickGap={12} />
+                  <YAxis yAxisId="left" width={44} domain={[0, 100]} tick={{ fontSize: 12, fill: ct.axis, fontFamily: ct.font }} tickLine={false} axisLine={false} unit="%" />
+                  <YAxis yAxisId="right" orientation="right" width={52} domain={[0, (max: number) => Math.max(3000, Math.ceil(max / 500) * 500)]} tick={{ fontSize: 12, fill: ct.axis, fontFamily: ct.font }} tickLine={false} axisLine={false} />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDark ? '#0f172a' : '#ffffff',
-                      borderColor: isDark ? '#475569' : '#cbd5e1',
-                      borderRadius: '0.75rem',
-                      fontSize: '12px',
-                      color: isDark ? '#f8fafc' : '#0f172a'
-                    }}
+                    contentStyle={ct.tooltip}
+                    labelFormatter={(l) => `Ore ${l}`}
+                    formatter={(v: number, name: string) => [name.startsWith('CAPE') ? `${Math.round(v)} J/kg` : `${v}%`, name]}
                   />
-                  <Legend wrapperStyle={{ fontSize: '12px', color: isDark ? '#e2e8f0' : '#1e293b' }} />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="humidity"
-                    name="Umidità (%)"
-                    stroke="#06b6d4"
-                    strokeWidth={3}
-                    dot={{ r: 3, fill: '#06b6d4' }}
+                  <Legend
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: 12 }}
+                    formatter={(value: string) => <span style={{ color: ct.text }}>{value}</span>}
                   />
-                  <Bar
-                    yAxisId="right"
-                    dataKey="cape"
-                    name="Indice CAPE Fulmini (J/kg)"
-                    fill="#a855f7"
-                    opacity={0.6}
-                    radius={[4, 4, 0, 0]}
-                  />
+                  {/* CAPE thresholds: >1000 moderate, >2500 strong convective instability */}
+                  <ReferenceLine yAxisId="right" y={1000} stroke={ct.axis} strokeDasharray="4 4" label={{ value: 'Instabilità moderata', position: 'insideTopRight', fill: ct.axis, fontSize: 12 }} />
+                  <ReferenceLine yAxisId="right" y={2500} stroke={ct.axis} strokeDasharray="4 4" label={{ value: 'Instabilità forte', position: 'insideTopRight', fill: ct.axis, fontSize: 12 }} />
+                  <Bar yAxisId="right" dataKey="cape" name="CAPE – energia convettiva (J/kg)" fill={ct.series.cape} fillOpacity={0.5} radius={[3, 3, 0, 0]} />
+                  <Line yAxisId="left" type="monotone" dataKey="humidity" name="Umidità (%)" stroke={ct.series.humidity} strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
                 </ComposedChart>
               )}
             </ResponsiveContainer>
@@ -403,18 +363,18 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 }`}
               >
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-200">{item.hourLabel}</span>
-                <span className="text-sm font-black text-slate-900 dark:text-white">{item.temperature}°C</span>
-                <div className="flex items-center gap-1 text-[11px] text-cyan-500 dark:text-cyan-300 font-semibold">
+                <span className="text-sm font-bold text-slate-900 dark:text-white">{item.temperature}°C</span>
+                <div className="flex items-center gap-1 text-xs text-cyan-500 dark:text-cyan-300 font-semibold">
                   <Droplets className="w-2.5 h-2.5" />
                   {item.humidity}%
                 </div>
                 {item.precipitationProbability > 0 ? (
-                  <div className="flex items-center gap-1 text-[11px] text-sky-400 font-bold">
+                  <div className="flex items-center gap-1 text-xs text-sky-400 font-bold">
                     <CloudRain className="w-2.5 h-2.5" />
                     {item.precipitationProbability}%
                   </div>
                 ) : (
-                  <span className="text-[10px] text-slate-500 dark:text-slate-300 font-medium">0%</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-300 font-medium">0%</span>
                 )}
               </div>
             ))}
@@ -422,9 +382,9 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
         </div>
       )}
 
-      {/* Pie Chart Weather Phenomena Breakdown View (Recharts) */}
+      {/* 24 h weather phenomena: timeline + breakdown */}
       {activeTab === 'pie' && (
-        <div className="space-y-6 animate-in fade-in duration-300">
+        <div className="space-y-6 animate-toast-in">
           {/* Top Summary Banner */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {dominantPhenomenon && (
@@ -437,10 +397,10 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                   <dominantPhenomenon.icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                  <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
                     Fenomeno Prevalente 24h
                   </div>
-                  <div className="text-sm font-extrabold text-slate-900 dark:text-white">
+                  <div className="text-sm font-bold text-slate-900 dark:text-white">
                     {dominantPhenomenon.name}
                   </div>
                   <div className="text-xs text-slate-600 dark:text-slate-300">
@@ -459,10 +419,10 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 <CloudRain className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
                   Finestra Precipitazioni
                 </div>
-                <div className="text-sm font-extrabold text-slate-900 dark:text-white">
+                <div className="text-sm font-bold text-slate-900 dark:text-white">
                   {totalRainHours > 0 ? `${totalRainHours} ore con pioggia / temporali` : 'Nessuna pioggia prevista'}
                 </div>
                 <div className="text-xs text-slate-600 dark:text-slate-300">
@@ -480,157 +440,62 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 <Zap className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
                   Attività Convettiva CAPE
                 </div>
-                <div className="text-sm font-extrabold text-slate-900 dark:text-white">
+                <div className="text-sm font-bold text-slate-900 dark:text-white">
                   {phenomenaData.some((p) => p.categoryKey === 'storm')
                     ? 'Rischio temporali attivo'
                     : 'Atmosfera stabile'}
                 </div>
                 <div className="text-xs text-slate-600 dark:text-slate-300">
-                  Monitoraggio scariche radar attivo
+                  Stima dai codici meteo orari
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Main Pie Chart & Breakdown List */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            {/* Recharts Pie Chart */}
-            <div className="lg:col-span-7 h-72 w-full relative flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Tooltip
-                    formatter={(value: any, name: any, item: any) => [
-                      `${value} ore (${item?.payload?.percentage || 0}%)`,
-                      name
-                    ]}
-                    contentStyle={{
-                      backgroundColor: isDark ? '#0f172a' : '#ffffff',
-                      borderColor: isDark ? '#475569' : '#cbd5e1',
-                      borderRadius: '0.75rem',
-                      fontSize: '12px',
-                      color: isDark ? '#f8fafc' : '#0f172a',
-                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)'
-                    }}
-                  />
-                  <Pie
-                    data={phenomenaData}
-                    dataKey="hours"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={55}
-                    outerRadius={95}
-                    paddingAngle={3}
-                    cornerRadius={6}
-                    onMouseEnter={(_, index) => setActivePieIndex(index)}
-                    onMouseLeave={() => setActivePieIndex(null)}
-                  >
-                    {phenomenaData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={entry.color}
-                        stroke={isDark ? '#0f172a' : '#ffffff'}
-                        strokeWidth={activePieIndex === index ? 3 : 1.5}
-                        opacity={activePieIndex === null || activePieIndex === index ? 1 : 0.6}
-                        className="transition-all duration-200 cursor-pointer"
-                      />
-                    ))}
-                  </Pie>
-                  <Legend
-                    verticalAlign="bottom"
-                    wrapperStyle={{ fontSize: '11px', paddingTop: '10px', color: isDark ? '#e2e8f0' : '#334155' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-
-              {/* Center Donut Label */}
-              <div className="absolute inset-0 m-auto w-24 h-24 rounded-full flex flex-col items-center justify-center pointer-events-none text-center">
-                <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300">Totale</span>
-                <span className="text-xl font-black text-slate-900 dark:text-white">24h</span>
-                <span className="text-[9px] text-teal-400 font-bold">Previsione</span>
-              </div>
+          {/* 24-hour timeline: one cell per hour, coloured by phenomenon (shows *when*) */}
+          <div>
+            <div className="flex w-full h-8 rounded-lg overflow-hidden ring-1 ring-black/5 dark:ring-white/10" role="img"
+              aria-label={phenomenaData.map((p) => `${p.name}: ${p.hours} ore`).join(', ')}>
+              {hourStrip.map((c, i) => (
+                <span key={i} className="flex-1 border-r border-white/40 dark:border-slate-900/40 last:border-r-0"
+                  style={{ background: PHENOMENON_COLORS[c.key as keyof typeof PHENOMENON_COLORS] }}
+                  title={`${c.hour} – ${phenomenaData.find((p) => p.categoryKey === c.key)?.name ?? ''}`} />
+              ))}
             </div>
+            <div className="flex justify-between mt-1.5 text-xs font-hud text-slate-500 dark:text-slate-300">
+              {hourStrip.filter((_, i) => i % 6 === 0).map((c) => <span key={c.hour}>{c.hour}</span>)}
+              <span>+24h</span>
+            </div>
+          </div>
 
-            {/* Detailed Phenomenon List */}
-            <div className="lg:col-span-5 space-y-2.5">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-teal-400" />
-                Ripartizione & Fasce Orarie
-              </h4>
-
-              {phenomenaData.map((item, idx) => {
-                const IconComponent = item.icon;
-                const isHovered = activePieIndex === idx;
-
-                return (
-                  <div
-                    key={item.categoryKey}
-                    onMouseEnter={() => setActivePieIndex(idx)}
-                    onMouseLeave={() => setActivePieIndex(null)}
-                    className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                      isHovered
-                        ? isDark
-                          ? 'bg-slate-800 border-teal-400/80 shadow-md'
-                          : 'bg-slate-100 border-teal-500/80 shadow-md'
-                        : isDark
-                        ? 'bg-slate-800/60 border-slate-700/60 hover:bg-slate-800'
-                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="w-3 h-3 rounded-full shrink-0"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <IconComponent className={`w-4 h-4 ${item.textColor} shrink-0`} />
-                        <span className="font-bold text-xs text-slate-800 dark:text-slate-100">
-                          {item.name}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-slate-900 dark:text-white">
-                          {item.hours}h
-                        </span>
-                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-300">
-                          ({item.percentage}%)
-                        </span>
-                      </div>
+          {/* Breakdown list */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            {phenomenaData.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <div key={item.categoryKey} className={`p-3 rounded-xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: item.color }} aria-hidden="true" />
+                      <IconComponent className={`w-4 h-4 ${item.textColor} shrink-0`} />
+                      <span className="font-bold text-xs text-slate-800 dark:text-slate-100">{item.name}</span>
                     </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full bg-slate-200 dark:bg-slate-700/70 h-1.5 rounded-full mt-2 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${item.percentage}%`,
-                          backgroundColor: item.color,
-                        }}
-                      />
-                    </div>
-
-                    {/* Time slots preview */}
-                    <div className="mt-1.5 flex flex-wrap gap-1 text-[10px] text-slate-500 dark:text-slate-300">
-                      <span>Ore:</span>
-                      {item.timeSlots.slice(0, 8).map((slot, sIdx) => (
-                        <span
-                          key={sIdx}
-                          className="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 font-semibold"
-                        >
-                          {slot}
-                        </span>
-                      ))}
-                      {item.timeSlots.length > 8 && (
-                        <span className="text-slate-500 dark:text-slate-300">+{item.timeSlots.length - 8} altre</span>
-                      )}
-                    </div>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums">
+                      {item.hours} h <span className="font-semibold text-slate-500 dark:text-slate-300">({item.percentage}%)</span>
+                    </span>
                   </div>
-                );
-              })}
-            </div>
+                  <div className="mt-1.5 flex flex-wrap gap-1 text-xs text-slate-500 dark:text-slate-300">
+                    {item.timeSlots.slice(0, 8).map((slot, sIdx) => (
+                      <span key={sIdx} className="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700/80 text-slate-800 dark:text-slate-200 font-semibold">{slot}</span>
+                    ))}
+                    {item.timeSlots.length > 8 && <span>+{item.timeSlots.length - 8} altre</span>}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -652,7 +517,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
             >
               <div className="w-24 font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                 <span>{item.dayLabel}</span>
-                {idx === 0 && <span className="text-[10px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300">Oggi</span>}
+                {idx === 0 && <span className="text-xs px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-400">Oggi</span>}
               </div>
 
               <div className="flex-1 px-4 text-xs font-semibold text-slate-800 dark:text-slate-200">
@@ -668,10 +533,10 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 <div className="w-20 text-xs text-slate-500 dark:text-slate-300 font-semibold">0%</div>
               )}
 
-              <div className="flex items-center gap-2 text-sm font-extrabold w-28 justify-end">
-                <span className="text-amber-500 dark:text-amber-400">+{item.maxTemp}°</span>
+              <div className="flex items-center gap-2 text-sm font-bold w-28 justify-end">
+                <span className="text-amber-500 dark:text-amber-400">{formatTemp(item.maxTemp, { unit: false })}</span>
                 <span className="text-slate-500 dark:text-slate-300 font-normal">/</span>
-                <span className="text-cyan-400 dark:text-cyan-300">+{item.minTemp}°</span>
+                <span className="text-cyan-400 dark:text-cyan-300">{formatTemp(item.minTemp, { unit: false })}</span>
               </div>
             </div>
           ))}

@@ -1,4 +1,4 @@
-import { getFlights } from '../../lib/worldEvents';
+import { getFlights } from '../../lib/worldEvents.js';
 
 // WorldHub globe layer: see lib/worldEvents.ts for source and caching notes.
 export default async function handler(req: any, res: any) {

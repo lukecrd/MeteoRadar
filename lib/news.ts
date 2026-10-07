@@ -23,7 +23,7 @@ export interface NewsResponse {
   errors: string[];
 }
 
-interface FeedDef {
+export interface FeedDef {
   url: string;
   source: string; // fallback label when the item has no <source>
 }
@@ -135,7 +135,7 @@ export function parseRss(xml: string, feed: FeedDef, category: NewsCategory): Ne
   return items;
 }
 
-async function fetchFeed(feed: FeedDef, category: NewsCategory): Promise<NewsItem[]> {
+export async function fetchFeed(feed: FeedDef, category: NewsCategory): Promise<NewsItem[]> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {

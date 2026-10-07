@@ -15,6 +15,7 @@ import {
   SatelliteGroup,
   SatellitesResponse,
   quakeColor,
+  quakeTextColor,
 } from '../services/worldEventsApi';
 
 /** Shared status line: loading, upstream error / stale copy, last update. */
@@ -84,7 +85,7 @@ export const QuakesList: React.FC<{
   const strongest = items.reduce<Earthquake | null>((m, q) => (!m || q.mag > m.mag ? q : m), null);
   return (
     <div>
-      <FeedStatus isLoading={isLoading} error={error} feed={feed} source="USGS · M2.5+ ultime 24 h" onRetry={onRetry} />
+      <FeedStatus isLoading={isLoading} error={error} feed={feed} source="USGS + INGV · M2.5+ 24 h, M4.5+ 7 gg, Italia M2+ 7 gg" onRetry={onRetry} />
       {items.length > 0 && (
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div className="rounded-lg border border-[var(--hub-line)] p-2.5">
@@ -99,21 +100,21 @@ export const QuakesList: React.FC<{
           </div>
         </div>
       )}
-      {!isLoading && items.length === 0 && !error && !feed?.error && <p className="text-sm text-[var(--hub-dim)]">Nessun terremoto M2.5+ nelle ultime 24 ore.</p>}
+      {!isLoading && items.length === 0 && !error && !feed?.error && <p className="text-sm text-[var(--hub-dim)]">Nessun terremoto recente.</p>}
       <ol className="divide-y divide-[var(--hub-line)]">
-        {items.map((q) => (
+        {items.slice(0, 150).map((q) => (
           <li key={q.id}>
             <ItemButton active={activeId === `q:${q.id}`} onClick={() => onFocus(q)}>
               <span
                 className="font-hud text-xs font-bold w-12 shrink-0 text-center rounded py-1"
-                style={{ color: '#0b1220', background: quakeColor(q.mag) }}
+                style={{ color: quakeTextColor(q.mag), background: quakeColor(q.mag) }}
               >
                 {q.mag.toFixed(1)}
               </span>
               <span className="min-w-0">
                 <span className="block text-sm font-medium leading-snug">{q.place}</span>
-                <span className="block font-hud text-[10px] text-[var(--hub-dim)] mt-0.5">
-                  {timeAgo(q.time)} · prof. {q.depthKm} km{q.tsunami ? ' · TSUNAMI' : ''}
+                <span className="block font-hud text-xs text-[var(--hub-dim)] mt-0.5">
+                  {timeAgo(q.time)} · prof. {q.depthKm} km{q.source ? ` · ${q.source}` : ''}{q.tsunami ? ' · TSUNAMI' : ''}
                 </span>
               </span>
             </ItemButton>
@@ -161,7 +162,7 @@ export const FlightsList: React.FC<{
                   <span className="font-hud tabular-nums">{c.count}</span>
                 </div>
                 <div className="h-1 rounded bg-[var(--hub-line)] mt-1">
-                  <div className="h-1 rounded bg-[#38bdf8]" style={{ width: `${(c.count / max) * 100}%` }} />
+                  <div className="h-1 rounded bg-[var(--hub-cyan)]" style={{ width: `${(c.count / max) * 100}%` }} />
                 </div>
               </li>
             ))}
@@ -173,10 +174,10 @@ export const FlightsList: React.FC<{
         {items.slice(0, 40).map((f) => (
           <li key={f.id}>
             <ItemButton active={activeId === `f:${f.id}`} onClick={() => onFocus(f)}>
-              <Plane className="w-4 h-4 mt-0.5 shrink-0 text-[#38bdf8]" style={{ transform: `rotate(${(f.heading ?? 45) - 45}deg)` }} />
+              <Plane className="w-4 h-4 mt-0.5 shrink-0 text-[var(--hub-cyan)]" style={{ transform: `rotate(${(f.heading ?? 45) - 45}deg)` }} />
               <span className="min-w-0">
                 <span className="block text-sm font-semibold font-hud">{f.callsign}</span>
-                <span className="block text-[11px] text-[var(--hub-dim)]">
+                <span className="block text-xs text-[var(--hub-dim)]">
                   {f.country}
                   {f.altitudeM != null ? ` · ${f.altitudeM.toLocaleString('it-IT')} m` : ''}
                   {f.speedKmh != null ? ` · ${f.speedKmh} km/h` : ''}
@@ -242,7 +243,7 @@ export const AlertsList: React.FC<{
                   <CloudLightning className="w-4 h-4 mt-0.5 shrink-0" style={{ color: LOCAL_LEVEL_COLOR[s.severityZone] }} />
                   <span className="text-sm">
                     Fulmine {s.type} {s.polarity} a {s.distanceKm.toFixed(1)} km
-                    <span className="block font-hud text-[10px] text-[var(--hub-dim)]">{timeAgo(s.timestamp)}</span>
+                    <span className="block font-hud text-xs text-[var(--hub-dim)]">{timeAgo(s.timestamp)}</span>
                   </span>
                 </ItemButton>
               </li>
@@ -260,14 +261,14 @@ export const AlertsList: React.FC<{
             <li key={d.id}>
               <ItemButton active={activeId === `d:${d.id}`} onClick={() => onFocusDisaster(d)}>
                 <span
-                  className="font-hud text-[10px] font-bold w-10 shrink-0 text-center rounded py-1"
+                  className="font-hud text-xs font-bold w-10 shrink-0 text-center rounded py-1"
                   style={{ color: '#0b1220', background: GDACS_LEVEL_COLOR[d.alertLevel] ?? '#94a3b8' }}
                 >
                   {d.type}
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-medium leading-snug">{d.name}</span>
-                  <span className="block font-hud text-[10px] text-[var(--hub-dim)] mt-0.5">
+                  <span className="block font-hud text-xs text-[var(--hub-dim)] mt-0.5">
                     {DISASTER_LABEL[d.type] ?? d.type} · allerta {d.alertLevel.toLowerCase()}
                     {d.to ? ` · agg. ${timeAgo(Math.min(d.to, Date.now()))}` : ''}
                   </span>
@@ -361,13 +362,13 @@ export const SatellitesList: React.FC<{
         {visible.map((s) => (
           <li key={s.norad}>
             <ItemButton active={activeId === `s:${s.norad}`} onClick={() => onFocus(s)}>
-              <Satellite className="w-4 h-4 mt-0.5 shrink-0" style={{ color: s.norad === ISS_NORAD ? '#facc15' : '#a78bfa' }} />
+              <Satellite className="w-4 h-4 mt-0.5 shrink-0" style={{ color: s.norad === ISS_NORAD ? 'var(--hub-amber)' : 'var(--hub-violet)' }} />
               <span className="min-w-0">
                 <span className="block text-sm font-semibold leading-snug truncate">{s.name}</span>
-                <span className="block font-hud text-[10px] text-[var(--hub-dim)] mt-0.5 tabular-nums">
+                <span className="block font-hud text-xs text-[var(--hub-dim)] mt-0.5 tabular-nums">
                   NORAD {s.norad} · {Math.round(s.altKm).toLocaleString('it-IT')} km · {s.speedKms.toFixed(2)} km/s
                 </span>
-                <span className="block font-hud text-[10px] text-[var(--hub-dim)] tabular-nums">
+                <span className="block font-hud text-xs text-[var(--hub-dim)] tabular-nums">
                   {s.lat.toFixed(2)}°, {s.lon.toFixed(2)}°
                 </span>
               </span>

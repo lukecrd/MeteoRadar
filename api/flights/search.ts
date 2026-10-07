@@ -1,4 +1,4 @@
-import { searchFlights } from '../../lib/flightTracker';
+import { searchFlights } from '../../lib/flightTracker.js';
 
 // Flight search by number / callsign / ICAO24 / registration over the full
 // cached OpenSky snapshot (see lib/flightTracker.ts).

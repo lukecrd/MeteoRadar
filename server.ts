@@ -1,17 +1,15 @@
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { getNews, isNewsCategory } from './lib/news';
 import { getDisasters, getEarthquakes, getFlights, getSatellites, isSatelliteGroup } from './lib/worldEvents';
 import { getFlightInfo, getFlightLive, searchFlights } from './lib/flightTracker';
+import { getGeoNews } from './lib/geonews';
+import { getMarkets } from './lib/markets';
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 // Override with PORT=3100 npm run dev to run a second instance side by side.
@@ -100,6 +98,28 @@ app.get('/api/satellites', async (req, res) => {
   const group = isSatelliteGroup(req.query.group) ? req.query.group : 'stations';
   res.setHeader('Cache-Control', 'public, max-age=1800');
   res.json(await getSatellites(group));
+});
+
+// WorldHub: geo-located world headlines (globe layer) (cached 5 min)
+app.get('/api/geonews', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=120');
+    res.json(await getGeoNews());
+  } catch (error: any) {
+    console.error('Geo news feed error:', error?.message || error);
+    res.status(502).json({ error: 'Geo news feed unavailable' });
+  }
+});
+
+// WorldHub: world indices, FX and commodities (cached 45 s)
+app.get('/api/markets', async (req, res) => {
+  try {
+    res.setHeader('Cache-Control', 'public, max-age=30');
+    res.json(await getMarkets());
+  } catch (error: any) {
+    console.error('Market feed error:', error?.message || error);
+    res.status(502).json({ error: 'Market feed unavailable' });
+  }
 });
 
 // AI Meteorological Predictive Analysis endpoint
@@ -241,7 +261,9 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(__dirname, 'dist');
+    // The bundled server is CommonJS (no import.meta), and both `npm start`
+    // and hosting platforms launch it from the project root.
+    const distPath = path.resolve(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));

@@ -31,7 +31,7 @@ const AirportLine: React.FC<{ a: AirportInfo | null }> = ({ a }) =>
   a ? (
     <div className="min-w-0">
       <div className="font-hud text-base font-bold">{a.iata ?? a.icao ?? '—'}</div>
-      <div className="text-[11px] text-[var(--hub-dim)] truncate" title={a.name}>
+      <div className="text-xs text-[var(--hub-dim)] truncate" title={a.name}>
         {a.city ?? a.name}
       </div>
     </div>
@@ -70,11 +70,11 @@ export const FlightCard: React.FC<FlightCardProps> = ({ flight, position, status
       <header className="flex items-start justify-between gap-2 px-3.5 pt-3 pb-2 border-b border-[var(--hub-line)]">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Plane className="w-4 h-4 text-[#38bdf8] shrink-0" style={{ transform: `rotate(${(flight?.trackDeg ?? 45) - 45}deg)` }} />
+            <Plane className="w-4 h-4 text-[var(--hub-cyan)] shrink-0" style={{ transform: `rotate(${(flight?.trackDeg ?? 45) - 45}deg)` }} />
             <h3 className="font-display text-base font-bold truncate">{title ?? 'Volo'}</h3>
           </div>
           <div className="text-[var(--hub-dim)] truncate">{route?.airline?.name ?? (infoLoading ? 'Carico compagnia…' : 'Compagnia non disponibile')}</div>
-          <div className="flex items-center gap-1.5 mt-1 font-hud text-[10px]" style={{ color: st.color }}>
+          <div className="flex items-center gap-1.5 mt-1 font-hud text-xs" style={{ color: st.color }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: st.color }} />
             {st.text}
           </div>
@@ -89,7 +89,7 @@ export const FlightCard: React.FC<FlightCardProps> = ({ flight, position, status
         <div className="flex items-center gap-2">
           <AirportLine a={route?.origin ?? null} />
           <div className="flex-1 h-px bg-[var(--hub-line-strong)] relative">
-            <Plane className="w-3.5 h-3.5 absolute -top-[7px] left-1/2 -translate-x-1/2 text-[#38bdf8] rotate-45" />
+            <Plane className="w-3.5 h-3.5 absolute -top-[7px] left-1/2 -translate-x-1/2 text-[var(--hub-cyan)] rotate-45" />
           </div>
           <div className="text-right">
             <AirportLine a={route?.destination ?? null} />
@@ -130,7 +130,7 @@ export const FlightCard: React.FC<FlightCardProps> = ({ flight, position, status
         </dl>
 
         {(error || info?.error) && <p className="text-[var(--hub-red)]">{error ?? info?.error}</p>}
-        <p className="text-[10px] text-[var(--hub-dim)]">Dati: OpenSky, adsb.lol (ODbL), adsbdb. Posizione stimata tra un aggiornamento e l'altro.</p>
+        <p className="text-xs text-[var(--hub-dim)]">Dati: OpenSky, adsb.lol (ODbL), adsbdb. Posizione stimata tra un aggiornamento e l'altro.</p>
       </div>
 
       <footer className="px-3.5 py-2.5 border-t border-[var(--hub-line)]">
@@ -252,7 +252,7 @@ export const FlightSearch: React.FC<FlightSearchProps> = ({ onSelect, compact = 
                   {results.map((f) => (
                     <li key={f.icao24}>
                       <button type="button" onClick={() => pick(f)} className="w-full text-left flex items-center gap-2 p-1.5 rounded-lg hover:bg-[var(--hub-glow)]">
-                        <Plane className="w-3.5 h-3.5 text-[#38bdf8] shrink-0" style={{ transform: `rotate(${(f.trackDeg ?? 45) - 45}deg)` }} />
+                        <Plane className="w-3.5 h-3.5 text-[var(--hub-cyan)] shrink-0" style={{ transform: `rotate(${(f.trackDeg ?? 45) - 45}deg)` }} />
                         <span className="min-w-0 flex-1">
                           <span className="font-hud font-bold">{f.callsign}</span>
                           <span className="text-[var(--hub-dim)]">

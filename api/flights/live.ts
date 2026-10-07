@@ -1,4 +1,4 @@
-import { getFlightLive } from '../../lib/flightTracker';
+import { getFlightLive } from '../../lib/flightTracker.js';
 
 // Live state of one aircraft for "Segui volo" (adsb.lol, OpenSky snapshot fallback).
 export default async function handler(req: any, res: any) {

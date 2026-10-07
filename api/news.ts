@@ -1,4 +1,4 @@
-import { getNews, isNewsCategory } from '../lib/news';
+import { getNews, isNewsCategory } from '../lib/news.js';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');

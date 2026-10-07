@@ -54,13 +54,13 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
   return (
     <div
       id="floating-alert-banner-container"
-      className="fixed bottom-5 right-4 sm:right-6 z-50 flex flex-col gap-2.5 max-w-md w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[360px] pointer-events-none transition-all duration-300"
+      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-5 right-4 sm:right-6 z-50 flex flex-col gap-2.5 max-w-md w-[calc(100vw-2rem)] sm:w-auto sm:min-w-[360px] pointer-events-none transition-all duration-300"
     >
       {/* 1. Test Toast Notification */}
       {testToastMessage && (
         <div
           id="toast-test-notification"
-          className="pointer-events-auto p-4 rounded-2xl bg-teal-500 text-white shadow-2xl border border-teal-400 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300 backdrop-blur-md"
+          className="pointer-events-auto p-4 rounded-2xl bg-teal-500 text-white dark:text-slate-950 shadow-2xl border border-teal-400 flex items-center justify-between gap-3 animate-toast-in backdrop-blur-md"
         >
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-white/20">
@@ -89,7 +89,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             /* Minimized Humidity Pill */
             <div
               id="humidity-alert-pill-minimized"
-              className="pointer-events-auto px-3.5 py-2 rounded-2xl bg-rose-950/90 border border-rose-500/80 text-rose-200 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-3 duration-200"
+              className="on-dark pointer-events-auto px-3.5 py-2 rounded-2xl bg-rose-950/90 border border-rose-500/80 text-rose-200 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-toast-in"
             >
               <div
                 onClick={() => setIsHumidityMinimized(false)}
@@ -124,7 +124,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             /* Expanded Humidity Alert Card */
             <div
               id="humidity-alert-card-expanded"
-              className="pointer-events-auto p-4 rounded-2xl bg-gradient-to-r from-rose-950/95 to-slate-950/95 text-white shadow-2xl border border-rose-500/80 flex flex-col gap-2.5 backdrop-blur-xl animate-in slide-in-from-bottom-5 duration-300"
+              className="on-dark pointer-events-auto p-4 rounded-2xl bg-gradient-to-r from-rose-950/95 to-slate-950/95 text-white shadow-2xl border border-rose-500/80 flex flex-col gap-2.5 backdrop-blur-xl animate-toast-in"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
@@ -132,9 +132,9 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                     <Droplets className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xs font-black uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                    <div className="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
                       <span>Avviso Sensore Igrometrico</span>
-                      <span className="px-1.5 py-0.2 rounded bg-rose-500 text-white text-[9px] font-extrabold">
+                      <span className="px-1.5 py-0.2 rounded bg-rose-500 text-white text-xs font-bold">
                         CRITICO
                       </span>
                     </div>
@@ -198,7 +198,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             /* Minimized Lightning Pill (Compact Floating Badge) */
             <div
               id="lightning-alert-pill-minimized"
-              className={`pointer-events-auto px-3.5 py-2.5 rounded-2xl shadow-2xl border backdrop-blur-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-3 duration-200 ${
+              className={`on-dark pointer-events-auto px-3.5 py-2.5 rounded-2xl shadow-2xl border backdrop-blur-xl flex items-center justify-between gap-3 animate-toast-in ${
                 closestStrike.distanceKm <= 5
                   ? 'bg-rose-950/95 border-rose-500/90 text-rose-100'
                   : 'bg-amber-950/95 border-amber-500/90 text-amber-100'
@@ -217,10 +217,10 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                   <Zap className="w-4 h-4 fill-current animate-bounce" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-black tracking-tight flex items-center gap-1.5">
+                  <span className="text-xs font-bold tracking-tight flex items-center gap-1.5">
                     <span>Allerta Lampi: {closestStrike.distanceKm} km</span>
                     <span
-                      className={`px-1.5 py-0.2 rounded text-[9px] font-black uppercase text-slate-950 ${
+                      className={`px-1.5 py-0.2 rounded text-xs font-bold uppercase text-slate-950 ${
                         closestStrike.distanceKm <= 5 ? 'bg-rose-400' : 'bg-amber-400'
                       }`}
                     >
@@ -256,7 +256,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             /* Expanded Full Lightning Warning Card */
             <div
               id="lightning-alert-card-expanded"
-              className={`pointer-events-auto p-4 rounded-3xl shadow-2xl border flex flex-col gap-3 backdrop-blur-xl animate-in slide-in-from-bottom-5 duration-300 ${
+              className={`on-dark pointer-events-auto p-4 rounded-3xl shadow-2xl border flex flex-col gap-3 backdrop-blur-xl animate-toast-in ${
                 closestStrike.distanceKm <= 5
                   ? 'bg-rose-950/95 border-rose-500/90 text-rose-100'
                   : 'bg-amber-950/95 border-amber-500/90 text-amber-100'
@@ -274,10 +274,10 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                     <Zap className="w-5 h-5 fill-current animate-bounce" />
                   </div>
                   <div>
-                    <div className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
                       <span>Allerta Radar Lampi</span>
                       <span
-                        className={`px-2 py-0.5 rounded-full text-slate-950 text-[10px] font-black ${
+                        className={`px-2 py-0.5 rounded-full text-slate-950 text-xs font-bold ${
                           closestStrike.distanceKm <= 5 ? 'bg-rose-400' : 'bg-amber-400'
                         }`}
                       >
@@ -294,7 +294,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                       <span>•</span>
                       <span>Direzione: <strong>{closestStrike.bearingDeg}°</strong></span>
                       <span>•</span>
-                      <span>Tipo: <strong>{closestStrike.type === 'CG' ? 'Terra-Nube' : 'Nube-Nube'}</strong></span>
+                      <span>Tipo: <strong>{closestStrike.type === 'CG' ? 'Nube-Suolo' : 'Intranube'}</strong></span>
                     </div>
                   </div>
                 </div>
@@ -324,7 +324,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
 
               {/* Bottom Quick Actions Toolbar */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/15 text-xs">
-                <div className="text-[11px] opacity-75">
+                <div className="text-xs opacity-75">
                   Protezione automatica attiva
                 </div>
 
@@ -357,7 +357,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                     type="button"
                     id="btn-close-lightning-alert"
                     onClick={onDismissLightningAlert}
-                    className={`px-3 py-1.5 rounded-xl font-black text-white flex items-center gap-1 transition-all shadow-md ${
+                    className={`px-3 py-1.5 rounded-xl font-bold text-white flex items-center gap-1 transition-all shadow-md ${
                       closestStrike.distanceKm <= 5
                         ? 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/30'
                         : 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/30'
