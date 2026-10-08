@@ -140,7 +140,7 @@ export const FlightsList: React.FC<{
   return (
     <div>
       {search && <div className="mb-4">{search}</div>}
-      <FeedStatus isLoading={isLoading} error={error} feed={feed} source="OpenSky Network · ADS-B" onRetry={onRetry} />
+      <FeedStatus isLoading={isLoading} error={error} feed={feed} source={feed?.source && feed.source !== 'OpenSky Network' ? `${feed.source} · ADS-B, principali spazi aerei` : 'OpenSky Network · ADS-B'} onRetry={onRetry} />
       {feed && feed.totalAirborne > 0 && (
         <>
           <div className="grid grid-cols-2 gap-2 mb-3">

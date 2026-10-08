@@ -3,7 +3,8 @@
 //
 //  - Earthquakes: USGS + INGV, merged by lib/quakes.ts
 //  - Flights:     OpenSky Network /states/all (anonymous by default; optional
-//                 OAuth client credentials via OPENSKY_CLIENT_ID/SECRET)
+//                 OAuth client credentials via OPENSKY_CLIENT_ID/SECRET), with
+//                 adsb.lol hub sampling as fallback when OpenSky is unreachable
 //  - Disasters:   GDACS event list (cyclones, floods, volcanoes, wildfires…)
 //
 // Every source is cached in memory for a short TTL and, when the upstream
@@ -66,6 +67,8 @@ export interface FeedResponse<T> {
 export interface FlightsResponse extends FeedResponse<Flight> {
   /** Airborne aircraft reported worldwide (before sampling). */
   totalAirborne: number;
+  /** Upstream(s) that produced this snapshot; adsb.fi/adsb.lol = regional fallback. */
+  source?: string;
   topCountries: { country: string; count: number }[];
 }
 
@@ -74,9 +77,9 @@ interface CacheEntry<R> {
   value: R;
 }
 
-async function fetchJson(url: string, init: RequestInit = {}): Promise<{ json: any; res: Response }> {
+async function fetchJson(url: string, init: RequestInit = {}, timeoutMs = FETCH_TIMEOUT_MS): Promise<{ json: any; res: Response }> {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     const res = await fetch(url, {
       ...init,
@@ -203,19 +206,149 @@ export async function getFlightSnapshot(): Promise<{ at: number; states: any[]; 
   return { at: lastFlightStates?.at ?? res.fetchedAt, states: lastFlightStates?.states ?? [], stale: res.stale, error: res.error };
 }
 
+/* ADS-B Exchange-style fallback. OpenSky refuses connections from most cloud
+ * providers (Vercel runs on AWS), which surfaces as Node's bare "fetch
+ * failed". adsb.fi and adsb.lol have no global endpoint, so the busiest
+ * airspaces are sampled with point queries (max radius 250 NM) and converted
+ * to OpenSky state vectors, keeping flight search and "Segui volo" working on
+ * the same snapshot. adsb.fi sustains 1 req/s; adsb.lol only allows a short
+ * burst, so it gets a slow lane and is dropped on its first 429 (its budget is
+ * needed by "Segui volo"). */
+const ADSB_HUBS: [number, number][] = [
+  [45.5, 9.2], [41.8, 12.5], [50.0, 8.6], [51.5, -0.5], [48.9, 2.4], [40.4, -3.7],
+  [48.2, 16.4], [41.0, 29.0], [25.2, 55.3], [28.6, 77.1], [1.35, 103.9], [35.6, 139.8],
+  [40.7, -74.0], [41.9, -87.9], [33.6, -84.4], [32.9, -97.0], [34.0, -118.4], [-23.4, -46.5],
+];
+const ADSB_RADIUS_NM = 250;
+const ADSB_LANES = [
+  { name: 'adsb.fi', url: (lat: number, lon: number) => `https://opendata.adsb.fi/api/v2/lat/${lat}/lon/${lon}/dist/${ADSB_RADIUS_NM}`, gapMs: 1_100 },
+  { name: 'adsb.lol', url: (lat: number, lon: number) => `https://api.adsb.lol/v2/point/${lat}/${lon}/${ADSB_RADIUS_NM}`, gapMs: 4_000 },
+];
+// Skip OpenSky for a while after it fails, so each refresh does not pay its timeout.
+const OPENSKY_RETRY_MS = 10 * 60_000;
+let openSkyDownUntil = 0;
+let openSkyLastError = '';
+
+// ICAO 24-bit address blocks → state of registry (OpenSky's origin_country).
+const ICAO_BLOCKS: [number, number, string][] = [
+  [0x008000, 0x00ffff, 'South Africa'], [0x010000, 0x017fff, 'Egypt'], [0x020000, 0x027fff, 'Morocco'],
+  [0x040000, 0x040fff, 'Ethiopia'], [0x04c000, 0x04cfff, 'Kenya'], [0x064000, 0x064fff, 'Nigeria'],
+  [0x06a000, 0x06a3ff, 'Qatar'], [0x0ac000, 0x0acfff, 'Colombia'], [0x0d0000, 0x0d7fff, 'Mexico'],
+  [0x100000, 0x1fffff, 'Russia'], [0x300000, 0x33ffff, 'Italy'], [0x340000, 0x37ffff, 'Spain'],
+  [0x380000, 0x3bffff, 'France'], [0x3c0000, 0x3fffff, 'Germany'], [0x400000, 0x43ffff, 'United Kingdom'],
+  [0x440000, 0x447fff, 'Austria'], [0x448000, 0x44ffff, 'Belgium'], [0x458000, 0x45ffff, 'Denmark'],
+  [0x460000, 0x467fff, 'Finland'], [0x468000, 0x46ffff, 'Greece'], [0x470000, 0x477fff, 'Hungary'],
+  [0x478000, 0x47ffff, 'Norway'], [0x480000, 0x487fff, 'Netherlands'], [0x488000, 0x48ffff, 'Poland'],
+  [0x490000, 0x497fff, 'Portugal'], [0x498000, 0x49ffff, 'Czech Republic'], [0x4a0000, 0x4a7fff, 'Romania'],
+  [0x4a8000, 0x4affff, 'Sweden'], [0x4b0000, 0x4b7fff, 'Switzerland'], [0x4b8000, 0x4bffff, 'Turkey'],
+  [0x4ca000, 0x4cafff, 'Ireland'], [0x4cc000, 0x4ccfff, 'Iceland'], [0x4d0000, 0x4d03ff, 'Luxembourg'],
+  [0x4d2000, 0x4d23ff, 'Malta'], [0x508000, 0x50ffff, 'Ukraine'], [0x683000, 0x6833ff, 'Kazakhstan'],
+  [0x710000, 0x717fff, 'Saudi Arabia'], [0x718000, 0x71ffff, 'Republic of Korea'], [0x730000, 0x737fff, 'Iran'],
+  [0x738000, 0x73ffff, 'Israel'], [0x750000, 0x757fff, 'Malaysia'], [0x758000, 0x75ffff, 'Philippines'],
+  [0x760000, 0x767fff, 'Pakistan'], [0x768000, 0x76ffff, 'Singapore'], [0x780000, 0x7bffff, 'China'],
+  [0x7c0000, 0x7fffff, 'Australia'], [0x800000, 0x83ffff, 'India'], [0x840000, 0x87ffff, 'Japan'],
+  [0x880000, 0x887fff, 'Thailand'], [0x888000, 0x88ffff, 'Viet Nam'], [0x896000, 0x896fff, 'United Arab Emirates'],
+  [0x899000, 0x8993ff, 'Taiwan'], [0x8a0000, 0x8affff, 'Indonesia'], [0xa00000, 0xafffff, 'United States'],
+  [0xc00000, 0xc3ffff, 'Canada'], [0xc80000, 0xc87fff, 'New Zealand'], [0xe00000, 0xe3ffff, 'Argentina'],
+  [0xe40000, 0xe7ffff, 'Brazil'], [0xe80000, 0xe80fff, 'Chile'],
+];
+
+function countryFromIcao(hex: string): string {
+  const n = parseInt(hex, 16);
+  if (!Number.isFinite(n)) return '';
+  for (const [lo, hi, country] of ICAO_BLOCKS) if (n >= lo && n <= hi) return country;
+  return '';
+}
+
+/** readsb-style aircraft (adsb.fi / adsb.lol) → OpenSky state vector (see lib/flightTracker.ts). */
+function adsbToState(ac: any, nowSec: number): any[] | null {
+  if (typeof ac?.lat !== 'number' || typeof ac?.lon !== 'number') return null;
+  const hex = String(ac.hex || '').replace(/^~/, '').toLowerCase();
+  if (!/^[0-9a-f]{6}$/.test(hex)) return null; // skip TIS-B/non-ICAO tracks
+  const onGround = ac.alt_baro === 'ground';
+  const rate = typeof ac.baro_rate === 'number' ? ac.baro_rate : typeof ac.geom_rate === 'number' ? ac.geom_rate : null;
+  return [
+    hex,
+    String(ac.flight || ''),
+    countryFromIcao(hex),
+    Math.round(nowSec - (ac.seen_pos ?? ac.seen ?? 0)),
+    Math.round(nowSec - (ac.seen ?? 0)),
+    ac.lon,
+    ac.lat,
+    typeof ac.alt_baro === 'number' ? ac.alt_baro * 0.3048 : onGround ? 0 : null,
+    onGround,
+    typeof ac.gs === 'number' ? ac.gs * 0.514444 : null,
+    typeof ac.track === 'number' ? ac.track : typeof ac.true_heading === 'number' ? ac.true_heading : null,
+    rate != null ? (rate * 0.3048) / 60 : null,
+    null,
+    typeof ac.alt_geom === 'number' ? ac.alt_geom * 0.3048 : null,
+    ac.squawk ? String(ac.squawk) : null,
+  ];
+}
+
+async function fetchAdsbStates(): Promise<{ states: any[]; source: string }> {
+  const byHex = new Map<string, any[]>();
+  const used = new Set<string>();
+  const errors: string[] = [];
+  const queue = [...ADSB_HUBS];
+  const lane = async ({ name, url, gapMs }: (typeof ADSB_LANES)[number]) => {
+    for (let hub = queue.shift(); hub; hub = queue.shift()) {
+      const started = Date.now();
+      try {
+        const { json } = await fetchJson(url(hub[0], hub[1]), {}, 8_000);
+        const now = typeof json.now === 'number' ? json.now : Date.now();
+        const nowSec = now > 1e12 ? now / 1000 : now;
+        for (const ac of json.ac ?? json.aircraft ?? []) {
+          const s = adsbToState(ac, nowSec);
+          if (s && !byHex.has(s[0])) byHex.set(s[0], s);
+        }
+        used.add(name);
+      } catch (err: any) {
+        errors.push(`${name}: ${err?.name === 'AbortError' ? 'timeout' : err?.message || err}`);
+        if (err?.status === 429 || err?.status === 403) {
+          queue.unshift(hub); // leave the hub to the other lane
+          return;
+        }
+      }
+      if (queue.length) await new Promise((r) => setTimeout(r, Math.max(0, gapMs - (Date.now() - started))));
+    }
+  };
+  await Promise.all(ADSB_LANES.map(lane));
+  if (byHex.size === 0) throw new Error(errors.slice(-2).join(' · ') || 'nessun dato ADS-B');
+  return { states: [...byHex.values()], source: [...used].join(' + ') };
+}
+
 export const getFlights = cachedFeed<FlightsResponse>(
   // Anonymous OpenSky quota is small (a global snapshot costs several
   // credits), so the snapshot is shared by all clients for 90 s.
   90_000,
   async () => {
-    const { json } = await fetchJson(OPENSKY_URL, { headers: await getOpenSkyAuthHeader() });
-    const states: any[] = Array.isArray(json.states) ? json.states : [];
+    let states: any[] = [];
+    let source = 'OpenSky Network';
+    if (Date.now() >= openSkyDownUntil) {
+      try {
+        const { json } = await fetchJson(OPENSKY_URL, { headers: await getOpenSkyAuthHeader() }, 8_000);
+        states = Array.isArray(json.states) ? json.states : [];
+        if (states.length === 0) throw new Error('snapshot vuoto');
+      } catch (err: any) {
+        openSkyDownUntil = Date.now() + OPENSKY_RETRY_MS;
+        openSkyLastError = err?.status === 429 ? 'limite richieste (HTTP 429)' : err?.name === 'AbortError' ? 'timeout' : String(err?.message || err);
+        states = [];
+      }
+    }
+    if (states.length === 0) {
+      try {
+        ({ states, source } = await fetchAdsbStates());
+      } catch (fallbackErr: any) {
+        throw new Error(`OpenSky: ${openSkyLastError} · ${fallbackErr?.message || fallbackErr}`);
+      }
+    }
     lastFlightStates = { at: Date.now(), states };
     // state vector: [0]icao24 [1]callsign [2]country [5]lon [6]lat [7]baroAlt [8]onGround [9]velocity m/s [10]track
     const airborne = states.filter((s) => s[5] != null && s[6] != null && s[8] === false);
 
     const byCountry = new Map<string, number>();
-    for (const s of airborne) byCountry.set(s[2], (byCountry.get(s[2]) || 0) + 1);
+    for (const s of airborne) if (s[2]) byCountry.set(s[2], (byCountry.get(s[2]) || 0) + 1);
     const topCountries = [...byCountry.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6)
@@ -237,7 +370,7 @@ export const getFlights = cachedFeed<FlightsResponse>(
         heading: s[10] != null ? Math.round(s[10]) : null,
       });
     }
-    return { items, totalAirborne: airborne.length, topCountries, fetchedAt: Date.now(), stale: false, error: null };
+    return { items, totalAirborne: airborne.length, topCountries, source, fetchedAt: Date.now(), stale: false, error: null };
   },
   () => ({ items: [], totalAirborne: 0, topCountries: [], fetchedAt: Date.now(), stale: true, error: null })
 );
