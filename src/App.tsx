@@ -14,6 +14,7 @@ import { AppTopNav, AppBottomNav } from './components/AppNav';
 import { DEFAULT_LOCATION, fetchWeatherData } from './services/weatherApi';
 import { playHumidityAlertSound, playLightningAlertSound, triggerVibration } from './services/audioAlerts';
 import { Navbar } from './components/Navbar';
+import { CitySearch } from './components/CitySearch';
 import { WeatherHero } from './components/WeatherHero';
 import { HumiditySensorCard } from './components/HumiditySensorCard';
 import { WindCompassMap } from './components/WindCompassMap';
@@ -32,7 +33,7 @@ import { HubStatusStrip } from './components/HubStatusStrip';
 import { NewsTicker } from './components/NewsTicker';
 import { NewsHub } from './components/NewsHub';
 import { NewsGlobeStage } from './components/NewsGlobeStage';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Navigation } from 'lucide-react';
 
 export default function App() {
   // Theme state: dark mode as default for optimal night radar readability
@@ -49,7 +50,18 @@ export default function App() {
   useAndroidBackButton();
 
   // Location & Weather Data
-  const [currentLocation, setCurrentLocation] = useState<LocationInfo>(DEFAULT_LOCATION);
+  // The chosen forecast city survives reloads
+  const [currentLocation, setCurrentLocation] = useState<LocationInfo>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('meteosense_location') || 'null');
+      if (saved && typeof saved.name === 'string' && Number.isFinite(saved.latitude) && Number.isFinite(saved.longitude)) {
+        return saved as LocationInfo;
+      }
+    } catch {
+      // ignore unavailable storage / malformed value
+    }
+    return DEFAULT_LOCATION;
+  });
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGpsLoading, setIsGpsLoading] = useState<boolean>(false);
@@ -195,6 +207,11 @@ export default function App() {
   // Initial load
   useEffect(() => {
     loadWeather(currentLocation);
+    try {
+      localStorage.setItem('meteosense_location', JSON.stringify(currentLocation));
+    } catch {
+      // ignore unavailable storage
+    }
   }, [loadWeather, currentLocation]);
 
   // GPS Location handler
@@ -505,6 +522,43 @@ export default function App() {
               hasError={!!errorMsg}
               alertCount={activeAlertCount}
             />
+          </div>
+        )}
+
+        {/* Forecast city picker: always reachable, even when loading failed */}
+        {route === 'meteo' && (
+          <div className="hub-panel p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 relative z-20">
+            <div className="min-w-0 flex-1">
+              <div className="hub-label">Previsioni per</div>
+              <div className="font-display font-semibold text-lg truncate" title={currentLocation.name}>
+                {currentLocation.name}
+                {(currentLocation.admin1 || currentLocation.country) && (
+                  <span className="text-sm font-normal text-[var(--hub-dim)]">
+                    {' · '}
+                    {[currentLocation.admin1, currentLocation.country].filter(Boolean).join(', ')}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 sm:w-[24rem] max-w-full">
+              <CitySearch
+                inputId="forecast-city-input"
+                currentLocation={currentLocation}
+                onSelectLocation={setCurrentLocation}
+                placeholder="Cambia città…"
+                className="flex-1"
+              />
+              <button
+                type="button"
+                onClick={handleUseGps}
+                disabled={isGpsLoading}
+                className="hub-icon-btn shrink-0"
+                aria-label="Usa la mia posizione"
+                title="Usa la mia posizione"
+              >
+                <Navigation className={`w-4 h-4 text-[var(--hub-cyan)] ${isGpsLoading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
           </div>
         )}
 

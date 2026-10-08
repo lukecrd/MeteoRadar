@@ -3,6 +3,9 @@
   "framework": "vite",
   "buildCommand": "vite build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/flights/*.ts": { "maxDuration": 30 }
+  },
   "headers": [
     {
       "source": "/sw.js",

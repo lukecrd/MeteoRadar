@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, Moon, Sun, Sliders, Globe2, Loader2, Navigation, Smartphone } from 'lucide-react';
+import React from 'react';
+import { Moon, Sun, Sliders, Globe2, Navigation, Smartphone } from 'lucide-react';
 import { LocationInfo } from '../types';
-import { searchLocations } from '../services/weatherApi';
+import { CitySearch } from './CitySearch';
 
 interface NavbarProps {
   currentLocation: LocationInfo;
@@ -34,48 +34,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   showDevTools = false,
   children,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<LocationInfo[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const searchContainerRef = useRef<HTMLDivElement | null>(null);
-
-  // Debounced city search
-  useEffect(() => {
-    if (!searchQuery || searchQuery.trim().length < 2) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      setIsSearching(true);
-      const results = await searchLocations(searchQuery);
-      setSearchResults(results);
-      setIsSearching(false);
-      setShowDropdown(true);
-    }, 350);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  // Click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleSelectCity = (loc: LocationInfo) => {
-    onSelectLocation(loc);
-    setSearchQuery('');
-    setShowDropdown(false);
-  };
-
   return (
     <header
       id="main-app-header"
@@ -106,52 +64,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Center Search Bar */}
-        <div ref={searchContainerRef} className="relative flex-1 min-w-0 max-w-md">
-          <div className="flex items-center gap-2 px-3.5 h-10 rounded-xl border border-[var(--hub-line)] bg-[var(--hub-panel)] focus-within:border-[var(--hub-line-strong)] focus-within:shadow-[0_0_18px_-6px_var(--hub-cyan)] transition-all">
-            <Search className="w-4 h-4 text-[var(--hub-dim)] shrink-0 hidden sm:block" aria-hidden="true" />
-            <MapPin className="w-4 h-4 text-[var(--hub-cyan)] shrink-0 sm:hidden" aria-hidden="true" />
-            {/* On phones the current city doubles as the placeholder, so it is always visible */}
-            <input
-              id="city-search-input"
-              type="search"
-              placeholder={`${currentLocation.name} · cerca…`}
-              aria-label={`Località attuale: ${currentLocation.name}. Cerca un'altra città`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
-              className="w-full min-w-0 bg-transparent text-sm focus:outline-none placeholder:text-[var(--hub-text)] sm:placeholder:text-[var(--hub-dim)] text-[var(--hub-text)]"
-            />
-            {isSearching ? (
-              <Loader2 className="w-4 h-4 text-[var(--hub-cyan)] animate-spin shrink-0" />
-            ) : (
-              <span className="font-hud text-xs text-[var(--hub-dim)] hidden md:inline truncate max-w-[110px]" title={currentLocation.name}>
-                {currentLocation.name}
-              </span>
-            )}
-          </div>
-
-          {/* Autocomplete Dropdown */}
-          {showDropdown && searchResults.length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-2 rounded-xl border border-[var(--hub-line)] bg-[var(--hub-panel-strong)] backdrop-blur-xl shadow-2xl overflow-hidden z-50">
-              <div className="p-1.5">
-                {searchResults.map((loc, idx) => (
-                  <button
-                    key={`${loc.name}-${loc.latitude}-${idx}`}
-                    onClick={() => handleSelectCity(loc)}
-                    className="w-full text-left px-3.5 py-2.5 rounded-lg text-sm flex items-center justify-between transition-colors hover:bg-[color-mix(in_srgb,var(--hub-cyan)_10%,transparent)]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-[var(--hub-cyan)]" />
-                      <span className="font-semibold">{loc.name}</span>
-                      {loc.admin1 && <span className="text-[var(--hub-dim)] text-xs">({loc.admin1})</span>}
-                    </div>
-                    <span className="font-hud text-xs text-[var(--hub-dim)]">{loc.country}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <CitySearch
+          inputId="city-search-input"
+          currentLocation={currentLocation}
+          onSelectLocation={onSelectLocation}
+          showCurrent
+          className="flex-1 max-w-md"
+        />
 
         {/* Right Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
