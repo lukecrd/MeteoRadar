@@ -73,7 +73,7 @@ const FIT_MARGIN = 1.12; // half-extent (world units) around the unit sphere at 
 const AUTO_ROTATE_SPEED = 0.06; // rad/s
 const IDLE_BEFORE_AUTOROTATE_MS = 5000;
 const MAX_TILT = 1.3;
-export const MIN_ZOOM = 0.6; // < 1 so high orbits (GPS/GEO) can be framed
+export const MIN_ZOOM = 0.55; // < 1 so high orbits (GPS/GEO) can be framed
 export const MAX_ZOOM = 8;
 const FOCUS_ZOOM = 1.8;
 const FOLLOW_ZOOM = 3;
@@ -82,16 +82,31 @@ const NO_PATHS: GlobePath[] = [];
 const D2R = Math.PI / 180;
 
 const GEO_ALT_KM = 35786;
-const ALT_SCALE_KM = 500;
+const ALT_SCALE_KM = 100;
+const ORBIT_SPAN = 0.8;
 /**
- * Altitude → radius (Earth = 1). Log-compressed so every orbit fits a
- * light-weight scene: ISS (~420 km) sits at ≈1.064 — nearly its true 1.066 —
- * while GPS (~20 200 km) lands at ≈1.39 and GEO at 1.45 instead of the true
- * 4.2 and 6.6 Earth radii. Order is preserved; distances are not to scale.
+ * Altitude → radius (Earth = 1). Log-compressed, and deliberately
+ * exaggerated at the low end so satellites read as objects in space around
+ * the planet rather than dots on its surface: ISS (~420 km) sits at ≈1.22,
+ * Starlink (~550 km) at ≈1.25, GPS (~20 200 km) at ≈1.72 and GEO at 1.8
+ * (true values: 1.066, 1.086, 4.2, 6.6). Order is preserved; distances are
+ * not to scale.
  */
 export function altitudeToRadius(altKm: number): number {
   const h = Math.max(0, altKm);
-  return 1 + (0.45 * Math.log(1 + h / ALT_SCALE_KM)) / Math.log(1 + GEO_ALT_KM / ALT_SCALE_KM);
+  return 1 + (ORBIT_SPAN * Math.log(1 + h / ALT_SCALE_KM)) / Math.log(1 + GEO_ALT_KM / ALT_SCALE_KM);
+}
+
+/**
+ * Zoom that frames the orbital shell: 90th percentile radius, so a few GEO
+ * outliers in a mostly-LEO group do not shrink the Earth to a dot.
+ */
+function orbitalHomeZoom(orbitals: GlobeMarker[]): { zoom: number; shell: number } | null {
+  if (orbitals.length === 0) return null;
+  const radii = orbitals.map(markerRadius).sort((a, b) => a - b);
+  const p90 = radii[Math.min(radii.length - 1, Math.floor(radii.length * 0.9))];
+  const median = radii[Math.floor(radii.length / 2)];
+  return { zoom: clampZoom(FIT_MARGIN / (p90 + 0.08)), shell: median };
 }
 
 /** lat/lon (deg) → point on a sphere of radius r. Greenwich faces +z at rest. */
@@ -222,7 +237,8 @@ interface SceneApi {
 
 /**
  * Centred, fully visible interactive globe that plots real-time events at
- * their real coordinates (satellites at log-scaled altitude). Drag to
+ * their real coordinates (satellites in space around it, at log-scaled
+ * altitude; the view pulls back to frame their shell). Drag to
  * rotate, wheel / pinch / buttons to zoom, hover or tap a marker for a
  * tooltip; `focus` spins a point to the front and zooms in a little.
  */
@@ -261,6 +277,8 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     targetY: null as number | null,
     zoom: 1,
     targetZoom: 1,
+    /** Rest zoom: 1, or zoomed out to frame the orbital shell */
+    home: 1,
     lastInteraction: 0,
     /** Last explicit user gesture (drag / pinch / wheel / buttons) */
     lastUserInput: 0,
@@ -314,6 +332,18 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     const limbGeo = new THREE.RingGeometry(0.995, 1.004, 128);
     const limbMat = new THREE.MeshBasicMaterial({ color: lineColor, transparent: true, opacity: isDark ? 0.5 : 0.35, depthWrite: false });
     scene.add(new THREE.Mesh(limbGeo, limbMat));
+
+    // Faint ring at the typical orbit height while satellites are shown:
+    // marks the space around the planet the orbitals live in.
+    const shellGeo = new THREE.RingGeometry(0.997, 1.003, 160);
+    const shellMat = new THREE.MeshBasicMaterial({ color: isDark ? 0xa78bfa : 0x6d28d9, transparent: true, opacity: isDark ? 0.22 : 0.18, depthWrite: false });
+    const shell = new THREE.Mesh(shellGeo, shellMat);
+    shell.visible = false;
+    scene.add(shell);
+    const setShell = (radius: number | null) => {
+      shell.visible = radius != null;
+      if (radius != null) shell.scale.setScalar(radius);
+    };
 
     // Polylines (satellite orbit, flight route / trail / heading).
     const pathGroup = new THREE.Group();
@@ -424,13 +454,17 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
 
     apiRef.current = {
       setMarkers: (l) => fill(sets.markers, l),
-      setOrbitals: (l) => fill(sets.orbitals, l),
+      setOrbitals: (l) => {
+        fill(sets.orbitals, l);
+        setShell(orbitalHomeZoom(l)?.shell ?? null);
+      },
       setPaths,
       setHighlight,
       pick,
     };
     fill(sets.markers, markersRef.current);
     fill(sets.orbitals, orbitalsRef.current);
+    setShell(orbitalHomeZoom(orbitalsRef.current)?.shell ?? null);
     setPaths(pathsRef.current);
     setHighlight(highlightRef.current);
 
@@ -551,8 +585,8 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
       host.removeEventListener('wheel', onWheel);
       apiRef.current = null;
       clearPaths();
-      [bodyGeo, gridGeo, limbGeo, sets.markers.geo, sets.orbitals.geo, hlGeo, coastGeo].forEach((g) => g?.dispose());
-      [bodyMat, gridMat, coastMat, limbMat, markerMat, orbitalMat, hlMat].forEach((m) => m.dispose());
+      [bodyGeo, gridGeo, limbGeo, shellGeo, sets.markers.geo, sets.orbitals.geo, hlGeo, coastGeo].forEach((g) => g?.dispose());
+      [bodyMat, gridMat, coastMat, limbMat, shellMat, markerMat, orbitalMat, hlMat].forEach((m) => m.dispose());
       renderer.dispose();
       if (renderer.domElement.parentElement === host) host.removeChild(renderer.domElement);
     };
@@ -573,6 +607,13 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
   useEffect(() => {
     orbitalsRef.current = orbitals;
     apiRef.current?.setOrbitals(orbitals);
+    // Satellites on: pull back so the planet sits inside its orbital shell.
+    // Only moves the view while the user is still at the rest zoom.
+    const r = view.current;
+    const home = orbitalHomeZoom(orbitals)?.zoom ?? 1;
+    if (Math.abs(home - r.home) < 0.02) return;
+    if (Math.abs(r.targetZoom - r.home) < 0.01) r.targetZoom = home;
+    r.home = home;
   }, [orbitals]);
 
   useEffect(() => {
@@ -618,7 +659,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
   };
   const resetView = () => {
     const r = view.current;
-    r.targetZoom = 1;
+    r.targetZoom = r.home;
     r.targetX = 0.5;
     r.targetY = shortestAngle(r.y, -12 * D2R);
     r.lastInteraction = 0;
