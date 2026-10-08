@@ -470,7 +470,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         lon: s.lon,
         altKm: s.altKm,
         color: iss ? ISS_COLOR : LAYER_META.satellites.color,
-        size: iss ? 10 : dense ? 2.5 : 4.5,
+        size: iss ? 10 : dense ? 3 : 5.5,
         title: iss ? `${s.name} · Stazione Spaziale Internazionale` : s.name,
         detail: `NORAD ${s.norad} · ${Math.round(s.altKm).toLocaleString('it-IT')} km · ${s.speedKms.toFixed(2)} km/s`,
       };
