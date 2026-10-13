@@ -495,11 +495,11 @@ export default function App() {
         <AppTopNav active={route} onNavigate={navigate} />
       </Navbar>
 
-      {/* MONDO (home): the WorldHub real-time globe with its side windows.
-          Full width (outside <main>) so the windows can dock to the edges;
-          bottom padding leaves room for the mobile bottom nav. */}
+      {/* MONDO (home): full-bleed WorldHub globe with overlay windows.
+          Outside <main> so it spans the viewport; the stage sizes itself to
+          end above the mobile bottom nav. */}
       {route === 'mondo' && (
-        <div key="route-mondo" className="pt-4 sm:pt-6 pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-4">
+        <div key="route-mondo">
           <NewsGlobeStage
             isDark={isDark}
             location={currentLocation}

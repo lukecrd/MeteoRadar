@@ -67,6 +67,8 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
           </div>
 
           <button
+            type="button"
+            aria-label="Chiudi"
             onClick={onClose}
             className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >

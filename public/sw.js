@@ -8,7 +8,7 @@
 // - /api/* and cross-origin requests: never touched (always live data).
 //
 // Bump CACHE_NAME whenever this strategy changes: activate() drops old caches.
-const CACHE_NAME = 'meteoradar-v2';
+const CACHE_NAME = 'worldhub-v3'; // v3: new globe icon
 const SHELL = ['/', '/manifest.json', '/icon.svg'];
 
 self.addEventListener('install', (event) => {
