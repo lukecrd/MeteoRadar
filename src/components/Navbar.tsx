@@ -1,5 +1,5 @@
 import React from 'react';
-import { Moon, Sun, Sliders, Globe2, Navigation, Smartphone } from 'lucide-react';
+import { Moon, Sun, Sliders, Navigation, Smartphone } from 'lucide-react';
 import { LocationInfo } from '../types';
 import { CitySearch } from './CitySearch';
 
@@ -43,19 +43,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3 shrink-0">
-          <div className="relative w-10 h-10 flex items-center justify-center">
-            {isDark && <span className="hud-pulse-ring" />}
-            <svg viewBox="0 0 40 40" className="absolute inset-0 w-10 h-10" aria-hidden>
-              <defs>
-                <linearGradient id="hub-brand-grad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#22d3ee" />
-                  <stop offset="1" stopColor="#a78bfa" />
-                </linearGradient>
-              </defs>
-              <polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="rgba(34,211,238,0.08)" stroke="url(#hub-brand-grad)" strokeWidth="1.5" />
-            </svg>
-            <Globe2 className="w-5 h-5 relative text-[var(--hub-cyan)]" />
-          </div>
+          {/* Same globe as the app icon (public/icon.svg) */}
+          <img src="/icon.svg" alt="WorldHub" width={40} height={40} className="w-10 h-10" />
           <div className="leading-tight hidden sm:block">
             <div className="font-display font-bold text-lg sm:text-xl tracking-[0.08em] whitespace-nowrap hub-brand-text">
               WorldHub

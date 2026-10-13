@@ -748,7 +748,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
         ref={hostRef}
         role="img"
         aria-label={`Mappamondo con ${total} oggetti in tempo reale. Trascina per ruotare, rotella o pizzico per lo zoom.`}
-        className="absolute inset-0 cursor-grab active:cursor-grabbing [touch-action:pan-y]"
+        className="absolute inset-0 cursor-grab active:cursor-grabbing [touch-action:none]"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={(e) => endPointer(e, true)}

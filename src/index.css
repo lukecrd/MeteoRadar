@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* =========================================================================
-   MeteoRadar design system
+   WorldHub design system
    - One accent (cyan), semantic tokens for light/dark, 2 font families.
    - Every text token below is verified >= 4.5:1 on its surfaces (WCAG AA).
    ========================================================================= */
@@ -471,6 +471,11 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
 }
 
 .animate-tab-enter { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+/* WorldHub overlay windows slide in from their rail */
+@keyframes drawerLeft { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes drawerRight { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+.animate-drawer-left { animation: drawerLeft 0.26s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-drawer-right { animation: drawerRight 0.26s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .animate-modal-backdrop { animation: fadeIn 0.22s ease-out both; }
 .animate-modal-slide-up { animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
 /* Toast entrance (replaces the unresolved tailwindcss-animate "animate-in" classes) */
@@ -487,6 +492,8 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   .hud-scanline,
   .hud-pulse-ring,
   .animate-tab-enter,
+  .animate-drawer-left,
+  .animate-drawer-right,
   .animate-modal-backdrop,
   .animate-modal-slide-up,
   .animate-toast-in { animation: none !important; }

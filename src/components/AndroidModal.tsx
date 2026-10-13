@@ -91,6 +91,8 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
             </div>
           </div>
           <button
+            type="button"
+            aria-label="Chiudi"
             onClick={onClose}
             className="p-2 rounded-xl text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
