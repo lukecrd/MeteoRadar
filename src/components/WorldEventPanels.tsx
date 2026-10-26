@@ -55,6 +55,20 @@ export const FeedStatus: React.FC<{
   );
 };
 
+/** Headline figures for a feed: plain label/value pairs, no boxes. */
+const Stats: React.FC<{ items: { label: string; value: React.ReactNode }[] }> = ({ items }) => (
+  <dl className="flex gap-8 mb-4">
+    {items.map((s) => (
+      <div key={s.label}>
+        <dt className="hub-label">{s.label}</dt>
+        <dd className="text-2xl font-semibold tabular-nums leading-tight">
+          {s.value}
+        </dd>
+      </div>
+    ))}
+  </dl>
+);
+
 interface ItemButtonProps {
   active: boolean;
   onClick: () => void;
@@ -87,18 +101,13 @@ export const QuakesList: React.FC<{
     <div>
       <FeedStatus isLoading={isLoading} error={error} feed={feed} source="USGS + INGV · M2.5+ 24 h, M4.5+ 7 gg, Italia M2+ 7 gg" onRetry={onRetry} />
       {items.length > 0 && (
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="rounded-lg border border-[var(--hub-line)] p-2.5">
-            <div className="hub-label">Eventi</div>
-            <div className="font-hud text-lg font-semibold">{items.length}</div>
-          </div>
-          <div className="rounded-lg border border-[var(--hub-line)] p-2.5">
-            <div className="hub-label">Max magnitudo</div>
-            <div className="font-hud text-lg font-semibold" style={{ color: strongest ? quakeColor(strongest.mag) : undefined }}>
-              {strongest ? `M ${strongest.mag.toFixed(1)}` : '—'}
-            </div>
-          </div>
-        </div>
+        <Stats
+          items={[
+            { label: 'Eventi', value: items.length },
+            // No scale colour here: the deep reds fail contrast on the dark panel.
+            { label: 'Magnitudo massima', value: strongest ? strongest.mag.toFixed(1) : '—' },
+          ]}
+        />
       )}
       {!isLoading && items.length === 0 && !error && !feed?.error && <p className="text-sm text-[var(--hub-dim)]">Nessun terremoto recente.</p>}
       <ol className="divide-y divide-[var(--hub-line)]">
@@ -143,16 +152,12 @@ export const FlightsList: React.FC<{
       <FeedStatus isLoading={isLoading} error={error} feed={feed} source={feed?.source && feed.source !== 'OpenSky Network' ? `${feed.source} · ADS-B, principali spazi aerei` : 'OpenSky Network · ADS-B'} onRetry={onRetry} />
       {feed && feed.totalAirborne > 0 && (
         <>
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <div className="rounded-lg border border-[var(--hub-line)] p-2.5">
-              <div className="hub-label">In volo ora</div>
-              <div className="font-hud text-lg font-semibold">{feed.totalAirborne.toLocaleString('it-IT')}</div>
-            </div>
-            <div className="rounded-lg border border-[var(--hub-line)] p-2.5">
-              <div className="hub-label">Sul globo</div>
-              <div className="font-hud text-lg font-semibold">{items.length}</div>
-            </div>
-          </div>
+          <Stats
+            items={[
+              { label: 'In volo ora', value: feed.totalAirborne.toLocaleString('it-IT') },
+              { label: 'Sul globo', value: items.length },
+            ]}
+          />
           <div className="hub-label mb-2">Paese di registrazione</div>
           <ul className="space-y-1.5 mb-4">
             {feed.topCountries.map((c) => (
@@ -330,16 +335,12 @@ export const SatellitesList: React.FC<{
         loadingHint="Download dei TLE da CelesTrak: il primo caricamento di un gruppo può richiedere fino a 25 s."
       />
       {feed && feed.total > 0 && (
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          <div className="rounded-lg border border-[var(--hub-line)] p-2.5">
-            <div className="hub-label">Nel gruppo</div>
-            <div className="font-hud text-lg font-semibold">{feed.total.toLocaleString('it-IT')}</div>
-          </div>
-          <div className="rounded-lg border border-[var(--hub-line)] p-2.5">
-            <div className="hub-label">Sul globo</div>
-            <div className="font-hud text-lg font-semibold">{states.length.toLocaleString('it-IT')}</div>
-          </div>
-        </div>
+        <Stats
+          items={[
+            { label: 'Nel gruppo', value: feed.total.toLocaleString('it-IT') },
+            { label: 'Sul globo', value: states.length.toLocaleString('it-IT') },
+          ]}
+        />
       )}
       <label className="flex items-center gap-2 h-9 px-3 mb-2 rounded-lg border border-[var(--hub-line)] bg-[var(--hub-panel)] focus-within:border-[var(--hub-line-strong)]">
         <Search className="w-4 h-4 text-[var(--hub-dim)] shrink-0" />

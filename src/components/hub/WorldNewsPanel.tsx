@@ -3,7 +3,6 @@ import { ArrowUpRight, Globe2, X } from 'lucide-react';
 import type { GeoAreaNews, GeoNewsItem, GeoRegion } from '../../services/hubApi';
 import { GEO_REGION_META } from '../../services/hubApi';
 import { timeAgo } from '../../services/newsApi';
-import { PanelHeader } from './HubWidgets';
 
 interface WorldNewsPanelProps {
   areas: GeoAreaNews[];
@@ -36,18 +35,18 @@ export const WorldNewsPanel: React.FC<WorldNewsPanelProps> = ({ areas, region, s
 
   return (
     <section className="flex flex-col min-w-0" aria-label="Notizie dal mondo">
-      <PanelHeader
-        code={selectedArea ? `${GEO_REGION_META[selectedArea.region].label}` : 'Feed geolocalizzato'}
-        title={selectedArea ? selectedArea.name : `Notizie · ${GEO_REGION_META[region].label}`}
-        icon={<Globe2 className="w-4 h-4" style={{ color: accent }} />}
-        right={
-          selectedArea && (
-            <button type="button" className="hub-icon-btn !h-8 !min-w-8 !p-0" onClick={onClearArea} aria-label="Torna a tutte le notizie">
-              <X className="w-4 h-4" />
-            </button>
-          )
-        }
-      />
+      {/* The window and tab already say "Dal mondo"; a header is only needed to leave an area. */}
+      {selectedArea && (
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <h3 className="font-display text-base flex items-center gap-2 min-w-0">
+            <Globe2 className="w-4 h-4 shrink-0" style={{ color: accent }} />
+            <span className="truncate">{selectedArea.name}</span>
+          </h3>
+          <button type="button" className="hub-icon-btn !h-8 text-xs shrink-0" onClick={onClearArea}>
+            <X className="w-3.5 h-3.5" /> Tutte le aree
+          </button>
+        </div>
+      )}
 
       {error && items.length === 0 && <div className="text-sm text-[var(--hub-red)] py-4">{error}</div>}
 
@@ -63,14 +62,14 @@ export const WorldNewsPanel: React.FC<WorldNewsPanelProps> = ({ areas, region, s
           return (
             <li key={`${item.areaId}-${item.id}`}>
               <div className="hub-row group rounded-lg px-2 py-2 flex gap-2.5">
-                <span className="w-0.5 self-stretch rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+                <span className="w-0.5 self-stretch rounded-full shrink-0" style={{ background: color }} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 text-xs text-[var(--hub-dim)] mb-0.5">
                     {!selectedArea && area && (
                       <button
                         type="button"
                         onClick={() => onSelectArea(area.id)}
-                        className="font-hud font-bold tracking-[0.12em] uppercase hover:underline"
+                        className="font-semibold hover:underline"
                         style={{ color }}
                         title={`Mostra ${area.name} sul globo`}
                       >

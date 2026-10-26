@@ -30,16 +30,3 @@ export const Sparkline: React.FC<{ values: number[]; width?: number; height?: nu
     </svg>
   );
 };
-
-export const PanelHeader: React.FC<{ code: string; title: string; icon: React.ReactNode; right?: React.ReactNode }> = ({ code, title, icon, right }) => (
-  <div className="flex items-center justify-between gap-3 mb-3">
-    <div className="min-w-0">
-      <div className="hub-label">{code}</div>
-      <h3 className="font-display text-base font-bold uppercase flex items-center gap-2 mt-0.5">
-        {icon}
-        <span className="truncate">{title}</span>
-      </h3>
-    </div>
-    {right}
-  </div>
-);

@@ -30,7 +30,7 @@ export const CryptoDeck: React.FC = () => {
       <div className="flex flex-col gap-4">
         {/* Headline BTC */}
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-12 h-12 rounded-2xl grid place-items-center shrink-0 bg-[#f7931a]/15 border border-[#f7931a]/40 shadow-[0_0_24px_-6px_#f7931a]">
+          <div className="w-12 h-12 rounded-2xl grid place-items-center shrink-0 bg-[#f7931a]/15 border border-[#f7931a]/40">
             <Bitcoin className="w-7 h-7 text-[#f7931a]" />
           </div>
           <div className="min-w-0">
@@ -70,7 +70,7 @@ export const CryptoDeck: React.FC = () => {
             const q = quotes[id];
             const meta = PAIR_META[id];
             return (
-              <div key={id} className="rounded-xl border border-[var(--hub-line)] px-3 py-2.5 flex items-center justify-between gap-2 min-w-0">
+              <div key={id} className="border-t border-[var(--hub-line)] pt-3 flex items-center justify-between gap-2 min-w-0">
                 <div className="min-w-0">
                   <div className="hub-label">{meta.symbol}</div>
                   {q ? (
