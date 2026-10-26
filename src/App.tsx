@@ -12,7 +12,7 @@ import {
 import { useHashRoute, useAndroidBackButton } from './hooks/useHashRoute';
 import { usePersonalAlerts } from './hooks/usePersonalAlerts';
 import { AppTopNav, AppBottomNav } from './components/AppNav';
-import { DEFAULT_LOCATION, fetchWeatherData } from './services/weatherApi';
+import { DEFAULT_LOCATION, fetchWeatherData, reverseGeocode } from './services/weatherApi';
 import { playHumidityAlertSound, playLightningAlertSound, triggerVibration } from './services/audioAlerts';
 import { Navbar } from './components/Navbar';
 import { CitySearch } from './components/CitySearch';
@@ -229,11 +229,14 @@ export default function App() {
     setIsGpsLoading(true);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const place = await reverseGeocode(latitude, longitude);
         const loc: LocationInfo = {
-          name: 'La Mia Posizione GPS',
-          country: 'Coordinate Rilevate',
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
+          name: place?.name ?? 'La Mia Posizione GPS',
+          country: place?.country || 'Coordinate Rilevate',
+          admin1: place?.admin1,
+          latitude,
+          longitude,
         };
         setCurrentLocation(loc);
         setIsGpsLoading(false);
@@ -398,7 +401,7 @@ export default function App() {
     setIsAiLoading(true);
 
     try {
-      const res = await fetch('/api/weather/predict-changes', {
+      const res = await fetch(`${(import.meta as any).env?.VITE_API_BASE ?? ''}/api/weather/predict-changes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

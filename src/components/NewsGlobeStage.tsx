@@ -118,7 +118,10 @@ const LOCAL_LEVEL_COLOR: Record<WeatherAlertInfo['level'], string> = {
   red: '#ef4444',
 };
 
-const REFRESH = { quakes: 90_000, flights: 60_000, disasters: 5 * 60_000 };
+const REFRESH = { quakes: 90_000, flights: 60_000, areaFlights: 20_000, disasters: 5 * 60_000 };
+// From this zoom (view ~2000 km across) the globe also loads every aircraft around
+// its centre; the global feed alone is a 300-plane sample with little local traffic.
+const AREA_FLIGHTS_MIN_ZOOM = 6;
 const ISS_COLOR = '#facc15';
 const TRACK_REFRESH_MS = 60_000;
 const TRACKED_FLIGHT_COLOR = '#ffffff';
@@ -330,6 +333,24 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   // Only poll a source while its layer is shown or its window is open.
   const quakes = usePolledJson<FeedResponse<Earthquake>>(WORLD_ENDPOINTS.earthquakes, REFRESH.quakes, layers.quakes || open.quakes);
   const flights = usePolledJson<FlightsResponse>(WORLD_ENDPOINTS.flights, REFRESH.flights, layers.flights || open.flights);
+  // Only the derived URL is state, so the auto-rotating globe re-renders the
+  // stage just when the area to load actually changes.
+  const [areaUrl, setAreaUrl] = useState<string | null>(null);
+  const onGlobeView = useCallback(({ lat, lon, zoom }: { lat: number; lon: number; zoom: number }) => {
+    if (zoom < AREA_FLIGHTS_MIN_ZOOM) return setAreaUrl(null);
+    // Visible half-width in NM, rounded up to a power of two (max 250, the adsb.fi
+    // limit) and the centre snapped to a quarter of it, so small moves do not refetch.
+    const radius = Math.min(250, 2 ** Math.ceil(Math.log2((1.12 * 3440) / zoom)));
+    const step = Math.max(0.05, radius / 240);
+    const snap = (v: number) => (Math.round(v / step) * step).toFixed(2);
+    setAreaUrl(WORLD_ENDPOINTS.flightsArea(snap(lat), snap(lon), radius));
+  }, []);
+  const areaFlights = usePolledJson<FlightsResponse>(areaUrl ?? '', REFRESH.areaFlights, !!areaUrl && (layers.flights || open.flights));
+  const flightItems = useMemo(() => {
+    const byId = new Map((flights.data?.items ?? []).map((f) => [f.id, f]));
+    if (areaUrl) for (const f of areaFlights.data?.items ?? []) byId.set(f.id, f);
+    return [...byId.values()];
+  }, [flights.data, areaFlights.data, areaUrl]);
   const disasters = usePolledJson<FeedResponse<Disaster>>(WORLD_ENDPOINTS.disasters, REFRESH.disasters, layers.alerts || open.alerts);
   const sats = useSatellites(satGroup, layers.satellites || open.satellites);
   const geo = usePolledResource(fetchGeoNews, GEO_NEWS_REFRESH_MS);
@@ -361,7 +382,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     }
     if (layers.flights) {
       const q = flightQuery.trim().toUpperCase();
-      for (const f of flights.data?.items ?? []) {
+      for (const f of flightItems) {
         if (trackedId === `f:${f.id}`) continue; // drawn live below
         const altFt = (f.altitudeM ?? 0) / 0.3048;
         if (altBands.length && !altBands.includes(altBandOf(altFt))) continue;
@@ -451,7 +472,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       });
     }
     return out;
-  }, [layers, areas, flights.data, altBands, flightQuery, quakes.data, disasters.data, strikes, alerts, location, selectedFlight, tracker.position, tracker.flight, trackedId]);
+  }, [layers, areas, flightItems, altBands, flightQuery, quakes.data, disasters.data, strikes, alerts, location, selectedFlight, tracker.position, tracker.flight, trackedId]);
 
   /* ---------- Satellites (re-propagated every second) ---------- */
   const orbitals = useMemo<GlobeMarker[]>(() => {
@@ -522,7 +543,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     }
   }, [following]);
 
-  const sampleById = useMemo(() => new Map((flights.data?.items ?? []).map((f) => [f.id, f])), [flights.data]);
+  const sampleById = useMemo(() => new Map(flightItems.map((f) => [f.id, f])), [flightItems]);
 
   const onMarkerSelect = useCallback(
     (m: GlobeMarker) => {
@@ -743,6 +764,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         followKey={following && selectedFlight ? selectedFlight.icao24 : null}
         highlightId={highlightId}
         onMarkerSelect={onMarkerSelect}
+        onViewChange={onGlobeView}
         onEmptyClick={() => {
           if (cardOpen) closeCard();
           if (isMobile) setOpen(CLOSED);

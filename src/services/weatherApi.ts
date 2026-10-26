@@ -113,6 +113,27 @@ export async function searchLocations(query: string): Promise<LocationInfo[]> {
   }
 }
 
+/**
+ * GPS coordinates → place name (neighbourhood or town, then city / region).
+ * Open-Meteo has no reverse geocoding; BigDataCloud's client endpoint is free,
+ * keyless and meant for browser use. Returns null when it cannot answer.
+ */
+export async function reverseGeocode(lat: number, lon: number): Promise<{ name: string; admin1: string; country: string } | null> {
+  try {
+    const res = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=it`
+    );
+    if (!res.ok) return null;
+    const d = await res.json();
+    const name = d.locality || d.city;
+    if (!name) return null;
+    const city = d.city && d.city !== name ? d.city : '';
+    return { name, admin1: city || d.principalSubdivision || '', country: d.countryName || '' };
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchAirQualityData(lat: number, lon: number): Promise<AirQualityData | undefined> {
   try {
     const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,uv_index`;
