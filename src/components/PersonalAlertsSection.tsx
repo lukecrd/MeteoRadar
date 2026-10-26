@@ -136,6 +136,7 @@ export const PersonalAlertsSection: React.FC<Props> = ({ alerts, currentLocation
         </div>
 
         <ChipRow label="Pioggia oltre" value={r.rainMmH} options={[2, 5, 10]} format={(v) => `${v} mm/h`} onChange={(v) => set({ rainMmH: v })} />
+        <ChipRow label="Pioggia in arrivo entro" value={r.rainSoonMin} options={[30, 60, 120]} format={(v) => (v < 60 ? `${v} min` : `${v / 60} h`)} onChange={(v) => set({ rainSoonMin: v })} />
         <ChipRow label="Raffiche oltre" value={r.gustKmh} options={[50, 60, 80]} format={(v) => `${v} km/h`} onChange={(v) => set({ gustKmh: v })} />
         <ChipRow label="Temperatura oltre" value={r.heatC} options={[33, 35, 38]} format={(v) => `${v} °C`} onChange={(v) => set({ heatC: v })} />
         <ChipRow label="Terremoti di magnitudo almeno" value={r.quakeMinMag} options={[2.5, 3, 4]} format={(v) => `M${String(v).replace('.', ',')}`} onChange={(v) => set({ quakeMinMag: v })} />

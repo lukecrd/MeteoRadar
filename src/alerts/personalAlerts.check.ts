@@ -1,9 +1,9 @@
 /** Self-check for the personal-alert rules: `npm run check:alerts`. */
 import assert from 'node:assert/strict';
-import { AlertPlace, AlertRules, ForecastHour, distanceKm, evaluateForecast, evaluateQuakes, filterNew, noticeId } from './personalAlerts';
+import { AlertPlace, AlertRules, ForecastHour, distanceKm, evaluateForecast, evaluateQuakes, evaluateRainSoon, filterNew, noticeId } from './personalAlerts';
 
 const roma: AlertPlace = { id: '41.90,12.50', name: 'Roma', lat: 41.9, lon: 12.5 };
-const rules: AlertRules = { rainMmH: 5, gustKmh: 60, heatC: 35, storms: true, quakeMinMag: 3, quakeRadiusKm: 100 };
+const rules: AlertRules = { rainMmH: 5, rainSoonMin: 60, gustKmh: 60, heatC: 35, storms: true, quakeMinMag: 3, quakeRadiusKm: 100 };
 const hour = (time: string, p: Partial<ForecastHour> = {}): ForecastHour => ({ time, precipitationMm: 0, gustKmh: 10, temperatureC: 20, weatherCode: 1, ...p });
 
 // Calm forecast: nothing.
@@ -35,6 +35,16 @@ const quakes = [
 const q = evaluateQuakes(roma, rules, quakes, now);
 assert.deepEqual(q.map((x) => x.key), ['quake:near:41.90,12.50']);
 assert.match(q[0].title, /M3\.4 a 43 km da Roma/);
+
+// Rain soon: dry now, rain in 45 min → one notice; already raining or too far ahead → none.
+const slot = (min: number, mm: number) => ({ startMs: now + min * 60_000, precipitationMm: mm });
+const soon = evaluateRainSoon(roma, rules, [slot(-5, 0), slot(10, 0), slot(25, 0.1), slot(40, 0.6), slot(55, 1)], now);
+assert.equal(soon.length, 1);
+assert.match(soon[0].title, /tra circa 40 minuti a Roma/);
+assert.match(soon[0].body, /2,4 mm\/h/);
+assert.equal(evaluateRainSoon(roma, rules, [slot(-5, 0.5), slot(10, 1)], now).length, 0);
+assert.equal(evaluateRainSoon(roma, rules, [slot(-5, 0), slot(100, 1)], now).length, 0);
+assert.equal(evaluateRainSoon(roma, { ...rules, rainSoonMin: 0 }, [slot(-5, 0), slot(10, 1)], now).length, 0);
 
 // Distance sanity: Roma–Milano ≈ 477 km.
 assert.ok(Math.abs(distanceKm(41.9, 12.5, 45.46, 9.19) - 477) < 5);

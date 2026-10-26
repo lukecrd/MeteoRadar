@@ -22,6 +22,7 @@ import { WindCompassMap } from './components/WindCompassMap';
 import { LightningMonitor } from './components/LightningMonitor';
 import { ForecastCharts } from './components/ForecastCharts';
 import { ForecastFiveDays } from './components/ForecastFiveDays';
+import { OverheadCard } from './components/OverheadCard';
 import { EnvironmentalUvCard } from './components/EnvironmentalUvCard';
 import { AiForecastModal } from './components/AiForecastModal';
 import { SettingsModal } from './components/SettingsModal';
@@ -673,6 +674,10 @@ export default function App() {
                   spikeThreshold={settings.humiditySpikeThreshold}
                 />
               </div>
+            </section>
+
+            <section id="sec-sopra" aria-label="Aerei e ISS sopra di te" className="hub-module scroll-mt-40">
+              <OverheadCard location={weatherData.location} />
             </section>
 
             {/* Lightning monitor has no real feed yet: shown only as a developer/demo tool */}

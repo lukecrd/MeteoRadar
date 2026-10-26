@@ -16,6 +16,8 @@ export interface AlertPlace {
 export interface AlertRules {
   /** Rain in any of the next hours, mm/h. 0 = off. */
   rainMmH: number;
+  /** Rain starting within this many minutes while it is dry now. 0 = off. */
+  rainSoonMin: number;
   /** Wind gusts in any of the next hours, km/h. 0 = off. */
   gustKmh: number;
   /** Air temperature in any of the next hours, °C. 0 = off. */
@@ -49,6 +51,12 @@ export interface ForecastHour {
   weatherCode: number;
 }
 
+/** One 15-minute slot of Open-Meteo's short-range forecast. */
+export interface RainSlot {
+  startMs: number;
+  precipitationMm: number;
+}
+
 export interface QuakeEvent {
   id: string;
   mag: number;
@@ -61,11 +69,15 @@ export interface QuakeEvent {
 export const DEFAULT_ALERT_CONFIG: AlertConfig = {
   enabled: false,
   places: [],
-  rules: { rainMmH: 5, gustKmh: 60, heatC: 35, storms: true, quakeMinMag: 3, quakeRadiusKm: 100 },
+  rules: { rainMmH: 5, rainSoonMin: 60, gustKmh: 60, heatC: 35, storms: true, quakeMinMag: 3, quakeRadiusKm: 100 },
 };
 
 /** Hours of forecast each check looks at. */
 export const LOOKAHEAD_HOURS = 6;
+/** 15-minute slots fetched for "rain soon" (2 h, the longest option). */
+const RAIN_SOON_SLOTS = 8;
+/** mm in 15 min that count as rain (≈ 0.8 mm/h, light rain). */
+const RAIN_SOON_MM = 0.2;
 /** Earthquakes older than this are ignored. */
 const QUAKE_WINDOW_MS = 3 * 60 * 60 * 1000;
 /** Remembered notice keys expire after this, so the "seen" list stays small. */
@@ -151,6 +163,28 @@ export function evaluateForecast(place: AlertPlace, rules: AlertRules, hours: Fo
   return out;
 }
 
+/**
+ * "Rain soon" rule: dry in the current slot, rain within `rainSoonMin`.
+ * Keyed per 3-hour block so a start time that drifts by a slot between
+ * checks does not notify again.
+ */
+export function evaluateRainSoon(place: AlertPlace, rules: AlertRules, slots: RainSlot[], now: number): AlertNotice[] {
+  if (!(rules.rainSoonMin > 0) || slots.length === 0) return [];
+  const current = slots.find((s) => s.startMs <= now && now < s.startMs + 15 * 60_000) ?? slots[0];
+  if (current.precipitationMm >= RAIN_SOON_MM) return [];
+  const hit = slots.find((s) => s.startMs > now && s.startMs - now <= rules.rainSoonMin * 60_000 && s.precipitationMm >= RAIN_SOON_MM);
+  if (!hit) return [];
+  const minutes = Math.max(5, Math.round((hit.startMs - now) / (5 * 60_000)) * 5);
+  const block = Math.floor(hit.startMs / (3 * 60 * 60_000));
+  return [
+    {
+      key: `rainsoon:${place.id}:${block}`,
+      title: `Pioggia tra circa ${minutes} minuti a ${place.name}`,
+      body: `Inizio previsto verso le ${clockIt(hit.startMs)} (${(hit.precipitationMm * 4).toFixed(1).replace('.', ',')} mm/h).`,
+    },
+  ];
+}
+
 /** Earthquake rule for one place: each quake notifies once per place. */
 export function evaluateQuakes(place: AlertPlace, rules: AlertRules, quakes: QuakeEvent[], now: number): AlertNotice[] {
   if (rules.quakeMinMag <= 0) return [];
@@ -188,21 +222,32 @@ export function filterNew(
 
 /* ---------------- Data sources (public, no API key) ---------------- */
 
-export async function fetchForecastHours(place: AlertPlace): Promise<ForecastHour[]> {
+export async function fetchForecast(place: AlertPlace): Promise<{ hours: ForecastHour[]; slots: RainSlot[] }> {
+  // minutely_15 is real 15-min data over central Europe, interpolated hourly data elsewhere.
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${place.lat}&longitude=${place.lon}` +
-    `&hourly=precipitation,wind_gusts_10m,temperature_2m,weather_code&forecast_hours=${LOOKAHEAD_HOURS}&timezone=auto`;
+    `&hourly=precipitation,wind_gusts_10m,temperature_2m,weather_code&forecast_hours=${LOOKAHEAD_HOURS}&timezone=auto` +
+    `&minutely_15=precipitation&past_minutely_15=1&forecast_minutely_15=${RAIN_SOON_SLOTS}`;
   const res = await fetch(url);
   if (!isOk(res)) throw new Error(`Open-Meteo ${res.status}`);
   const j = await res.json();
   const h = j.hourly ?? {};
-  return (h.time ?? []).map((time: string, i: number) => ({
-    time,
-    precipitationMm: Number(h.precipitation?.[i] ?? 0),
-    gustKmh: Number(h.wind_gusts_10m?.[i] ?? 0),
-    temperatureC: Number(h.temperature_2m?.[i] ?? 0),
-    weatherCode: Number(h.weather_code?.[i] ?? 0),
-  }));
+  const m = j.minutely_15 ?? {};
+  // Times are local to the place; the offset turns them back into epoch ms.
+  const offsetMs = Number(j.utc_offset_seconds ?? 0) * 1000;
+  return {
+    hours: (h.time ?? []).map((time: string, i: number) => ({
+      time,
+      precipitationMm: Number(h.precipitation?.[i] ?? 0),
+      gustKmh: Number(h.wind_gusts_10m?.[i] ?? 0),
+      temperatureC: Number(h.temperature_2m?.[i] ?? 0),
+      weatherCode: Number(h.weather_code?.[i] ?? 0),
+    })),
+    slots: (m.time ?? []).map((time: string, i: number) => ({
+      startMs: Date.parse(`${time}:00Z`) - offsetMs,
+      precipitationMm: Number(m.precipitation?.[i] ?? 0),
+    })),
+  };
 }
 
 // shortcut: INGV for places inside a box around Italy, USGS elsewhere; a quake
@@ -242,12 +287,13 @@ export async function runAlertChecks(
   if (!config.enabled || config.places.length === 0) return { fresh: [], seen, errors: [] };
   const notices: AlertNotice[] = [];
   const errors: string[] = [];
-  const forecastOn = config.rules.rainMmH > 0 || config.rules.gustKmh > 0 || config.rules.heatC > 0 || config.rules.storms;
+  const forecastOn = config.rules.rainMmH > 0 || config.rules.rainSoonMin > 0 || config.rules.gustKmh > 0 || config.rules.heatC > 0 || config.rules.storms;
   await Promise.all(
     config.places.map(async (place) => {
       if (forecastOn) {
         try {
-          notices.push(...evaluateForecast(place, config.rules, await fetchForecastHours(place)));
+          const { hours, slots } = await fetchForecast(place);
+          notices.push(...evaluateForecast(place, config.rules, hours), ...evaluateRainSoon(place, config.rules, slots, now));
         } catch (e) {
           errors.push(`${place.name}: ${(e as Error).message}`);
         }
