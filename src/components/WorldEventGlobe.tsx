@@ -58,6 +58,8 @@ interface WorldEventGlobeProps {
   followKey?: string | null;
   highlightId: string | null;
   onMarkerSelect?: (marker: GlobeMarker) => void;
+  /** Centre and zoom of the view, reported about once a second while it changes */
+  onViewChange?: (view: { lat: number; lon: number; zoom: number }) => void;
   /** Tap / click on the globe that hit no marker */
   onEmptyClick?: () => void;
 }
@@ -74,7 +76,7 @@ const AUTO_ROTATE_SPEED = 0.06; // rad/s
 const IDLE_BEFORE_AUTOROTATE_MS = 5000;
 const MAX_TILT = 1.3;
 export const MIN_ZOOM = 0.55; // < 1 so high orbits (GPS/GEO) can be framed
-export const MAX_ZOOM = 8;
+export const MAX_ZOOM = 256; // ~55 km across: city-level view for local traffic
 const FOCUS_ZOOM = 1.8;
 const FOLLOW_ZOOM = 3;
 const FOLLOW_PAUSE_MS = 4000;
@@ -290,6 +292,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
   highlightId,
   onMarkerSelect,
   onEmptyClick,
+  onViewChange,
 }) => {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const tipRef = useRef<HTMLDivElement | null>(null);
@@ -301,6 +304,8 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
   followRef.current = follow;
   const onEmptyRef = useRef(onEmptyClick);
   onEmptyRef.current = onEmptyClick;
+  const onViewRef = useRef(onViewChange);
+  onViewRef.current = onViewChange;
   const highlightRef = useRef<GlobeMarker | null>(null);
   const tipMarkerRef = useRef<GlobeMarker | null>(null);
   const onSelectRef = useRef(onMarkerSelect);
@@ -353,6 +358,16 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     };
     updateSun();
     const sunTimer = setInterval(updateSun, 60_000);
+    let lastView = "";
+    const viewTimer = setInterval(() => {
+      const r = view.current;
+      const v = { lat: r.x / D2R, lon: ((((-r.y / D2R + 180) % 360) + 360) % 360) - 180, zoom: r.zoom };
+      const key = `${v.lat.toFixed(2)},${v.lon.toFixed(2)},${v.zoom.toFixed(1)}`;
+      if (key !== lastView) {
+        lastView = key;
+        onViewRef.current?.(v);
+      }
+    }, 1000);
     const bodyMat = new THREE.ShaderMaterial({
       vertexShader: BODY_VERTEX,
       fragmentShader: BODY_FRAGMENT,
@@ -590,7 +605,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
         camera.zoom = r.zoom;
         camera.updateProjectionMatrix();
         applyMarkerScale();
-        if (Math.abs(r.zoom - lastZoomLabel) > 0.05) {
+        if (Math.abs(r.zoom - lastZoomLabel) > Math.max(0.05, lastZoomLabel * 0.02)) {
           lastZoomLabel = r.zoom;
           setZoomLabel(Math.round(r.zoom * 10) / 10);
         }
@@ -637,6 +652,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
       disposed = true;
       cancelAnimationFrame(frameId);
       clearInterval(sunTimer);
+      clearInterval(viewTimer);
       resizeObserver.disconnect();
       host.removeEventListener('wheel', onWheel);
       apiRef.current = null;
@@ -817,17 +833,17 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
 
       {/* Zoom controls */}
       <div className="absolute right-2 bottom-2 z-10 flex flex-col gap-1" role="group" aria-label="Zoom mappamondo">
-        <button type="button" className="hub-icon-btn !h-8 !min-w-8 !px-0" onClick={() => zoomBy(1.4)} aria-label="Ingrandisci" title="Ingrandisci">
+        <button type="button" className="hub-icon-btn !h-8 !min-w-8 !px-0" onClick={() => zoomBy(2)} aria-label="Ingrandisci" title="Ingrandisci">
           <Plus className="w-4 h-4" />
         </button>
-        <button type="button" className="hub-icon-btn !h-8 !min-w-8 !px-0" onClick={() => zoomBy(1 / 1.4)} aria-label="Riduci" title="Riduci">
+        <button type="button" className="hub-icon-btn !h-8 !min-w-8 !px-0" onClick={() => zoomBy(1 / 2)} aria-label="Riduci" title="Riduci">
           <Minus className="w-4 h-4" />
         </button>
         <button type="button" className="hub-icon-btn !h-8 !min-w-8 !px-0" onClick={resetView} aria-label="Ripristina vista" title="Ripristina vista">
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
         <span className="font-hud text-xs text-center text-[var(--hub-dim)] tabular-nums" aria-live="polite">
-          {zoomLabel.toFixed(1)}×
+          {zoomLabel < 10 ? zoomLabel.toFixed(1) : Math.round(zoomLabel)}×
         </span>
       </div>
 

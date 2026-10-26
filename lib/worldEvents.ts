@@ -357,23 +357,86 @@ export const getFlights = cachedFeed<FlightsResponse>(
     // Even stride sample keeps a representative global spread.
     const stride = Math.max(1, airborne.length / MAX_FLIGHTS);
     const items: Flight[] = [];
-    for (let i = 0; i < airborne.length && items.length < MAX_FLIGHTS; i += stride) {
-      const s = airborne[Math.floor(i)];
-      items.push({
-        id: String(s[0]),
-        callsign: String(s[1] || '').trim() || String(s[0]).toUpperCase(),
-        country: String(s[2] || ''),
-        lon: s[5],
-        lat: s[6],
-        altitudeM: s[7] != null ? Math.round(s[7]) : null,
-        speedKmh: s[9] != null ? Math.round(s[9] * 3.6) : null,
-        heading: s[10] != null ? Math.round(s[10]) : null,
-      });
-    }
+    for (let i = 0; i < airborne.length && items.length < MAX_FLIGHTS; i += stride) items.push(stateToFlight(airborne[Math.floor(i)]));
     return { items, totalAirborne: airborne.length, topCountries, source, fetchedAt: Date.now(), stale: false, error: null };
   },
   () => ({ items: [], totalAirborne: 0, topCountries: [], fetchedAt: Date.now(), stale: true, error: null })
 );
+
+function stateToFlight(s: any[]): Flight {
+  return {
+    id: String(s[0]),
+    callsign: String(s[1] || '').trim() || String(s[0]).toUpperCase(),
+    country: String(s[2] || ''),
+    lon: s[5],
+    lat: s[6],
+    altitudeM: s[7] != null ? Math.round(s[7]) : null,
+    speedKmh: s[9] != null ? Math.round(s[9] * 3.6) : null,
+    heading: s[10] != null ? Math.round(s[10]) : null,
+  };
+}
+
+/* Regional view: every airborne aircraft around a point (the global feed is a
+ * 300-plane sample, so local traffic mostly drops out of it). One adsb.fi
+ * point query per area, cached briefly; falls back to filtering the global
+ * snapshot when adsb.fi is unavailable. */
+const AREA_TTL_MS = 20_000;
+const MAX_AREA_FLIGHTS = 800;
+const areaCache = new Map<string, { at: number; value: Promise<FlightsResponse> }>();
+
+function distanceNm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const r = Math.PI / 180;
+  const a = Math.sin(((lat2 - lat1) * r) / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin(((lon2 - lon1) * r) / 2) ** 2;
+  return 3440.065 * 2 * Math.asin(Math.min(1, Math.sqrt(a)));
+}
+
+export function getAreaFlights(lat: number, lon: number, radiusNm: number): Promise<FlightsResponse> {
+  const radius = Math.round(Math.min(ADSB_RADIUS_NM, Math.max(5, radiusNm)));
+  const key = `${lat.toFixed(2)},${lon.toFixed(2)},${radius}`;
+  const hit = areaCache.get(key);
+  if (hit && Date.now() - hit.at < AREA_TTL_MS) return hit.value;
+
+  const value = (async (): Promise<FlightsResponse> => {
+    let states: any[];
+    let source = 'adsb.fi';
+    let error: string | null = null;
+    try {
+      const { json } = await fetchJson(`https://opendata.adsb.fi/api/v2/lat/${lat}/lon/${lon}/dist/${radius}`, {}, 8_000);
+      const now = typeof json.now === 'number' ? json.now : Date.now();
+      const nowSec = now > 1e12 ? now / 1000 : now;
+      states = (json.ac ?? json.aircraft ?? []).map((ac: any) => adsbToState(ac, nowSec)).filter(Boolean);
+    } catch (err: any) {
+      const snap = await getFlightSnapshot();
+      states = snap.states.filter((s) => s[5] != null && s[6] != null && distanceNm(lat, lon, s[6], s[5]) <= radius);
+      source = 'snapshot globale';
+      error = `adsb.fi: ${err?.name === 'AbortError' ? 'timeout' : err?.message || err}`;
+    }
+    const airborne = states.filter((s) => s[5] != null && s[6] != null && s[8] === false);
+    return {
+      items: airborne.slice(0, MAX_AREA_FLIGHTS).map(stateToFlight),
+      totalAirborne: airborne.length,
+      topCountries: [],
+      source,
+      fetchedAt: Date.now(),
+      stale: false,
+      error,
+    };
+  })();
+  if (areaCache.size > 200) areaCache.clear();
+  areaCache.set(key, { at: Date.now(), value });
+  value.catch(() => areaCache.delete(key));
+  return value;
+}
+
+/** Parses ?lat=&lon=&radius= (radius in NM); null when absent or invalid. */
+export function parseAreaQuery(q: any): { lat: number; lon: number; radiusNm: number } | null {
+  if (q?.lat == null || q?.lon == null) return null;
+  const lat = Number(q.lat);
+  const lon = Number(q.lon);
+  const radiusNm = Number(q.radius ?? ADSB_RADIUS_NM);
+  if (![lat, lon, radiusNm].every(Number.isFinite) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return { lat, lon, radiusNm };
+}
 
 /* ---------------- Global disasters (GDACS) ---------------- */
 

@@ -1,4 +1,4 @@
-import { getFlights } from '../../lib/worldEvents.js';
+import { getAreaFlights, getFlights, parseAreaQuery } from '../../lib/worldEvents.js';
 
 // WorldHub globe layer: see lib/worldEvents.ts for source and caching notes.
 export default async function handler(req: any, res: any) {
@@ -10,6 +10,11 @@ export default async function handler(req: any, res: any) {
   }
 
   // Loaders never throw: upstream failures come back as { stale, error }.
+  const area = parseAreaQuery(req.query);
+  if (area) {
+    res.setHeader('Cache-Control', 's-maxage=20, stale-while-revalidate=40');
+    return res.status(200).json(await getAreaFlights(area.lat, area.lon, area.radiusNm));
+  }
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
   return res.status(200).json(await getFlights());
 }

@@ -4,7 +4,7 @@ import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { getNews, isNewsCategory } from './lib/news';
-import { getDisasters, getEarthquakes, getFlights, getSatellites, isSatelliteGroup } from './lib/worldEvents';
+import { getDisasters, getEarthquakes, getAreaFlights, getFlights, getSatellites, parseAreaQuery, isSatelliteGroup } from './lib/worldEvents';
 import { getFlightInfo, getFlightLive, searchFlights } from './lib/flightTracker';
 import { getGeoNews } from './lib/geonews';
 import { getMarkets } from './lib/markets';
@@ -57,8 +57,9 @@ app.get('/api/earthquakes', async (req, res) => {
   res.json(await getEarthquakes());
 });
 app.get('/api/flights', async (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=60');
-  res.json(await getFlights());
+  const area = parseAreaQuery(req.query);
+  res.setHeader('Cache-Control', `public, max-age=${area ? 20 : 60}`);
+  res.json(area ? await getAreaFlights(area.lat, area.lon, area.radiusNm) : await getFlights());
 });
 // Single-flight features: search by number, live state ("Segui volo"),
 // route / aircraft enrichment. See lib/flightTracker.ts.
