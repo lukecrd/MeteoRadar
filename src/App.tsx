@@ -10,6 +10,7 @@ import {
   MeteoSection
 } from './types';
 import { useHashRoute, useAndroidBackButton } from './hooks/useHashRoute';
+import { usePersonalAlerts } from './hooks/usePersonalAlerts';
 import { AppTopNav, AppBottomNav } from './components/AppNav';
 import { DEFAULT_LOCATION, fetchWeatherData } from './services/weatherApi';
 import { playHumidityAlertSound, playLightningAlertSound, triggerVibration } from './services/audioAlerts';
@@ -119,6 +120,11 @@ export default function App() {
   const [aiReport, setAiReport] = useState<AiPredictionReport | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [testToastMessage, setTestToastMessage] = useState<string | null>(null);
+  // Personal alerts for saved places; on the web, notices without notification permission show as a toast.
+  const personalAlerts = usePersonalAlerts((n) => {
+    setTestToastMessage(`${n.title}. ${n.body}`);
+    setTimeout(() => setTestToastMessage(null), 8000);
+  });
 
   // Lightning Alert Dismissal & Snooze State
   const [isLightningAlertDismissed, setIsLightningAlertDismissed] = useState(false);
@@ -753,6 +759,8 @@ export default function App() {
           setTimeout(() => setTestToastMessage(null), 5000);
         }}
         isDark={isDark}
+        personalAlerts={personalAlerts}
+        currentLocation={currentLocation}
       />
 
       {/* Developer tools: Android export & Vercel deploy */}

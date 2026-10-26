@@ -1,6 +1,8 @@
 import React from 'react';
 import { X, Bell, Sliders, Volume2, VolumeX, Smartphone, Zap, Droplets, Wind, ShieldAlert, Check } from 'lucide-react';
-import { NotificationSettings } from '../types';
+import { LocationInfo, NotificationSettings } from '../types';
+import { PersonalAlertsSection } from './PersonalAlertsSection';
+import type { PersonalAlerts } from '../hooks/usePersonalAlerts';
 import { playTestChime, triggerVibration } from '../services/audioAlerts';
 
 interface SettingsModalProps {
@@ -10,6 +12,8 @@ interface SettingsModalProps {
   onUpdateSettings: (newSettings: Partial<NotificationSettings>) => void;
   onTestNotification: () => void;
   isDark: boolean;
+  personalAlerts: PersonalAlerts;
+  currentLocation: LocationInfo;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -18,7 +22,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   onUpdateSettings,
   onTestNotification,
-  isDark
+  isDark,
+  personalAlerts,
+  currentLocation
 }) => {
   if (!isOpen) return null;
 
@@ -79,6 +85,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         <div className="space-y-6">
+          <PersonalAlertsSection alerts={personalAlerts} currentLocation={currentLocation} isDark={isDark} />
+
           {/* Audio & Alert Feedback */}
           <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/40 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
             <h3 className="text-xs font-bold text-teal-400 mb-3 flex items-center gap-2">
