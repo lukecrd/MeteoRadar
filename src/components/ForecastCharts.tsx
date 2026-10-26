@@ -397,7 +397,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                   <dominantPhenomenon.icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                  <div className="text-xs font-bold text-slate-400 dark:text-slate-300">
                     Fenomeno Prevalente 24h
                   </div>
                   <div className="text-sm font-bold text-slate-900 dark:text-white">
@@ -419,7 +419,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 <CloudRain className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                <div className="text-xs font-bold text-slate-400 dark:text-slate-300">
                   Finestra Precipitazioni
                 </div>
                 <div className="text-sm font-bold text-slate-900 dark:text-white">
@@ -440,7 +440,7 @@ export const ForecastCharts: React.FC<ForecastChartsProps> = ({ hourly, daily, i
                 <Zap className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-xs uppercase font-bold text-slate-400 dark:text-slate-300 tracking-wider">
+                <div className="text-xs font-bold text-slate-400 dark:text-slate-300">
                   Attività Convettiva CAPE
                 </div>
                 <div className="text-sm font-bold text-slate-900 dark:text-white">

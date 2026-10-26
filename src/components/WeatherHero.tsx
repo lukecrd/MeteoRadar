@@ -117,28 +117,17 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
   return (
     <div
       id="weather-hero-card"
-      className={`rounded-3xl p-6 sm:p-8 transition-all duration-300 relative overflow-hidden border hud-panel-border ${
+      className={`rounded-3xl p-6 sm:p-8 transition-all duration-300 relative overflow-hidden border ${
         isDark
           ? 'bg-slate-900/80 backdrop-blur-xl border-white/10 text-slate-100 shadow-2xl shadow-black/50'
           : 'bg-white/95 backdrop-blur-xl border-slate-200 text-slate-900 shadow-xl shadow-slate-200/60'
       }`}
     >
 
-      {/* HUD targeting reticle + slow scan sweep — the instrument-panel signature */}
-      {isDark && (
-        <>
-          <div className="hud-corners">
-            <span /><span /><span /><span />
-          </div>
-          <div className="hud-scanline" />
-        </>
-      )}
-
       {/* Top Header: Location, Badges & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6 relative z-10 border-b border-slate-200/80 dark:border-slate-800/80 pb-4">
         <div className="flex items-center gap-3">
           <div className="relative p-2.5 rounded-2xl bg-teal-500/15 text-teal-400 border border-teal-500/30 shadow-inner">
-            {isDark && <span className="hud-pulse-ring" />}
             <MapPin className="w-5 h-5 relative" />
           </div>
           <div>
@@ -170,7 +159,7 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
               e.preventDefault();
               onOpenAiReport();
             }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 hover:from-teal-400 hover:to-cyan-400 text-white shadow-lg shadow-teal-500/25 transition-transform active:scale-95"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-600 text-white dark:text-slate-950 transition-transform active:scale-95"
             title="Diagnostica previsionale AI avanzata Gemini"
           >
             <Sparkles className="w-4 h-4" aria-hidden="true" />
@@ -339,7 +328,7 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
       {hourly.length > 0 && (
         <div className="mt-6 pt-5 border-t border-slate-200/80 dark:border-slate-800/80 relative z-10">
           <div className="flex items-center justify-between gap-2 mb-3">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
               <Clock className="w-4 h-4 text-cyan-400" />
               <span>Previsione Oraria Dettagliata (Prossime 24 Ore)</span>
             </div>

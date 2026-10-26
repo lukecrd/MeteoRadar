@@ -67,7 +67,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
               <Bell className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider">Test Notifica Sistema</div>
+              <div className="text-xs font-bold">Test Notifica Sistema</div>
               <div className="text-sm font-medium">{testToastMessage}</div>
             </div>
           </div>
@@ -132,7 +132,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                     <Droplets className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                    <div className="text-xs font-bold text-rose-400 flex items-center gap-1.5">
                       <span>Avviso Sensore Igrometrico</span>
                       <span className="px-1.5 py-0.2 rounded bg-rose-500 text-white text-xs font-bold">
                         CRITICO
@@ -220,7 +220,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                   <span className="text-xs font-bold tracking-tight flex items-center gap-1.5">
                     <span>Allerta Lampi: {closestStrike.distanceKm} km</span>
                     <span
-                      className={`px-1.5 py-0.2 rounded text-xs font-bold uppercase text-slate-950 ${
+                      className={`px-1.5 py-0.2 rounded text-xs font-bold text-slate-950 ${
                         closestStrike.distanceKm <= 5 ? 'bg-rose-400' : 'bg-amber-400'
                       }`}
                     >
@@ -274,7 +274,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
                     <Zap className="w-5 h-5 fill-current animate-bounce" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <div className="text-xs font-bold flex items-center gap-1.5">
                       <span>Allerta Radar Lampi</span>
                       <span
                         className={`px-2 py-0.5 rounded-full text-slate-950 text-xs font-bold ${

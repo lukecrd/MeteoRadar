@@ -141,7 +141,7 @@ export const ForecastFiveDays: React.FC<ForecastFiveDaysProps> = ({
               {/* Day & Date Header */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-xs font-bold uppercase tracking-wider capitalize ${
+                  <span className={`text-xs font-bold capitalize ${
                     isSelected ? 'text-teal-400 dark:text-teal-300' : 'text-slate-700 dark:text-slate-200'
                   }`}>
                     {dayName}

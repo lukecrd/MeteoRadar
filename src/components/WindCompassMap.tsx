@@ -239,7 +239,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
             {/* Outer Ring with Degrees & Cardinal Points */}
             <div className="on-dark absolute inset-0 rounded-full border-2 border-teal-500/40 bg-slate-900/60 backdrop-blur-md shadow-2xl flex items-center justify-center">
               {/* Cardinal Labels */}
-              <span className="absolute top-2 font-bold text-rose-500 text-xs tracking-wider">N</span>
+              <span className="absolute top-2 font-bold text-rose-500 text-xs">N</span>
               <span className="absolute right-2.5 font-bold text-slate-300 text-xs">E</span>
               <span className="absolute bottom-2 font-bold text-slate-300 text-xs">S</span>
               <span className="absolute left-2.5 font-bold text-slate-300 text-xs">W</span>
@@ -267,7 +267,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
               {/* Center Hub */}
               <div className="w-16 h-16 rounded-full bg-slate-800/90 border border-teal-400/30 flex flex-col items-center justify-center z-20 shadow-inner">
                 <span className="text-sm font-bold text-teal-400">{windDirection}°</span>
-                <span className="text-xs font-bold text-slate-400 uppercase">Gradi</span>
+                <span className="text-xs font-bold text-slate-400">Gradi</span>
               </div>
 
               {/* Wind Vector Pointer Arrow */}
@@ -291,7 +291,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
         <div className="lg:col-span-5 flex flex-col gap-3">
           {/* Main Direction Box */}
           <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'}`}>
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center justify-between">
+            <div className="text-xs font-bold text-slate-500 dark:text-slate-300 flex items-center justify-between">
               <span>Direzione Vento (Rosa Nautica)</span>
               <span className="text-teal-400 font-bold">{windDirection}°</span>
             </div>
@@ -305,7 +305,7 @@ export const WindCompassMap: React.FC<WindCompassMapProps> = ({
           {/* Speed & Gusts with Unit Toggle */}
           <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-800/70 border-slate-700/80' : 'bg-slate-50 border-slate-200'}`}>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
                 <Wind className="w-3.5 h-3.5 text-teal-400" />
                 Velocità & Raffiche
               </span>

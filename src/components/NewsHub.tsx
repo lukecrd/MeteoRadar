@@ -45,7 +45,7 @@ const CategoryTag: React.FC<{ item: NewsItem }> = ({ item }) => {
   const meta = NEWS_CATEGORY_META[item.category];
   return (
     <span
-      className="font-hud text-xs font-bold tracking-[0.14em] px-1.5 py-0.5 rounded border"
+      className="font-hud text-xs font-bold px-1.5 py-0.5 rounded border"
       style={{ color: meta.color, borderColor: `${meta.color}55`, background: `${meta.color}14` }}
     >
       {meta.short}
@@ -54,7 +54,7 @@ const CategoryTag: React.FC<{ item: NewsItem }> = ({ item }) => {
 };
 
 const FreshBadge = () => (
-  <span className="font-hud text-xs font-bold tracking-[0.14em] px-1.5 py-0.5 rounded bg-[var(--hub-cyan)] text-slate-950">
+  <span className="font-hud text-xs font-bold px-1.5 py-0.5 rounded bg-[var(--hub-cyan)] text-slate-950">
     NUOVO
   </span>
 );
@@ -284,7 +284,7 @@ export const NewsHub: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
         </>
       )}
 
-      <p className="hub-label !tracking-[0.1em] !normal-case pt-1">
+      <p className="hub-label pt-1">
         Fonti: ANSA · Google News. I titoli rimandano agli articoli originali delle testate.
       </p>
     </section>

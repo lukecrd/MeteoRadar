@@ -81,7 +81,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="space-y-6">
           {/* Audio & Alert Feedback */}
           <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/40 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-teal-400 mb-3 flex items-center gap-2">
+            <h3 className="text-xs font-bold text-teal-400 mb-3 flex items-center gap-2">
               <Volume2 className="w-4 h-4" />
               Canali di Notifica & Audio Acustico
             </h3>
@@ -168,7 +168,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {/* Humidity Sensor Settings */}
           <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/40 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3 flex items-center gap-2">
+            <h3 className="text-xs font-bold text-cyan-400 mb-3 flex items-center gap-2">
               <Droplets className="w-4 h-4" />
               Soglia Variazione Igrometrica Improvvisa
             </h3>
@@ -220,7 +220,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {/* Lightning Settings */}
           <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/40 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
+            <h3 className="text-xs font-bold text-amber-400 mb-3 flex items-center gap-2">
               <Zap className="w-4 h-4" />
               Soglia Raggio Radar Tuoni & Lampi
             </h3>
@@ -251,7 +251,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {/* Wind Settings */}
           <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/40 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-teal-400 mb-3 flex items-center gap-2">
+            <h3 className="text-xs font-bold text-teal-400 mb-3 flex items-center gap-2">
               <Wind className="w-4 h-4" />
               Allarme Raffiche di Vento Estreme
             </h3>

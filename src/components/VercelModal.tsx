@@ -130,7 +130,7 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
         {/* Tab 1: Guida Rapida */}
         {activeTab === 'quick' && (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 to-blue-500/10 border border-teal-500/20 text-xs text-slate-700 dark:text-slate-200">
+            <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs text-slate-700 dark:text-slate-200">
               <h3 className="font-bold text-teal-500 dark:text-teal-400 text-sm mb-1 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
                 L'applicazione è già pronta per Vercel

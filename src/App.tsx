@@ -463,7 +463,7 @@ export default function App() {
   ];
 
   return (
-    <div className="hub-root min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg">
+    <div className="hub-root min-h-screen relative font-sans transition-colors duration-300">
       {/* Dynamic Atmospheric Particle and Flash Background */}
       {weatherData && route === 'meteo' && (
         <AtmosphericCanvas
@@ -566,7 +566,6 @@ export default function App() {
         {isLoading && !weatherData && route === 'meteo' && (
           <div className="py-32 flex flex-col items-center justify-center gap-4" role="status">
             <div className="relative w-14 h-14">
-              <span className="hud-pulse-ring" />
               <Loader2 className="w-14 h-14 text-[var(--hub-cyan)] animate-spin" />
             </div>
             <div className="hub-label">Caricamento dati meteo…</div>

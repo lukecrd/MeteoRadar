@@ -624,7 +624,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               <Building2 className="w-4 h-4" />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+              <div className="text-xs font-bold text-slate-600 dark:text-slate-300">
                 Regione Monitorata
               </div>
               <div className="flex flex-wrap items-center gap-2 mt-0.5">
@@ -735,7 +735,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-500/20 text-teal-400 text-xs font-bold border border-teal-500/30 uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-500/20 text-teal-400 text-xs font-bold border border-teal-500/30">
                 <Radio className="w-3.5 h-3.5 animate-pulse text-teal-400" />
                 {selectedRegionId === 'all' ? 'Mappa Satellitare Live Italia' : `Monitoraggio Regionale: ${currentRegionInfo.name}`}
               </span>
@@ -758,28 +758,28 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
           {/* Key Regional/National Telemetry Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
             <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200'}`}>
-              <div className="text-xs uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <Thermometer className="w-3 h-3 text-amber-500" /> Temp Max
               </div>
               <div className="text-xs font-bold text-amber-500 dark:text-amber-400 mt-0.5 truncate">{dynamicStats.maxTemp}</div>
             </div>
 
             <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200'}`}>
-              <div className="text-xs uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <Thermometer className="w-3 h-3 text-cyan-400" /> Temp Min
               </div>
               <div className="text-xs font-bold text-cyan-400 dark:text-cyan-300 mt-0.5 truncate">{dynamicStats.minTemp}</div>
             </div>
 
             <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200'}`}>
-              <div className="text-xs uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <Wind className="w-3 h-3 text-teal-400" /> Vento Max
               </div>
               <div className="text-xs font-bold text-teal-400 dark:text-teal-300 mt-0.5 truncate">{dynamicStats.maxWind}</div>
             </div>
 
             <div className={`p-3 rounded-2xl border ${isDark ? 'bg-slate-800/60 border-slate-700/60' : 'bg-white border-slate-200'}`}>
-              <div className="text-xs uppercase font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <CloudRain className="w-3 h-3 text-sky-400" /> {selectedRegionId === 'all' ? 'Pioggia Nazionale' : 'Pioggia Regione'}
               </div>
               <div className="text-xs font-bold text-sky-400 dark:text-sky-300 mt-0.5">{dynamicStats.rainCount} / {dynamicStats.totalStations} staz.</div>
@@ -953,7 +953,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
                 isDark ? 'bg-slate-900/90 border-slate-700/80 text-slate-200' : 'bg-white/90 border-slate-300 text-slate-800'
               }`}
             >
-              <div className="px-2 py-0.5 text-xs uppercase tracking-wider text-slate-600 dark:text-slate-300 font-bold text-center">
+              <div className="px-2 py-0.5 text-xs text-slate-600 dark:text-slate-300 font-bold text-center">
                 Zoom Rapido
               </div>
               <button
@@ -1050,15 +1050,15 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
 
               <div className="grid grid-cols-3 gap-2 mt-3 text-center">
                 <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                  <div className="text-xs text-slate-400 uppercase font-bold">Temp</div>
+                  <div className="text-xs text-slate-400 font-bold">Temp</div>
                   <div className="text-base font-bold text-amber-400">{selectedStation.temperature}°C</div>
                 </div>
                 <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                  <div className="text-xs text-slate-400 uppercase font-bold">Umidità</div>
+                  <div className="text-xs text-slate-400 font-bold">Umidità</div>
                   <div className="text-base font-bold text-cyan-400">{selectedStation.humidity}%</div>
                 </div>
                 <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                  <div className="text-xs text-slate-400 uppercase font-bold">Vento</div>
+                  <div className="text-xs text-slate-400 font-bold">Vento</div>
                   <div className="text-base font-bold text-teal-400">{selectedStation.windSpeed}k</div>
                 </div>
               </div>
@@ -1091,7 +1091,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               <button
                 id="btn-select-station-as-current"
                 onClick={() => handleSetLocationFromStation(selectedStation)}
-                className="w-full mt-2.5 py-2 px-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-teal-500/25 transition-all"
+                className="w-full mt-2.5 py-2 px-3 rounded-xl bg-teal-500 hover:bg-teal-600 text-white dark:text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-teal-500/25 transition-all"
               >
                 <span>Imposta come Stazione Principale</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1105,7 +1105,7 @@ export const ItalySatelliteMap: React.FC<ItalySatelliteMapProps> = ({
               isDark ? 'bg-slate-950/85 border-slate-800 text-slate-200' : 'bg-white/90 border-slate-200 text-slate-800'
             }`}
           >
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
+            <div className="text-xs font-bold text-slate-400 mb-1.5 flex items-center gap-1">
               <Info className="w-3 h-3 text-teal-400" /> Pioggia radar (mm/h)
             </div>
             {/* Discrete classes matching the RainViewer "Universal Blue" tiles actually requested */}

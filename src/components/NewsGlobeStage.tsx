@@ -121,7 +121,7 @@ const LOCAL_LEVEL_COLOR: Record<WeatherAlertInfo['level'], string> = {
 const REFRESH = { quakes: 90_000, flights: 60_000, disasters: 5 * 60_000 };
 const ISS_COLOR = '#facc15';
 const TRACK_REFRESH_MS = 60_000;
-const TRACKED_FLIGHT_COLOR = '#22d3ee';
+const TRACKED_FLIGHT_COLOR = '#ffffff';
 
 type SampleFlight = FlightsResponse['items'][number];
 
