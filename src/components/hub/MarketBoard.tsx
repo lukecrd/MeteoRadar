@@ -61,7 +61,7 @@ export const MarketBoard: React.FC<MarketBoardProps> = ({ quotes, isLoading, err
                             {q.kind === 'index' && (
                               <span
                                 className="w-1.5 h-1.5 rounded-full shrink-0"
-                                style={{ background: q.isOpen ? '#34d399' : 'var(--hub-line-strong)', boxShadow: q.isOpen ? '0 0 6px #34d399' : undefined }}
+                                style={{ background: q.isOpen ? '#34d399' : 'var(--hub-line-strong)' }}
                                 title={q.isOpen ? 'Mercato aperto' : 'Mercato chiuso'}
                               />
                             )}

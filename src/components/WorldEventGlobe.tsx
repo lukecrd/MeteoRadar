@@ -303,13 +303,13 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     renderer.domElement.style.height = '100%';
     host.appendChild(renderer.domElement);
 
-    const lineColor = isDark ? 0x7dd3fc : 0x0e7490;
+    const lineColor = isDark ? 0x8b97a6 : 0x0e7490;
     const group = new THREE.Group();
     scene.add(group);
 
     // Body writes depth first so the far hemisphere (grid + markers) is hidden.
     const bodyGeo = new THREE.SphereGeometry(0.99, 32, 20);
-    const bodyMat = new THREE.MeshBasicMaterial({ color: isDark ? 0x07182a : 0xe0f2fe, transparent: true, opacity: isDark ? 0.85 : 0.75 });
+    const bodyMat = new THREE.MeshBasicMaterial({ color: isDark ? 0x0b1724 : 0xe0f2fe, transparent: true, opacity: isDark ? 0.85 : 0.75 });
     const body = new THREE.Mesh(bodyGeo, bodyMat);
     body.renderOrder = -1;
     group.add(body);
@@ -318,7 +318,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     const gridMat = new THREE.LineBasicMaterial({ color: lineColor, transparent: true, opacity: isDark ? 0.12 : 0.14, depthWrite: false });
     group.add(new THREE.LineSegments(gridGeo, gridMat));
 
-    const coastMat = new THREE.LineBasicMaterial({ color: isDark ? 0x67e8f9 : 0x0e7490, transparent: true, opacity: isDark ? 0.45 : 0.5, depthWrite: false });
+    const coastMat = new THREE.LineBasicMaterial({ color: isDark ? 0xc9d3df : 0x0e7490, transparent: true, opacity: isDark ? 0.4 : 0.5, depthWrite: false });
     let coastGeo: THREE.BufferGeometry | null = null;
     let disposed = false;
     loadCoastline().then((lines) => {

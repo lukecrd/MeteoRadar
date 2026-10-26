@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Activity, Bitcoin, CandlestickChart, Crosshair, Eye, EyeOff, Newspaper, Plane, Satellite, ShieldAlert, Square, X, LucideIcon } from 'lucide-react';
+import { Activity, Bitcoin, CandlestickChart, Crosshair, Newspaper, Plane, Satellite, ShieldAlert, Square, X, LucideIcon } from 'lucide-react';
 import { LightningStrike, LocationInfo, WeatherAlertInfo } from '../types';
 import { timeAgo } from '../services/newsApi';
 import {
@@ -207,88 +207,94 @@ interface NewsGlobeStageProps {
 
 interface WindowPanelProps {
   def: WindowDef;
-  layerOn?: boolean;
-  onToggleLayer?: () => void;
   onClose: () => void;
   /** Size + entrance animation: side drawer on desktop, bottom sheet on phones */
   className: string;
   children: React.ReactNode;
 }
 
-/** One overlay window: header (layer toggle + close) and a scrollable body. */
-const WindowPanel: React.FC<WindowPanelProps> = ({ def, layerOn, onToggleLayer, onClose, className, children }) => {
+/** One overlay window: header (close) and a scrollable body. Layer visibility lives in the legend. */
+const WindowPanel: React.FC<WindowPanelProps> = ({ def, onClose, className, children }) => {
   const { id, title, icon: Icon, layer } = def;
   return (
     <section
       id={`worldhub-window-${id}`}
       aria-label={title}
-      className={`hub-panel hub-panel--glow flex flex-col shrink-0 !bg-[var(--hub-panel-strong)] backdrop-blur-xl shadow-[var(--elev-3)] ${className}`}
+      className={`hub-panel flex flex-col shrink-0 !bg-[var(--hub-panel-strong)] backdrop-blur-xl shadow-[var(--elev-3)] ${className}`}
     >
-      <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-[var(--hub-line)] shrink-0">
-        <h2 className="font-display text-base font-bold flex items-center gap-2 min-w-0">
-          <Icon className="w-4 h-4 shrink-0" style={{ color: layer ? LAYER_META[layer].color : 'var(--hub-cyan)' }} />
+      <header className="flex items-center justify-between gap-2 pl-4 pr-2 py-2 border-b border-[var(--hub-line)] shrink-0">
+        <h2 className="font-display text-base flex items-center gap-2 min-w-0">
+          <Icon className="w-4 h-4 shrink-0" style={{ color: layer ? LAYER_META[layer].color : 'var(--hub-dim)' }} />
           <span className="truncate">{title}</span>
         </h2>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {layer && onToggleLayer && (
-            <button
-              type="button"
-              onClick={onToggleLayer}
-              aria-pressed={layerOn}
-              className="hub-icon-btn !h-8 !px-2.5 text-xs"
-              title={layerOn ? 'Nascondi dal mappamondo' : 'Mostra sul mappamondo'}
-            >
-              {layerOn ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-              {layerOn ? 'Sul globo' : 'Nascosto'}
-            </button>
-          )}
-          <button type="button" onClick={onClose} className="hub-icon-btn !h-8 !px-2" aria-label={`Chiudi ${title}`} title="Chiudi">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+        <button type="button" onClick={onClose} className="hub-icon-btn !h-8 !px-2 !border-transparent !bg-transparent" aria-label={`Chiudi ${title}`} title="Chiudi">
+          <X className="w-4 h-4" />
+        </button>
       </header>
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4">{children}</div>
     </section>
   );
 };
 
-/** Toggle tab for one window: vertical on the desktop rails, compact chip on phones. */
-const WindowTab: React.FC<{ def: WindowDef; open: boolean; badge?: number; vertical: boolean; onToggle: () => void }> = ({
-  def,
-  open,
-  badge,
-  vertical,
-  onToggle,
-}) => {
-  const Icon = def.icon;
-  const badgeText = badge !== undefined && badge > 0 ? (badge > 999 ? '999+' : String(badge)) : null;
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-controls={`worldhub-window-${def.id}`}
-      aria-expanded={open}
-      title={open ? `Chiudi ${def.title}` : `Apri ${def.title}`}
-      className={`hub-panel relative flex items-center shrink-0 cursor-pointer !bg-[var(--hub-panel-strong)] backdrop-blur-xl transition-colors hover:border-[var(--hub-line-strong)] ${
-        vertical ? 'flex-col gap-2 w-11 py-3 !rounded-xl' : 'gap-1.5 h-10 px-3 !rounded-xl text-xs font-semibold'
-      } ${open ? '!border-[var(--hub-line-strong)] text-[var(--hub-cyan)] bg-[var(--hub-glow)]' : 'text-[var(--hub-dim)]'}`}
-    >
-      <Icon className="w-4 h-4 shrink-0" style={def.layer ? { color: LAYER_META[def.layer].color } : undefined} />
-      {vertical ? (
-        <span className="font-hud text-xs font-bold tracking-[0.2em] uppercase [writing-mode:vertical-rl] rotate-180">{def.title}</span>
-      ) : (
-        <span className={open ? 'text-[var(--hub-text)]' : ''}>{def.title}</span>
-      )}
-      {badgeText && (
-        <span
-          className={`font-hud text-xs font-bold px-1 rounded bg-[var(--hub-red)] text-white leading-4 ${
-            vertical ? 'absolute -top-1.5 -right-1.5' : ''
-          }`}
+interface LegendProps {
+  open: Record<WindowId, boolean>;
+  layers: Record<WorldLayer, boolean>;
+  counts: Record<WorldLayer, number>;
+  onToggleWindow: (id: WindowId) => void;
+  onToggleLayer: (layer: WorldLayer) => void;
+}
+
+/**
+ * The map legend is the control: the swatch shows/hides a layer on the globe,
+ * the name opens its window. Windows without a layer (markets, crypto) follow a divider.
+ */
+const Legend: React.FC<LegendProps> = ({ open, layers, counts, onToggleWindow, onToggleLayer }) => {
+  const item = (def: WindowDef) => {
+    const isOpen = open[def.id];
+    const name = (
+      <button
+        type="button"
+        className="wh-legend__name"
+        onClick={() => onToggleWindow(def.id)}
+        aria-controls={`worldhub-window-${def.id}`}
+        aria-expanded={isOpen}
+      >
+        {def.title}
+        {def.layer && <span className="wh-legend__count">{counts[def.layer].toLocaleString('it-IT')}</span>}
+      </button>
+    );
+    if (!def.layer) {
+      return (
+        <div key={def.id} className={`wh-legend__item wh-legend__item--plain ${isOpen ? 'is-open' : ''}`}>
+          {name}
+        </div>
+      );
+    }
+    const layer = def.layer;
+    const label = LAYER_META[layer].label;
+    return (
+      <div key={def.id} className={`wh-legend__item ${isOpen ? 'is-open' : ''}`}>
+        <button
+          type="button"
+          className="wh-legend__swatch"
+          aria-pressed={layers[layer]}
+          aria-label={`${label} sul globo`}
+          title={layers[layer] ? `Nascondi ${label} dal globo` : `Mostra ${label} sul globo`}
+          onClick={() => onToggleLayer(layer)}
+          style={{ ['--dot' as any]: LAYER_META[layer].color }}
         >
-          {badgeText}
-        </span>
-      )}
-    </button>
+          <span />
+        </button>
+        {name}
+      </div>
+    );
+  };
+  return (
+    <nav aria-label="Legenda e finestre del mappamondo" className="wh-legend">
+      {WINDOWS.filter((w) => w.layer).map(item)}
+      <span className="wh-legend__sep" aria-hidden />
+      {WINDOWS.filter((w) => !w.layer).map(item)}
+    </nav>
   );
 };
 
@@ -576,7 +582,6 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     alerts: (disasters.data?.items.length ?? 0) + alerts.length + strikes.length,
     satellites: sats.states.length,
   };
-  const badgeFor = (def: WindowDef) => (def.layer ? counts[def.layer] : undefined);
 
   const renderWindowBody = (id: WindowId) => {
     switch (id) {
@@ -695,8 +700,6 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     <WindowPanel
       key={def.id}
       def={def}
-      layerOn={def.layer ? layers[def.layer] : undefined}
-      onToggleLayer={def.layer ? () => toggleLayer(def.layer!) : undefined}
       onClose={() => setOpen((prev) => ({ ...prev, [def.id]: false }))}
       className={
         isMobile
@@ -708,29 +711,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     </WindowPanel>
   );
 
-  const layerChips = (
-    <div
-      role="group"
-      aria-label="Livelli del mappamondo"
-      className="hub-panel !rounded-full !bg-[var(--hub-panel-strong)] backdrop-blur-xl flex gap-1 p-1 max-w-full overflow-x-auto md:flex-wrap md:justify-center"
-    >
-      {(Object.keys(LAYER_META) as WorldLayer[]).map((layer) => (
-        <button
-          key={layer}
-          type="button"
-          aria-pressed={layers[layer]}
-          onClick={() => toggleLayer(layer)}
-          className={`flex items-center gap-1.5 h-8 px-3 shrink-0 rounded-full text-xs font-semibold cursor-pointer transition-opacity ${
-            layers[layer] ? 'bg-[var(--hub-glow)]' : 'opacity-50'
-          }`}
-          title={layers[layer] ? `Nascondi ${LAYER_META[layer].label}` : `Mostra ${LAYER_META[layer].label}`}
-        >
-          <span className="w-2 h-2 rounded-full" style={{ background: LAYER_META[layer].color }} />
-          {LAYER_META[layer].label}
-        </button>
-      ))}
-    </div>
-  );
+  const legend = <Legend open={open} layers={layers} counts={counts} onToggleWindow={toggleWindow} onToggleLayer={toggleLayer} />;
 
   const flightCard = (
     <FlightCard
@@ -772,9 +753,9 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
 
   const followBadge = following && selectedFlight && (
     <div className="hub-panel !rounded-full !bg-[var(--hub-panel-strong)] backdrop-blur-xl flex items-center gap-2 pl-3 pr-1 py-1 text-xs max-w-full pointer-events-auto">
-      <Crosshair className="w-3.5 h-3.5 text-[var(--hub-cyan)] shrink-0" />
+      <Crosshair className="w-3.5 h-3.5 shrink-0" style={{ color: TRACKED_FLIGHT_COLOR }} />
       <span className="truncate">
-        Stai seguendo <strong className="font-hud">{tracker.flight?.callsign ?? selectedFlight.icao24.toUpperCase()}</strong>
+        Stai seguendo <strong>{tracker.flight?.callsign ?? selectedFlight.icao24.toUpperCase()}</strong>
         {tracker.status === 'lost' && <span className="text-[var(--hub-red)]"> · segnale perso</span>}
       </span>
       {!cardOpen && (
@@ -789,20 +770,19 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   );
 
   if (isMobile) {
-    // Phones: globe fills the screen; search + layers float on top, the window
-    // tabs sit above the bottom nav and open a single bottom sheet.
+    // Phones: globe fills the screen; flight search floats on top, the legend
+    // sits above the bottom nav and opens a single bottom sheet.
     const openDef = WINDOWS.find((w) => open[w.id]);
     return (
       <section
         ref={sectionRef}
-        className="relative z-10 w-full overflow-hidden"
+        className="worldhub-stage on-dark relative z-10 w-full overflow-hidden bg-black"
         style={{ height: stageHeight ?? '70vh' }}
         aria-label="Mappamondo eventi in tempo reale"
       >
         {globe}
         <div className="absolute inset-x-2 top-2 z-20 flex flex-col gap-2">
           <FlightSearch compact onSelect={openFlight} />
-          {layerChips}
         </div>
         <div className="absolute inset-x-2 bottom-2 z-30 max-h-[calc(100%-1rem)] flex flex-col gap-2 pointer-events-none">
           {followBadge && <div className="self-center max-w-full">{followBadge}</div>}
@@ -811,33 +791,23 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
           ) : (
             openDef && <div className="pointer-events-auto flex flex-col min-h-0">{renderWindow(openDef)}</div>
           )}
-          <nav aria-label="Finestre WorldHub" className="pointer-events-auto flex gap-2 overflow-x-auto pb-0.5">
-            {WINDOWS.map((def) => (
-              <WindowTab key={def.id} def={def} open={open[def.id]} badge={badgeFor(def)} vertical={false} onToggle={() => toggleWindow(def.id)} />
-            ))}
-          </nav>
+          <div className="pointer-events-auto flex">{legend}</div>
         </div>
       </section>
     );
   }
 
-  // Tablet / desktop: a vertical tab rail on each edge; open windows slide in
-  // next to it as a scrollable drawer column over the globe.
+  // Tablet / desktop: the legend sits bottom centre; open windows slide in from
+  // their side as a scrollable drawer column over the globe.
   const drawer = (side: Side) => {
     const defs = WINDOWS.filter((w) => w.side === side);
     const openDefs = defs.filter((w) => open[w.id]);
     const card = side === 'left' && showCard && <div className="flex flex-col min-h-0 max-h-[min(72vh,680px)] shrink-0 animate-drawer-left">{flightCard}</div>;
     return (
       <div
-        className={`absolute top-3 bottom-3 z-30 flex gap-2 items-start pointer-events-none ${
-          side === 'left' ? 'left-3' : 'right-3 flex-row-reverse'
-        }`}
+        // Ends above the legend row; the right one leaves the globe's zoom buttons uncovered.
+        className={`absolute top-3 bottom-[4.25rem] z-30 flex items-start pointer-events-none ${side === 'left' ? 'left-3' : 'right-14'}`}
       >
-        <nav aria-label={side === 'left' ? 'Finestre a sinistra' : 'Finestre a destra'} className="pointer-events-auto flex flex-col gap-2 shrink-0">
-          {defs.map((def) => (
-            <WindowTab key={def.id} def={def} open={open[def.id]} badge={badgeFor(def)} vertical onToggle={() => toggleWindow(def.id)} />
-          ))}
-        </nav>
         {(card || openDefs.length > 0) && (
           <div className="pointer-events-auto hub-scroll max-h-full overflow-y-auto overscroll-contain flex flex-col gap-3 w-[min(360px,30vw)] min-w-[280px] pb-1">
             {card}
@@ -851,19 +821,20 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   return (
     <section
       ref={sectionRef}
-      className="relative z-10 w-full overflow-hidden"
+      className="worldhub-stage on-dark relative z-10 w-full overflow-hidden bg-black"
       style={{ height: stageHeight ?? '80vh' }}
       aria-label="Mappamondo eventi in tempo reale"
     >
       {globe}
-      {/* Search + layer chips: top centre, between the drawers */}
+      {/* Flight search (+ follow badge): top centre, between the drawers */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 w-[min(560px,calc(100%-8rem))] flex flex-col items-center gap-2">
         <div className="w-full sm:w-72">
           <FlightSearch compact onSelect={openFlight} />
         </div>
-        {layerChips}
+        {followBadge}
       </div>
-      {followBadge && <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-8rem)]">{followBadge}</div>}
+      {/* Clear of the globe's zoom buttons (bottom right). */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-7rem)] flex">{legend}</div>
       {drawer('left')}
       {drawer('right')}
     </section>

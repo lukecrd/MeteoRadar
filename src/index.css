@@ -339,21 +339,118 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
 .hub-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .hub-scroll::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 6px; }
 
-/* The globe always sits in deep space, whatever the app theme. */
-.hub-globe-stage {
-  background:
-    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.10), transparent 55%),
-    #02050b !important;
-  color: #e6eef9;
-  --hub-dim: #8fa3bc;
-  --hub-text: #e6eef9;
-  --hub-panel: rgba(8, 14, 26, 0.7);
-  --hub-line: rgba(148, 197, 255, 0.14);
-  --hub-cyan: #22d3ee;
-  --fg: #e6eef9;
-  --fg-muted: #8fa3bc;
-  --accent: #22d3ee;
+/* WorldHub stage: always night, in both app themes. Chrome is neutral graphite
+   so the event markers are the only colour on screen. */
+.worldhub-stage {
+  color-scheme: dark;
+  --bg: #000000;
+  --surface: #14171c;
+  --surface-raised: #1b1f26;
+  --surface-overlay: rgba(20, 23, 28, 0.9);
+  --line: #2a3039;
+  --line-strong: #4a5361;
+  --fg: #eef1f5;
+  --fg-muted: #9aa4b0;
+  /* No accent hue on the stage: interactive state is shown in white. */
+  --accent: #eef1f5;
+  --accent-fg: #000000;
+  --focus: #eef1f5;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #fb7185;
+  --info: #38bdf8;
+  /* Aliases resolve where declared (:root), so restate them for this scope. */
+  --hub-bg: var(--bg);
+  --hub-panel: var(--surface);
+  --hub-panel-strong: var(--surface-overlay);
+  --hub-line: var(--line);
+  --hub-line-strong: var(--line-strong);
+  --hub-text: var(--fg);
+  --hub-dim: var(--fg-muted);
+  --hub-cyan: var(--accent);
+  --hub-violet: var(--info);
+  --hub-amber: var(--warning);
+  --hub-red: var(--danger);
+  --hub-up: var(--success);
+  --hub-down: var(--danger);
+  --hub-glow: rgba(238, 241, 245, 0.1);
+  --elev-1: 0 1px 0 rgb(255 255 255 / 0.04) inset;
+  --elev-3: 0 24px 64px -16px rgb(0 0 0 / 0.8);
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
 }
+/* Window contents: sentence-case sans labels instead of the app's mono caps.
+   Scoped here so shared components (NewsHub) keep their look on other pages. */
+.worldhub-stage .hub-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+.worldhub-stage .font-hud { font-family: var(--font-sans); }
+.worldhub-stage .uppercase { text-transform: none !important; }
+.worldhub-stage [class*='tracking-['] { letter-spacing: 0 !important; }
+.hub-globe-stage {
+  background: #000 !important;
+  color: var(--fg);
+}
+.hub-globe-tag__box {
+  background: rgba(20, 23, 28, 0.92);
+}
+
+/* Map legend: each entry shows/hides its layer (swatch) and opens its window (name). */
+.wh-legend {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface-overlay);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.wh-legend::-webkit-scrollbar { display: none; }
+.wh-legend__item { display: flex; align-items: center; flex-shrink: 0; border-radius: 10px; }
+.wh-legend__item.is-open { background: var(--fg); color: #000; }
+.wh-legend__swatch {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.wh-legend__swatch span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 2px solid var(--dot);
+  background: var(--dot);
+}
+.wh-legend__swatch[aria-pressed='false'] span { background: transparent; opacity: 0.55; }
+.wh-legend__name {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px 0 2px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 36px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wh-legend__item--plain .wh-legend__name { padding-left: 12px; }
+.wh-legend__count { font-weight: 500; color: var(--fg-muted); }
+.wh-legend__item.is-open .wh-legend__count { color: #3b424c; }
+.wh-legend__item:not(.is-open) .wh-legend__name:hover { color: #fff; }
+.wh-legend__sep { width: 1px; margin: 6px 4px; background: var(--line); flex-shrink: 0; }
 .hub-globe-tag {
   position: absolute;
   left: 0;
