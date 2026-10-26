@@ -73,15 +73,15 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
         }`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-teal-500/10 via-cyan-500/5 to-transparent">
+        <div className="p-6 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
+            <div className="w-11 h-11 rounded-2xl bg-teal-500 flex items-center justify-center text-white dark:text-slate-950">
               <Smartphone className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <span>File & Installazione Android</span>
-                <span className="text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-400 border border-teal-500/30">
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-400 border border-teal-500/30">
                   Pronto per Android
                 </span>
               </h2>
@@ -239,7 +239,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
                 <button
                   type="button"
                   onClick={handleInstallPwa}
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-bold text-sm shadow-xl shadow-teal-500/25 transition-all inline-flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-teal-500 hover:bg-teal-600 text-white dark:text-slate-950 font-bold text-sm shadow-xl shadow-teal-500/25 transition-all inline-flex items-center justify-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   <span>{installedSuccess ? 'App Già Installata!' : 'Installa Subito su Android'}</span>
@@ -248,7 +248,7 @@ export const AndroidModal: React.FC<AndroidModalProps> = ({ isOpen, onClose, isD
 
               {/* Step by step instructions for Android Chrome */}
               <div className="space-y-2">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <div className="text-xs font-bold text-slate-400">
                   Come installare da Google Chrome su Android:
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">

@@ -116,6 +116,43 @@ function toVec3(lat: number, lon: number, r = 1): [number, number, number] {
   return [r * Math.cos(phi) * Math.sin(theta), r * Math.sin(phi), r * Math.cos(phi) * Math.cos(theta)];
 }
 
+/**
+ * Subsolar point (where the Sun is at the zenith) for `date`.
+ * shortcut: mean declination, no equation of time (error up to ~4° of
+ * longitude); use a proper solar ephemeris if the terminator must be exact.
+ */
+export function subsolarPoint(date: Date): { lat: number; lon: number } {
+  const dayOfYear = (date.getTime() - Date.UTC(date.getUTCFullYear(), 0, 0)) / 864e5;
+  const lat = -23.44 * Math.cos(((2 * Math.PI) / 365) * (dayOfYear + 10));
+  const hours = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+  const lon = ((((12 - hours) * 15 + 180) % 360) + 360) % 360 - 180;
+  return { lat, lon };
+}
+
+// Body shading: night and day ocean split by the real terminator, with a thin
+// line where the Sun is on the horizon.
+const BODY_VERTEX = /* glsl */ `
+  varying vec3 vDir;
+  void main() {
+    vDir = normalize(position);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const BODY_FRAGMENT = /* glsl */ `
+  uniform vec3 uSun;
+  uniform vec3 uNight;
+  uniform vec3 uDay;
+  uniform vec3 uLine;
+  uniform float uOpacity;
+  varying vec3 vDir;
+  void main() {
+    float d = dot(normalize(vDir), uSun);
+    vec3 col = mix(uNight, uDay, smoothstep(-0.08, 0.12, d));
+    col = mix(col, uLine, (1.0 - smoothstep(0.0, 0.01, abs(d))) * 0.45);
+    gl_FragColor = vec4(col, uOpacity);
+  }
+`;
+
 const markerRadius = (m: GlobeMarker) => (m.altKm != null ? altitudeToRadius(m.altKm) : 1.006);
 
 function buildGraticule(): THREE.BufferGeometry {
@@ -309,7 +346,25 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
 
     // Body writes depth first so the far hemisphere (grid + markers) is hidden.
     const bodyGeo = new THREE.SphereGeometry(0.99, 32, 20);
-    const bodyMat = new THREE.MeshBasicMaterial({ color: isDark ? 0x0b1724 : 0xe0f2fe, transparent: true, opacity: isDark ? 0.85 : 0.75 });
+    const sunUniform = new THREE.Vector3();
+    const updateSun = () => {
+      const s = subsolarPoint(new Date());
+      sunUniform.set(...toVec3(s.lat, s.lon));
+    };
+    updateSun();
+    const sunTimer = setInterval(updateSun, 60_000);
+    const bodyMat = new THREE.ShaderMaterial({
+      vertexShader: BODY_VERTEX,
+      fragmentShader: BODY_FRAGMENT,
+      uniforms: {
+        uSun: { value: sunUniform },
+        uNight: { value: new THREE.Vector3(...srgb(isDark ? '#060d16' : '#cbd5e1')) },
+        uDay: { value: new THREE.Vector3(...srgb(isDark ? '#15283d' : '#eef3f8')) },
+        uLine: { value: new THREE.Vector3(...srgb(isDark ? '#eef1f5' : '#14171c')) },
+        uOpacity: { value: isDark ? 0.92 : 0.8 },
+      },
+      transparent: true,
+    });
     const body = new THREE.Mesh(bodyGeo, bodyMat);
     body.renderOrder = -1;
     group.add(body);
@@ -581,6 +636,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     return () => {
       disposed = true;
       cancelAnimationFrame(frameId);
+      clearInterval(sunTimer);
       resizeObserver.disconnect();
       host.removeEventListener('wheel', onWheel);
       apiRef.current = null;

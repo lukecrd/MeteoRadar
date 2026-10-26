@@ -5,33 +5,51 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* =========================================================================
-   WorldHub design system
-   - One accent (cyan), semantic tokens for light/dark, 2 font families.
-   - Every text token below is verified >= 4.5:1 on its surfaces (WCAG AA).
+   WorldHub design system: "Osservatorio notturno"
+   - True black and neutral graphite; colour is reserved for data
+     (weather, quakes, alerts, markets). Interactive state is ink:
+     near-white in dark, near-black in light.
+   - One family (Archivo, variable width): narrow for figures, normal for text.
+   - Every text token below is >= 4.5:1 on its surfaces (WCAG AA).
    ========================================================================= */
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* No mono face any more: figures use Archivo's tabular, narrow cut. */
+  --font-mono: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* Single accent: teal is folded into cyan so the 240+ legacy teal-* classes
-     render in the same hue as the --accent token. */
-  --color-teal-50: #ecfeff;
-  --color-teal-100: #cffafe;
-  --color-teal-200: #a5f3fc;
-  --color-teal-300: #67e8f9;
-  --color-teal-400: #22d3ee;
-  --color-teal-500: #06b6d4;
-  --color-teal-600: #0891b2;
-  --color-teal-700: #0e7490;
-  --color-teal-800: #155e75;
-  --color-teal-900: #164e63;
-  --color-teal-950: #083344;
+  /* The legacy teal-* classes are the old accent (text-teal-400, and
+     bg-teal-500 under white/slate-950 text). They are now an ink scale that
+     flips with the theme, so all of them follow the neutral system. */
+  --color-teal-50: #f6f7f9;
+  --color-teal-100: #eceef1;
+  --color-teal-200: #f4f6f8;
+  --color-teal-300: #ffffff;
+  --color-teal-400: #eef1f5;
+  --color-teal-500: #e3e7ec;
+  --color-teal-600: #c9cfd7;
+  --color-teal-700: #9aa4b0;
+  --color-teal-800: #4a5361;
+  --color-teal-900: #2a3039;
+  --color-teal-950: #14171c;
+
+  /* Neutral graphite instead of Tailwind's blue-tinted slate. */
+  --color-slate-50: #f5f6f8;
+  --color-slate-100: #eceef1;
+  --color-slate-200: #dcdfe4;
+  --color-slate-300: #c3c8cf;
+  --color-slate-400: #9aa4b0;
+  --color-slate-500: #6b7380;
+  --color-slate-600: #4b525c;
+  --color-slate-700: #353a42;
+  --color-slate-800: #23272d;
+  --color-slate-900: #14171c;
+  --color-slate-950: #0b0c0e;
 
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
 }
 
 /* Semantic tokens, exposed as Tailwind colors: bg-surface, text-fg-muted, border-line… */
@@ -52,55 +70,55 @@
 }
 
 :root {
-  --bg: #f3f6fa;
-  --bg-2: #e8edf4;
+  --bg: #f3f4f6;
+  --bg-2: #eceef1;
   --surface: #ffffff;
   --surface-raised: #ffffff;
-  --surface-overlay: rgba(255, 255, 255, 0.86);
-  --line: rgba(15, 23, 42, 0.12);
-  --line-strong: rgba(14, 116, 144, 0.45);
-  --fg: #0b1220;
-  --fg-muted: #5b6b80;
-  --accent: #0e7490;
+  --surface-overlay: rgba(255, 255, 255, 0.88);
+  --line: rgba(20, 23, 28, 0.12);
+  --line-strong: rgba(20, 23, 28, 0.38);
+  --fg: #121417;
+  --fg-muted: #59606b;
+  --accent: #14171c;
   --accent-fg: #ffffff;
-  --focus: #0e7490;
+  --focus: #14171c;
   --success: #047857;
   --warning: #b45309;
   --danger: #be123c;
   --info: #0369a1;
 
-  --elev-1: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 1px rgb(15 23 42 / 0.04);
-  --elev-2: 0 8px 24px -8px rgb(15 23 42 / 0.16);
-  --elev-3: 0 24px 64px -16px rgb(15 23 42 / 0.24);
+  --elev-1: 0 1px 2px rgb(20 23 28 / 0.06), 0 1px 1px rgb(20 23 28 / 0.04);
+  --elev-2: 0 8px 24px -8px rgb(20 23 28 / 0.16);
+  --elev-3: 0 24px 64px -16px rgb(20 23 28 / 0.24);
 }
 html.dark {
-  --bg: #070b14;
-  --bg-2: #04070d;
-  --surface: #0c1322;
-  --surface-raised: #111a2d;
-  --surface-overlay: rgba(12, 19, 34, 0.84);
-  --line: rgba(148, 197, 255, 0.11);
-  --line-strong: rgba(34, 211, 238, 0.45);
-  --fg: #e6eef9;
-  --fg-muted: #8fa3bc;
-  --accent: #22d3ee;
-  --accent-fg: #06222a;
-  --focus: #67e8f9;
+  --bg: #000000;
+  --bg-2: #000000;
+  --surface: #14171c;
+  --surface-raised: #1b1f26;
+  --surface-overlay: rgba(20, 23, 28, 0.88);
+  --line: #2a3039;
+  --line-strong: #4a5361;
+  --fg: #eef1f5;
+  --fg-muted: #9aa4b0;
+  --accent: #eef1f5;
+  --accent-fg: #000000;
+  --focus: #eef1f5;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #fb7185;
   --info: #38bdf8;
 
   --elev-1: 0 1px 0 rgb(255 255 255 / 0.04) inset;
-  --elev-2: 0 12px 32px -12px rgb(0 0 0 / 0.6);
-  --elev-3: 0 24px 64px -16px rgb(0 0 0 / 0.75);
+  --elev-2: 0 12px 32px -12px rgb(0 0 0 / 0.7);
+  --elev-3: 0 24px 64px -16px rgb(0 0 0 / 0.8);
 }
 
-/* Legacy --hub-* names now alias the semantic tokens (used across the hub components). */
+/* Legacy --hub-* names alias the semantic tokens (used across the hub components). */
 :root {
   --hub-bg: var(--bg);
   --hub-bg-2: var(--bg-2);
-  --hub-panel: color-mix(in srgb, var(--surface) 88%, transparent);
+  --hub-panel: color-mix(in srgb, var(--surface) 92%, transparent);
   --hub-panel-strong: var(--surface-overlay);
   --hub-line: var(--line);
   --hub-line-strong: var(--line-strong);
@@ -112,17 +130,19 @@ html.dark {
   --hub-red: var(--danger);
   --hub-up: var(--success);
   --hub-down: var(--danger);
-  --hub-glow: color-mix(in srgb, var(--accent) 20%, transparent);
+  --hub-glow: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 /* Light theme: the legacy components colour text with the 400/500 shades,
-   which are tuned for dark backgrounds (1.5–2.5:1 on white). On light
-   surfaces those shades resolve to darker values that pass AA (>= 4.5:1),
-   also on the 15% tinted badges: 400 = text on tints (~800), 500 = fills
-   under white text (~700). */
+   which are tuned for dark backgrounds. On light surfaces they resolve to
+   darker values that pass AA: 400 = text on tints, 500 = fills under white
+   text. Teal (ink) becomes near-black. */
 html:not(.dark) {
-  --color-teal-400: #155e75;
-  --color-teal-500: #0e7490;
+  --color-teal-200: #3a414b;
+  --color-teal-300: #2a3039;
+  --color-teal-400: #14171c;
+  --color-teal-500: #14171c;
+  --color-teal-600: #000000;
   --color-cyan-400: #155e75;
   --color-cyan-500: #0e7490;
   --color-sky-400: #075985;
@@ -143,15 +163,18 @@ html:not(.dark) {
   --color-indigo-500: #4338ca;
   --color-violet-400: #5b21b6;
   --color-violet-500: #6d28d9;
-  --color-slate-400: #5b6b80;
-  --color-slate-500: #55657a;
+  --color-slate-400: #5d6470;
+  --color-slate-500: #565d68;
 }
 
 /* Surfaces that stay dark in both themes (maps, globe, radar scopes, map
-   tooltips) restore the original bright shades. */
+   tooltips) restore the bright shades. */
 html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
-  --color-teal-400: #22d3ee;
-  --color-teal-500: #06b6d4;
+  --color-teal-200: #f4f6f8;
+  --color-teal-300: #ffffff;
+  --color-teal-400: #eef1f5;
+  --color-teal-500: #e3e7ec;
+  --color-teal-600: #c9cfd7;
   --color-cyan-400: #22d3ee;
   --color-cyan-500: #06b6d4;
   --color-sky-400: #38bdf8;
@@ -172,13 +195,14 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   --color-indigo-500: #6366f1;
   --color-violet-400: #a78bfa;
   --color-violet-500: #8b5cf6;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
+  --color-slate-400: #9aa4b0;
+  --color-slate-500: #6b7380;
 }
 
 @layer base {
   body {
     font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
     background: var(--bg);
     color: var(--fg);
   }
@@ -194,19 +218,17 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
 }
 
 @layer components {
-/* Display headings: same family as the UI, heavier and tighter (no third font). */
+/* Display headings: same family as the UI, slightly narrow and heavier. */
 .font-display {
   font-family: var(--font-sans);
   font-weight: 700;
+  font-stretch: 88%;
   letter-spacing: -0.01em;
 }
 
-/* App root: flat background with one faint accent wash. */
+/* App root: flat background, no decoration. */
 .hub-root {
   background-color: var(--bg);
-  background-image:
-    radial-gradient(1200px 600px at 8% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
   color: var(--fg);
 }
 
@@ -231,14 +253,12 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   box-shadow: var(--elev-1);
 }
 
-/* Small uppercase label, e.g. "PREVISIONI". 12px minimum. */
+/* Small label above a value, e.g. "Umidità". Sentence case, 12px minimum. */
 .hub-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   line-height: 16px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 600;
   color: var(--fg-muted);
 }
 
@@ -379,24 +399,9 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   color: var(--fg);
   font-variant-numeric: tabular-nums;
 }
-/* Window contents: sentence-case sans labels instead of the app's mono caps.
-   Scoped here so shared components (NewsHub) keep their look on other pages. */
-.worldhub-stage .hub-label {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-.worldhub-stage .font-hud { font-family: var(--font-sans); }
-.worldhub-stage .uppercase { text-transform: none !important; }
-.worldhub-stage [class*='tracking-['] { letter-spacing: 0 !important; }
 .hub-globe-stage {
   background: #000 !important;
   color: var(--fg);
-}
-.hub-globe-tag__box {
-  background: rgba(20, 23, 28, 0.92);
 }
 
 /* Map legend: each entry shows/hides its layer (swatch) and opens its window (name). */
@@ -464,7 +469,7 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   padding: 6px 10px;
   border-radius: 10px;
   border-left: 2px solid;
-  background: rgba(3, 8, 18, 0.86);
+  background: rgba(20, 23, 28, 0.92);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   white-space: nowrap;
@@ -476,79 +481,11 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
 .hub-tick-up { animation: hubTickUp 0.9s ease-out; }
 .hub-tick-down { animation: hubTickDown 0.9s ease-out; }
 
-/* ---------- Console accents (hero only) ---------- */
+/* Figures and readings: Archivo's narrow cut with tabular digits. */
 .font-hud {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-stretch: 80%;
   font-variant-numeric: tabular-nums;
-}
-
-/* Faint technical grid backdrop on the app root. */
-.hud-grid-bg {
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--accent) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--accent) 5%, transparent) 1px, transparent 1px);
-  background-size: 44px 44px;
-  background-position: center top;
-}
-
-/* Hero hairline: a single solid accent border, no gradient. */
-.hud-panel-border { position: relative; }
-.hud-panel-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-  pointer-events: none;
-}
-
-/* Corner brackets: kept only on the weather hero. */
-.hud-corners {
-  position: absolute;
-  inset: 10px;
-  pointer-events: none;
-  z-index: 1;
-}
-.hud-corners span {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  border-style: solid;
-  border-width: 0;
-}
-.hud-corners span:nth-child(1) { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 6px; }
-.hud-corners span:nth-child(2) { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 6px; }
-.hud-corners span:nth-child(3) { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 6px; }
-.hud-corners span:nth-child(4) { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 6px; }
-
-/* Slow vertical scan sweep across the hero — the one ambient motion. */
-@keyframes hudScan {
-  0% { transform: translateY(-100%); opacity: 0; }
-  10% { opacity: 0.5; }
-  90% { opacity: 0.5; }
-  100% { transform: translateY(100%); opacity: 0; }
-}
-.hud-scanline {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 40%;
-  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 6%, transparent), transparent);
-  animation: hudScan 7s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes hudPulseRing {
-  0% { transform: scale(0.9); opacity: 0.6; }
-  100% { transform: scale(1.9); opacity: 0; }
-}
-.hud-pulse-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  border: 1.5px solid color-mix(in srgb, var(--accent) 60%, transparent);
-  animation: hudPulseRing 2.4s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
 }
 
 /* Thin scrollbar for horizontal forecast strips */
@@ -586,8 +523,6 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   .hub-fresh,
   .hub-tick-up,
   .hub-tick-down,
-  .hud-scanline,
-  .hud-pulse-ring,
   .animate-tab-enter,
   .animate-drawer-left,
   .animate-drawer-right,

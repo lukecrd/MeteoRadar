@@ -8,7 +8,7 @@ export type NewsFilter = NewsCategory | 'all';
 const API_BASE: string = ((import.meta as any).env?.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') ?? '';
 
 export const NEWS_CATEGORY_META: Record<NewsFilter, { label: string; short: string; color: string }> = {
-  all: { label: 'Tutte le fonti', short: 'ALL', color: '#22d3ee' },
+  all: { label: 'Tutte le fonti', short: 'ALL', color: '#9aa4b0' },
   meteo: { label: 'Meteo & Allerte', short: 'WX', color: '#38bdf8' },
   italia: { label: 'Italia', short: 'ITA', color: '#34d399' },
   mondo: { label: 'Mondo', short: 'WRLD', color: '#a78bfa' },

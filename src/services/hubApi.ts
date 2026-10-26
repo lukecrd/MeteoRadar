@@ -18,7 +18,7 @@ export const fetchGeoNews = () => getJson<GeoNewsResponse>('/api/geonews', 'Feed
 export const fetchMarkets = () => getJson<MarketsResponse>('/api/markets', 'Feed mercati');
 
 export const GEO_REGION_META: Record<GeoRegion | 'all', { label: string; color: string }> = {
-  all: { label: 'Mondo', color: '#22d3ee' },
+  all: { label: 'Mondo', color: '#9aa4b0' },
   europa: { label: 'Europa', color: '#60a5fa' },
   americhe: { label: 'Americhe', color: '#f472b6' },
   mena: { label: 'Medio Oriente & Africa', color: '#fbbf24' },

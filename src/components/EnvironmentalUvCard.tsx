@@ -208,7 +208,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
         <div className="lg:col-span-5 flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-inner">
           <div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
                 <Sun className="w-4 h-4 text-amber-400" />
                 Radiazione Solare UV
               </span>
@@ -255,7 +255,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
 
           {/* Protection Checklist */}
           <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700/60">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2.5">
+            <span className="text-xs font-bold text-slate-400 block mb-2.5">
               Protocollo Protezione Solare:
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -283,7 +283,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
         <div className="lg:col-span-7 flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 shadow-inner">
           {!hasAirQuality ? (
             <div role="status" className="flex flex-col items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
                 <Activity className="w-4 h-4 text-teal-400" />
                 Indice Europeo Qualità dell'Aria (EAQI)
               </span>
@@ -295,7 +295,7 @@ export const EnvironmentalUvCard: React.FC<EnvironmentalUvCardProps> = ({
           ) : (<>
           <div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-300 flex items-center gap-1.5">
                 <Activity className="w-4 h-4 text-teal-400" />
                 Indice Europeo Qualità dell'Aria (EAQI)
               </span>

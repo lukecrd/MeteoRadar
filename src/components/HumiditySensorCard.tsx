@@ -101,7 +101,7 @@ export const HumiditySensorCard: React.FC<HumiditySensorCardProps> = ({
         <div className="mb-4 p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-start gap-3 text-rose-400 animate-toast-in">
           <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 animate-bounce" />
           <div className="text-xs">
-            <div className="font-bold uppercase tracking-wider text-xs">Allarme Variazione Rapida Rilevata</div>
+            <div className="font-bold text-xs">Allarme Variazione Rapida Rilevata</div>
             <div className="text-slate-800 dark:text-slate-100 font-bold mt-0.5">{alertState.message}</div>
             <div className="text-xs text-rose-400 font-semibold mt-1">
               Variazione: {alertState.changeRate > 0 ? '+' : ''}{alertState.changeRate.toFixed(1)}%/h (Soglia di allerta: ±{spikeThreshold}%)
@@ -148,7 +148,7 @@ export const HumiditySensorCard: React.FC<HumiditySensorCardProps> = ({
                 {Math.round(currentHumidity)}
                 <span className="text-lg font-bold text-cyan-400">%</span>
               </span>
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-300">
                 Umidità Relativa
               </span>
             </div>

@@ -31,7 +31,7 @@ export const FeedStatus: React.FC<{
   const problem = error || feed?.error;
   return (
     <div className="space-y-2 mb-3">
-      <div className="hub-label flex items-center gap-2 !normal-case !tracking-[0.08em]">
+      <div className="hub-label flex items-center gap-2">
         {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <span className="hub-live-dot" />}
         {source}
         {feed && !isLoading && <span className="opacity-70">· aggiornato {timeAgo(feed.fetchedAt)}</span>}
@@ -354,7 +354,7 @@ export const SatellitesList: React.FC<{
         />
       </label>
       {filtered.length > shown.length && (
-        <p className="hub-label !normal-case !tracking-[0.06em] mb-1">
+        <p className="hub-label mb-1">
           {shown.length} di {filtered.length.toLocaleString('it-IT')} · affina la ricerca
         </p>
       )}

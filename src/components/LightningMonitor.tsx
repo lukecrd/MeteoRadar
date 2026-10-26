@@ -328,7 +328,7 @@ export const LightningMonitor: React.FC<LightningMonitorProps> = ({
               : 'bg-slate-50 border-slate-200 text-slate-800'
           }`}>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Stato Attività Temporalesca</span>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200">Stato Attività Temporalesca</span>
               <Radio className="w-4 h-4 animate-pulse text-amber-400" />
             </div>
             <div className="text-base font-bold mt-1">

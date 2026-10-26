@@ -20,6 +20,14 @@
       "showSpinner": true,
       "androidSpinnerStyle": "large",
       "spinnerColor": "#2dd4bf"
+    },
+    "BackgroundRunner": {
+      "label": "com.meteoradar.italy.alerts",
+      "src": "runners/alerts.js",
+      "event": "checkAlerts",
+      "repeat": true,
+      "interval": 15,
+      "autoStart": true
     }
   }
 }

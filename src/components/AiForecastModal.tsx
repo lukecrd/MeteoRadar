@@ -73,7 +73,7 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-6 relative z-10">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/30">
+            <div className="p-2.5 rounded-2xl bg-teal-500 text-white dark:text-slate-950">
               <Sparkles className="w-6 h-6" />
             </div>
             <div>
@@ -135,7 +135,7 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
                   <ShieldCheck className="w-6 h-6 shrink-0" />
                 )}
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-wider">
+                  <div className="text-xs font-bold">
                     Indice di Rischio Cambiamenti Atmosferici
                   </div>
                   <div className="text-lg font-bold">{risk}</div>
@@ -143,14 +143,14 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
               </div>
 
               <div className="text-right">
-                <div className="text-xs uppercase font-bold text-slate-500 dark:text-slate-300">Accuratezza Modello</div>
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-300">Accuratezza Modello</div>
                 <div className="text-base font-bold text-teal-400">{safeReport.confidence ?? 94}%</div>
               </div>
             </div>
 
             {/* Summary */}
             <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
-              <div className="text-xs font-bold uppercase tracking-wider text-teal-400 mb-1">
+              <div className="text-xs font-bold text-teal-400 mb-1">
                 Sintesi Sinottica
               </div>
               <p className="text-sm leading-relaxed font-medium text-slate-700 dark:text-slate-200">
@@ -160,7 +160,7 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
 
             {/* Prediction */}
             <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
-              <div className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-1">
+              <div className="text-xs font-bold text-cyan-400 mb-1">
                 Evoluzione a Breve Termine (Prossime 1-6 Ore)
               </div>
               <p className="text-sm leading-relaxed font-medium text-slate-700 dark:text-slate-200">
@@ -171,7 +171,7 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
             {/* Lightning Risk & Advisory Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 mb-1">
                   <Zap className="w-4 h-4" />
                   Rischio Elettrico / Tuoni
                 </div>
@@ -181,7 +181,7 @@ export const AiForecastModal: React.FC<AiForecastModalProps> = ({
               </div>
 
               <div className={`p-4 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-slate-700/60' : 'bg-slate-50 border-slate-200'}`}>
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-1">
                   <CheckCircle2 className="w-4 h-4" />
                   Raccomandazioni di Sicurezza
                 </div>

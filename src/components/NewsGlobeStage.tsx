@@ -121,7 +121,7 @@ const LOCAL_LEVEL_COLOR: Record<WeatherAlertInfo['level'], string> = {
 const REFRESH = { quakes: 90_000, flights: 60_000, disasters: 5 * 60_000 };
 const ISS_COLOR = '#facc15';
 const TRACK_REFRESH_MS = 60_000;
-const TRACKED_FLIGHT_COLOR = '#22d3ee';
+const TRACKED_FLIGHT_COLOR = '#ffffff';
 
 type SampleFlight = FlightsResponse['items'][number];
 
@@ -770,7 +770,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   );
 
   if (isMobile) {
-    // Phones: globe fills the screen; flight search floats on top, the legend
+    // Phones: globe fills the screen; the legend
     // sits above the bottom nav and opens a single bottom sheet.
     const openDef = WINDOWS.find((w) => open[w.id]);
     return (
@@ -781,9 +781,6 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         aria-label="Mappamondo eventi in tempo reale"
       >
         {globe}
-        <div className="absolute inset-x-2 top-2 z-20 flex flex-col gap-2">
-          <FlightSearch compact onSelect={openFlight} />
-        </div>
         <div className="absolute inset-x-2 bottom-2 z-30 max-h-[calc(100%-1rem)] flex flex-col gap-2 pointer-events-none">
           {followBadge && <div className="self-center max-w-full">{followBadge}</div>}
           {showCard ? (
@@ -826,13 +823,8 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       aria-label="Mappamondo eventi in tempo reale"
     >
       {globe}
-      {/* Flight search (+ follow badge): top centre, between the drawers */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 w-[min(560px,calc(100%-8rem))] flex flex-col items-center gap-2">
-        <div className="w-full sm:w-72">
-          <FlightSearch compact onSelect={openFlight} />
-        </div>
-        {followBadge}
-      </div>
+      {/* Follow badge: top centre, between the drawers. Flight search lives in the Voli window. */}
+      {followBadge && <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 max-w-[min(560px,calc(100%-8rem))]">{followBadge}</div>}
       {/* Clear of the globe's zoom buttons (bottom right). */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-7rem)] flex">{legend}</div>
       {drawer('left')}

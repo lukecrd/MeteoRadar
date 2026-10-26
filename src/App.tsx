@@ -10,6 +10,7 @@ import {
   MeteoSection
 } from './types';
 import { useHashRoute, useAndroidBackButton } from './hooks/useHashRoute';
+import { usePersonalAlerts } from './hooks/usePersonalAlerts';
 import { AppTopNav, AppBottomNav } from './components/AppNav';
 import { DEFAULT_LOCATION, fetchWeatherData } from './services/weatherApi';
 import { playHumidityAlertSound, playLightningAlertSound, triggerVibration } from './services/audioAlerts';
@@ -119,6 +120,11 @@ export default function App() {
   const [aiReport, setAiReport] = useState<AiPredictionReport | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [testToastMessage, setTestToastMessage] = useState<string | null>(null);
+  // Personal alerts for saved places; on the web, notices without notification permission show as a toast.
+  const personalAlerts = usePersonalAlerts((n) => {
+    setTestToastMessage(`${n.title}. ${n.body}`);
+    setTimeout(() => setTestToastMessage(null), 8000);
+  });
 
   // Lightning Alert Dismissal & Snooze State
   const [isLightningAlertDismissed, setIsLightningAlertDismissed] = useState(false);
@@ -463,7 +469,7 @@ export default function App() {
   ];
 
   return (
-    <div className="hub-root min-h-screen relative font-sans transition-colors duration-300 hud-grid-bg">
+    <div className="hub-root min-h-screen relative font-sans transition-colors duration-300">
       {/* Dynamic Atmospheric Particle and Flash Background */}
       {weatherData && route === 'meteo' && (
         <AtmosphericCanvas
@@ -566,7 +572,6 @@ export default function App() {
         {isLoading && !weatherData && route === 'meteo' && (
           <div className="py-32 flex flex-col items-center justify-center gap-4" role="status">
             <div className="relative w-14 h-14">
-              <span className="hud-pulse-ring" />
               <Loader2 className="w-14 h-14 text-[var(--hub-cyan)] animate-spin" />
             </div>
             <div className="hub-label">Caricamento dati meteo…</div>
@@ -754,6 +759,8 @@ export default function App() {
           setTimeout(() => setTestToastMessage(null), 5000);
         }}
         isDark={isDark}
+        personalAlerts={personalAlerts}
+        currentLocation={currentLocation}
       />
 
       {/* Developer tools: Android export & Vercel deploy */}

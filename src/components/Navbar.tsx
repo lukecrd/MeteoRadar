@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Moon, Sun, Sliders, Navigation, Smartphone } from 'lucide-react';
 import { LocationInfo } from '../types';
 import { CitySearch } from './CitySearch';
@@ -19,6 +19,30 @@ interface NavbarProps {
   /** Rendered inside the sticky header, below the main row (primary navigation) */
   children?: React.ReactNode;
 }
+
+/** UTC and the selected place's local time: the observatory's reference clock. */
+const HeaderClock: React.FC<{ location: LocationInfo }> = ({ location }) => {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const local = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat('it-IT', { timeZone: location.timezone, hour: '2-digit', minute: '2-digit' });
+    } catch {
+      // Unknown or missing zone: fall back to the device's time.
+      return new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit' });
+    }
+  }, [location.timezone]);
+  const utc = now.toISOString().slice(11, 19);
+  return (
+    <div className="hidden xl:flex items-baseline gap-4 shrink-0 font-hud text-[15px] font-semibold" aria-label={`Ora UTC ${utc}, ora di ${location.name} ${local.format(now)}`}>
+      <span><span className="font-sans text-xs font-normal text-[var(--hub-dim)] mr-1.5">UTC</span>{utc}</span>
+      <span><span className="font-sans text-xs font-normal text-[var(--hub-dim)] mr-1.5">{location.name}</span>{local.format(now)}</span>
+    </div>
+  );
+};
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentLocation,
@@ -46,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Same globe as the app icon (public/icon.svg) */}
           <img src="/icon.svg" alt="WorldHub" width={40} height={40} className="w-10 h-10" />
           <div className="leading-tight hidden sm:block">
-            <div className="font-display font-bold text-lg sm:text-xl tracking-[0.08em] whitespace-nowrap hub-brand-text">
+            <div className="font-display font-bold text-lg sm:text-xl whitespace-nowrap hub-brand-text">
               WorldHub
             </div>
           </div>
@@ -60,6 +84,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           showCurrent
           className="flex-1 max-w-md"
         />
+
+        <HeaderClock location={currentLocation} />
 
         {/* Right Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
