@@ -15,7 +15,8 @@
     "android:run": "cap run android",
     "flutter:sync": "vite build --mode android && mkdir -p flutter_app/assets/web && cp -r dist/* flutter_app/assets/web/",
     "build:runner": "esbuild src/alerts/runner.ts --bundle --format=iife --target=es2017 --outfile=public/runners/alerts.js",
-    "check:alerts": "tsx src/alerts/personalAlerts.check.ts"
+    "check:alerts": "tsx src/alerts/personalAlerts.check.ts",
+    "check:overhead": "tsx src/services/overhead.check.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",
