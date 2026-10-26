@@ -1,0 +1,8 @@
+# core.autocrlf rewrote these once and broke the Android builds:
+# binaries must never be converted, and the Gradle shell launcher must keep LF
+# to run on Linux, macOS and CI.
+*.jar binary
+*.aar binary
+gradlew text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
