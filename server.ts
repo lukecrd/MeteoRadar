@@ -8,6 +8,7 @@ import { getDisasters, getEarthquakes, getAreaFlights, getFlights, getSatellites
 import { getFlightInfo, getFlightLive, searchFlights } from './lib/flightTracker';
 import { getGeoNews } from './lib/geonews';
 import { getMarkets } from './lib/markets';
+import { getWebcams, parseWebcamQuery } from './lib/webcams';
 
 dotenv.config();
 
@@ -55,6 +56,13 @@ app.get('/api/news', async (req, res) => {
 app.get('/api/earthquakes', async (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=30');
   res.json(await getEarthquakes());
+});
+// Webcams near a point (Windy; key and cache in lib/webcams.ts, which never throws).
+app.get('/api/webcams', async (req, res) => {
+  const point = parseWebcamQuery(req.query);
+  if (!point) return res.status(400).json({ error: 'lat e lon obbligatori' });
+  res.setHeader('Cache-Control', 'public, max-age=240');
+  res.json(await getWebcams(point.lat, point.lon));
 });
 app.get('/api/flights', async (req, res) => {
   const area = parseAreaQuery(req.query);

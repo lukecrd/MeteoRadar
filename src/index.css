@@ -226,8 +226,9 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   letter-spacing: -0.01em;
 }
 
-/* App root: futuristic deep-space observatory backdrop with subtle 3D perspective grid. */
+/* App root: night observatory backdrop with a faint static grid. */
 .hub-root {
+  overflow-x: clip; /* cards rising in 3D must not widen the page */
   background-color: var(--bg);
   color: var(--fg);
   background-image:
@@ -278,10 +279,15 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
     0 24px 52px -12px rgba(0, 0, 0, 0.75);
 }
 
-/* Feature modules: 3D perspective stage with subtle elevation lift on hover. */
+/* Feature modules: cards that tilt toward the pointer (main.tsx sets --rx/--ry
+   and the glare position --mx/--my) and rise out of depth as they scroll in. */
+@property --hub-rise { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@property --hub-beam { syntax: '<angle>'; inherits: false; initial-value: 305deg; }
+
 .hub-module {
   position: relative;
-  perspective: 1400px;
+  transform: perspective(1400px) rotateX(calc(var(--rx, 0deg) + var(--hub-rise))) rotateY(var(--ry, 0deg));
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .hub-module > :first-child {
   position: relative;
@@ -291,7 +297,7 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
     color-mix(in srgb, var(--surface) 94%, transparent) 100%
   ) !important;
   border: 1px solid color-mix(in srgb, var(--line-strong) 65%, rgba(56, 189, 248, 0.24)) !important;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-xl) !important;
   box-shadow:
     0 1px 0 0 rgba(255, 255, 255, 0.14) inset,
     0 -2px 0 0 rgba(56, 189, 248, 0.14) inset,
@@ -299,17 +305,69 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
     0 6px 16px -4px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  transform: translateZ(0);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+  transition: box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .hub-module:hover > :first-child {
-  transform: translateY(-2px) rotateX(0.4deg);
-  border-color: color-mix(in srgb, var(--line-strong) 80%, rgba(56, 189, 248, 0.42)) !important;
   box-shadow:
     0 1px 0 0 rgba(255, 255, 255, 0.22) inset,
     0 -2px 0 0 rgba(56, 189, 248, 0.25) inset,
-    0 28px 60px -16px rgba(0, 0, 0, 0.72),
-    0 0 24px -6px rgba(56, 189, 248, 0.18);
+    0 34px 70px -18px rgba(0, 0, 0, 0.78),
+    0 0 32px -6px rgba(56, 189, 248, 0.22);
+}
+/* Light rim: lit corners at rest, a beam that travels the border on hover. */
+.hub-module::before,
+.hub-module::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: var(--radius-xl);
+  pointer-events: none;
+}
+.hub-module::before {
+  padding: 1px;
+  background: conic-gradient(
+    from var(--hub-beam),
+    transparent 0 4%,
+    var(--info) 9%,
+    #fff 11%,
+    transparent 19% 52%,
+    color-mix(in srgb, var(--info) 70%, var(--success)) 60%,
+    transparent 68%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+.hub-module:hover::before {
+  opacity: 1;
+  animation: hubBeam 5s linear infinite;
+}
+/* Specular glare that follows the pointer. */
+.hub-module::after {
+  background: radial-gradient(
+    460px circle at var(--mx, 50%) var(--my, 0%),
+    color-mix(in srgb, var(--info) 13%, transparent),
+    transparent 62%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.hub-module:hover::after { opacity: 1; }
+@keyframes hubBeam { to { --hub-beam: 665deg; } }
+@keyframes hubRise {
+  from { opacity: 0; --hub-rise: 16deg; translate: 0 56px; scale: 0.94; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hub-module {
+      animation: hubRise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 300px;
+    }
+  }
 }
 
 /* Reusable 3D inner sub-card for telemetry widgets */
@@ -440,6 +498,30 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
 }
+
+/* ---------- Kiosk ---------- */
+/* Cards fold up into place, one after the other, each time a tab opens. */
+@keyframes kioskCardIn {
+  from { opacity: 0; transform: perspective(900px) rotateX(-12deg) translateY(18px) scale(0.97); }
+}
+.kiosk-stage section { animation: kioskCardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.kiosk-stage section:nth-of-type(2) { animation-delay: 70ms; }
+.kiosk-stage section:nth-of-type(3) { animation-delay: 140ms; }
+.kiosk-stage section:nth-of-type(4) { animation-delay: 210ms; }
+/* The panel the automatic cycle is showing gets one pass of light. */
+@keyframes kioskSheen { to { transform: translateX(100%); } }
+.kiosk-focus::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: kioskSheen 1.2s ease-out 0.1s both;
+}
+/* Same 7 s as the cycle interval in KioskStationModal. */
+@keyframes kioskCycle { from { transform: scaleX(0); } }
+.kiosk-cycle-bar { transform-origin: left; animation: kioskCycle 7s linear both; }
 
 /* LIVE indicator: the one place where glow is allowed (it signals live data). */
 @keyframes hubBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
@@ -639,7 +721,12 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hub-module:hover::before { animation: none !important; }
+  .hub-module { transition: none; }
   .hub-ticker-track,
+  .kiosk-stage section,
+  .kiosk-focus::after,
+  .kiosk-cycle-bar,
   .hub-live-dot,
   .hub-skeleton,
   .hub-fresh,

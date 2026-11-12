@@ -24,6 +24,7 @@ export const WORLD_ENDPOINTS = {
   flights: `${API_BASE}/api/flights`,
   flightsArea: (lat: string, lon: string, radiusNm: number) => `${API_BASE}/api/flights?lat=${lat}&lon=${lon}&radius=${radiusNm}`,
   disasters: `${API_BASE}/api/disasters`,
+  webcams: (lat: string, lon: string) => `${API_BASE}/api/webcams?lat=${lat}&lon=${lon}`,
   flightSearch: (q: string) => `${API_BASE}/api/flights/search?q=${encodeURIComponent(q)}`,
   flightLive: (icao24: string) => `${API_BASE}/api/flights/live?icao24=${encodeURIComponent(icao24)}`,
   flightInfo: (callsign: string | null, icao24: string | null) =>

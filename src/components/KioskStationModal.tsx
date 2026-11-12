@@ -2,6 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   Activity,
   ArrowUpRight,
+  Cloud,
+  CloudLightning,
+  CloudRain,
+  Eye,
   Compass,
   Droplets,
   Gauge,
@@ -22,7 +26,7 @@ import {
   X,
 } from 'lucide-react';
 import { HumiditySensorReading, WeatherData } from '../types';
-import { getBeaufortScale, getWindDirectionLabel } from '../services/weatherApi';
+import { getBeaufortScale, getWeatherDescription, getWindDirectionLabel, summarizeRain } from '../services/weatherApi';
 import { computeLunarEphemeris, computeSolarEphemeris } from '../services/astronomy';
 import { MoonDiskSvg } from './AstronomicalEphemerisCard';
 import { usePolledJson } from '../hooks/usePolledJson';
@@ -51,7 +55,8 @@ interface KioskStationModalProps {
   isLoading: boolean;
 }
 
-type KioskMainTab = 'meteo' | 'eventi';
+type KioskMainTab = 'meteo' | 'eventi' | 'sintesi';
+const KIOSK_TABS: KioskMainTab[] = ['meteo', 'eventi', 'sintesi'];
 type KioskAltFilter = 'all' | 'low' | 'mid' | 'high';
 
 const NEWS_FILTERS: NewsFilter[] = ['all', 'meteo', 'italia', 'mondo', 'scienza', 'tech', 'ambiente'];
@@ -70,6 +75,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
   const [kioskTab, setKioskTab] = useState<KioskMainTab>('meteo');
   const [autoCycle, setAutoCycle] = useState(false);
   const [focusedPanel, setFocusedPanel] = useState<number>(0);
+  const [idle, setIdle] = useState(false);
 
   // Filters inside the "Notizie, Terremoti & Voli 3D" tab
   const [newsCategory, setNewsCategory] = useState<NewsFilter>('all');
@@ -93,7 +99,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
       setFocusedPanel((prev) => {
         const next = (prev + 1) % 6;
         if (next === 0) {
-          setKioskTab((t) => (t === 'meteo' ? 'eventi' : 'meteo'));
+          setKioskTab((t) => KIOSK_TABS[(KIOSK_TABS.indexOf(t) + 1) % KIOSK_TABS.length]);
         }
         return next;
       });
@@ -101,7 +107,53 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
     return () => clearInterval(id);
   }, [isOpen, autoCycle]);
 
-  // Sync native Fullscreen API state and keyboard shortcuts (Escape, 1, 2)
+  // Keep the display awake while the kiosk is open: a wall screen must not sleep.
+  useEffect(() => {
+    if (!isOpen || !('wakeLock' in navigator)) return;
+    let lock: WakeLockSentinel | null = null;
+    let closed = false;
+    // The browser drops the lock when the tab is hidden, so take it again on return.
+    const acquire = () => {
+      if (document.visibilityState !== 'visible') return;
+      navigator.wakeLock
+        .request('screen')
+        .then((l) => {
+          if (closed) l.release().catch(() => {});
+          else lock = l;
+        })
+        .catch(() => {});
+    };
+    acquire();
+    document.addEventListener('visibilitychange', acquire);
+    return () => {
+      closed = true;
+      document.removeEventListener('visibilitychange', acquire);
+      lock?.release().catch(() => {});
+    };
+  }, [isOpen]);
+
+  // After 8 s without input, hide the cursor and dim the controls.
+  useEffect(() => {
+    if (!isOpen) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const wake = () => {
+      setIdle(false);
+      clearTimeout(timer);
+      timer = setTimeout(() => setIdle(true), 8_000);
+    };
+    wake();
+    window.addEventListener('pointermove', wake, { passive: true });
+    window.addEventListener('pointerdown', wake, { passive: true });
+    window.addEventListener('keydown', wake);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('pointermove', wake);
+      window.removeEventListener('pointerdown', wake);
+      window.removeEventListener('keydown', wake);
+    };
+  }, [isOpen]);
+
+  // Sync native Fullscreen API state and keyboard shortcuts (Escape, 1, 2, 3, C, F)
   useEffect(() => {
     if (!isOpen) return;
 
@@ -115,6 +167,12 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
         setKioskTab('meteo');
       } else if (e.key === '2') {
         setKioskTab('eventi');
+      } else if (e.key === '3') {
+        setKioskTab('sintesi');
+      } else if (e.key === 'c' || e.key === 'C') {
+        setAutoCycle((prev) => !prev);
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleBrowserFullscreen();
       }
     };
 
@@ -312,9 +370,21 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
   const card3DClass = (idx: number, accentBorder: string, accentGlow: string) =>
     `relative rounded-2xl border p-4 sm:p-5 flex flex-col justify-between overflow-hidden transition-all duration-300 backdrop-blur-xl ${
       autoCycle && focusedPanel === idx
-        ? `${accentBorder} bg-slate-900/95 ${accentGlow} -translate-y-0.5`
+        ? `kiosk-focus ${accentBorder} bg-slate-900/95 ${accentGlow} -translate-y-0.5`
         : 'border-slate-700/75 bg-gradient-to-br from-slate-900/92 via-slate-900/82 to-slate-950/92 shadow-[0_1px_0_0_rgba(255,255,255,0.15)_inset,0_18px_38px_-12px_rgba(0,0,0,0.78)] hover:border-slate-600/90'
     }`;
+
+  // One of four pictograms for the Sintesi tab: enough to read the sky from far away.
+  const sky = getWeatherDescription(current.weatherCode);
+  const GlanceIcon = sky.isStorm
+    ? CloudLightning
+    : sky.isRain
+      ? CloudRain
+      : current.weatherCode > 1
+        ? Cloud
+        : current.isDay
+          ? Sun
+          : Moon;
 
   const leadStory = uniqueNews[0] ?? null;
   const streamStories = uniqueNews.slice(1, 14);
@@ -324,7 +394,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-label={`Stazione Meteo Fullscreen 3D · ${location.name}`}
-      className="on-dark fixed inset-0 z-50 bg-[#030712] text-slate-50 flex flex-col justify-between overflow-y-auto xl:overflow-hidden select-none p-3 sm:p-5 gap-3.5"
+      className={`on-dark fixed inset-0 z-50 bg-[#030712] text-slate-50 flex flex-col justify-between overflow-y-auto xl:overflow-hidden select-none p-3 sm:p-5 gap-3.5 ${idle ? 'cursor-none' : ''}`}
       style={{
         backgroundImage:
           'radial-gradient(ellipse 75% 45% at 50% -5%, rgba(34, 211, 238, 0.16), transparent 70%), radial-gradient(ellipse 55% 40% at 90% 85%, rgba(168, 85, 247, 0.13), transparent 65%), radial-gradient(ellipse 50% 35% at 10% 80%, rgba(16, 185, 129, 0.11), transparent 65%), linear-gradient(to bottom, rgba(30, 41, 59, 0.28) 1px, transparent 1px), linear-gradient(to right, rgba(30, 41, 59, 0.28) 1px, transparent 1px)',
@@ -333,6 +403,13 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
     >
       {/* TOP 3D HOLOGRAPHIC COMMAND HEADER WITH UNIFIED TAB SWITCHER */}
       <header className="relative rounded-2xl border border-cyan-500/35 bg-gradient-to-r from-slate-900/95 via-slate-900/90 to-slate-900/95 px-4 py-3 shadow-[0_1px_0_0_rgba(255,255,255,0.18)_inset,0_12px_30px_-10px_rgba(0,0,0,0.8)] flex flex-wrap items-center justify-between gap-3 shrink-0">
+        {/* Countdown to the next step of the automatic cycle */}
+        {autoCycle && (
+          <div aria-hidden className="absolute bottom-0 left-4 right-4 h-[2px] overflow-hidden rounded-full">
+            <div key={focusedPanel} className="kiosk-cycle-bar h-full bg-cyan-400" />
+          </div>
+        )}
+
         {/* Station Title & Coordinates */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-cyan-500/15 border border-cyan-400/40 shrink-0 shadow-[0_0_16px_rgba(34,211,238,0.25)]">
@@ -400,6 +477,21 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               {uniqueNews.length}N · {allNearbyFlights.length}V · {filteredQuakes.length}T
             </span>
           </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={kioskTab === 'sintesi'}
+            onClick={() => setKioskTab('sintesi')}
+            className={`h-9 px-3.5 rounded-xl font-display text-xs sm:text-sm font-bold inline-flex items-center gap-2 transition-all ${
+              kioskTab === 'sintesi'
+                ? 'bg-slate-800 text-white border border-slate-300/70 -translate-y-[1px]'
+                : 'text-slate-300 hover:text-white border border-transparent'
+            }`}
+          >
+            <Eye className="w-4 h-4 text-slate-200 shrink-0" />
+            <span>3 · Sintesi</span>
+          </button>
         </div>
 
         {/* Clocks & Action Controls */}
@@ -420,7 +512,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className={`flex items-center gap-1.5 shrink-0 transition-opacity duration-500 ${idle ? 'opacity-30' : ''}`}>
             <button
               type="button"
               onClick={() => setAutoCycle((prev) => !prev)}
@@ -430,7 +522,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                   ? 'border-cyan-400 bg-cyan-500/25 text-cyan-200 shadow-[0_0_16px_rgba(34,211,238,0.3)]'
                   : 'border-slate-700 bg-slate-800/90 text-slate-200 hover:border-cyan-400/60'
               }`}
-              title="Rotazione automatica quadranti e tab ogni 7 secondi"
+              title="Rotazione automatica quadranti e tab ogni 7 secondi (tasto C)"
             >
               <Play className="w-3.5 h-3.5 text-cyan-400" />
               <span className="hidden sm:inline">Ciclo 3D</span>
@@ -456,7 +548,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               type="button"
               onClick={toggleBrowserFullscreen}
               className="h-9 px-2.5 rounded-xl border border-slate-700 bg-slate-800/90 text-slate-200 hover:border-cyan-400/60 text-xs font-semibold inline-flex items-center gap-1.5"
-              title="Schermo intero nativo"
+              title="Schermo intero nativo (tasto F)"
             >
               {isNativeFullscreen ? <Minimize2 className="w-3.5 h-3.5 text-cyan-400" /> : <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />}
             </button>
@@ -478,7 +570,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
           TAB 1: METEO, ARIA & CIELO 3D
           ===================================================================== */}
       {kioskTab === 'meteo' && (
-        <div key="kiosk-tab-meteo" className="flex-1 min-h-0 flex flex-col justify-between gap-3.5 animate-tab-enter">
+        <div key="kiosk-tab-meteo" className="kiosk-stage flex-1 min-h-0 flex flex-col justify-between gap-3.5">
           {/* TOP 4 3D VOLUMETRIC TELEMETRY QUADRANTS */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5 flex-1 min-h-0">
             {/* MODULE 1: 3D THERMOMETRY, BAROMETRIC CYLINDER & CONVECTIVE ENERGY */}
@@ -918,6 +1010,91 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               </div>
             </section>
           </div>
+
+          {/* Headlines ticker: the news stay in view without leaving the weather tab */}
+          {uniqueNews.length > 0 && (
+            <div className="hub-ticker hub-ticker-mask shrink-0 overflow-hidden rounded-xl border border-slate-800/90 bg-slate-950/80 h-8 flex items-center">
+              <div className="hub-ticker-track" style={{ ['--ticker-duration' as string]: '120s' }}>
+                {[0, 1].map((copy) => (
+                  <div key={copy} aria-hidden={copy === 1} className="flex items-center shrink-0">
+                    {uniqueNews.slice(0, 12).map((item) => (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        tabIndex={copy === 1 ? -1 : undefined}
+                        className="inline-flex items-center gap-2 px-4 text-xs text-slate-200 hover:text-cyan-300 whitespace-nowrap"
+                      >
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{ backgroundColor: NEWS_CATEGORY_META[item.category].color }}
+                        />
+                        <span className="font-hud font-bold text-slate-400">{item.source}</span>
+                        <span>{item.title}</span>
+                      </a>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* =====================================================================
+          TAB 3: SINTESI — few, huge figures, readable from across the room
+          ===================================================================== */}
+      {kioskTab === 'sintesi' && (
+        <div key="kiosk-tab-sintesi" className="kiosk-stage flex-1 min-h-0 flex flex-col gap-3.5">
+          <section className="relative flex-1 min-h-0 rounded-2xl border border-slate-700/75 bg-slate-950/80 p-6 grid grid-cols-1 lg:grid-cols-2 items-center gap-6 overflow-hidden">
+            <div className="text-center lg:text-left min-w-0">
+              <div className="font-hud font-bold tabular-nums leading-none text-white text-[clamp(4rem,19vh,15rem)]">
+                {localTimeStr.slice(0, 5)}
+              </div>
+              <div className="mt-4 text-[clamp(1.25rem,3.4vh,2.5rem)] font-semibold text-slate-200 capitalize">{dateStr}</div>
+              <div className="mt-1 text-[clamp(1rem,2.6vh,2rem)] text-slate-400">{location.name}</div>
+            </div>
+
+            <div className="flex items-center justify-center lg:justify-end gap-[3vh] min-w-0">
+              <GlanceIcon className="shrink-0 w-[20vh] h-[20vh] max-w-[30vw] text-cyan-300" strokeWidth={1.4} aria-hidden />
+              <div className="min-w-0">
+                <div className="font-hud font-bold tabular-nums leading-none text-white text-[clamp(4rem,22vh,17rem)]">
+                  {current.temperature.toFixed(0)}°
+                </div>
+                <div className="mt-3 text-[clamp(1.25rem,3.6vh,2.75rem)] font-semibold text-cyan-200">
+                  {current.weatherDescription}
+                </div>
+                <div className="mt-1 font-hud tabular-nums text-[clamp(1rem,2.8vh,2rem)] text-slate-300">
+                  Min {daily[0]?.minTemp}° · Max {daily[0]?.maxTemp}° · Vento {current.windSpeed} km/h
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 shrink-0">
+            <section className="rounded-2xl border border-slate-700/75 bg-slate-950/80 px-6 py-4 flex items-center gap-4 min-w-0">
+              <CloudRain className="w-[5vh] h-[5vh] shrink-0 text-sky-400" aria-hidden />
+              <p className="text-[clamp(1.125rem,3.2vh,2.25rem)] font-semibold text-white">
+                {weather.rainNext?.length ? summarizeRain(weather.rainNext) : 'Previsione pioggia a breve non disponibile'}
+              </p>
+            </section>
+            <section
+              className={`rounded-2xl border px-6 py-4 flex items-center gap-4 min-w-0 ${
+                activeAlert && activeAlert.level !== 'green'
+                  ? 'border-amber-400/70 bg-amber-500/15'
+                  : 'border-slate-700/75 bg-slate-950/80'
+              }`}
+            >
+              <ShieldAlert
+                className={`w-[5vh] h-[5vh] shrink-0 ${activeAlert && activeAlert.level !== 'green' ? 'text-amber-300' : 'text-emerald-400'}`}
+                aria-hidden
+              />
+              <p className="text-[clamp(1.125rem,3.2vh,2.25rem)] font-semibold text-white line-clamp-2">
+                {activeAlert?.title ?? 'Nessuna allerta attiva'}
+              </p>
+            </section>
+          </div>
         </div>
       )}
 
@@ -925,7 +1102,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
           TAB 2: NOTIZIE, TERREMOTI & VOLI 3D (UNIFIED FUTURISTIC 3D COMMAND TAB)
           ===================================================================== */}
       {kioskTab === 'eventi' && (
-        <div key="kiosk-tab-eventi" className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3.5 animate-tab-enter">
+        <div key="kiosk-tab-eventi" className="kiosk-stage flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
           {/* COLUMN 1 (5 COLS): 3D HOLOGRAPHIC NEWS HUB WITH CATEGORY TABS */}
           <section className="lg:col-span-5 relative rounded-2xl border border-violet-400/50 bg-gradient-to-br from-slate-900/95 via-slate-900/85 to-slate-950/95 p-4 sm:p-5 flex flex-col justify-between overflow-hidden shadow-[0_1px_0_0_rgba(255,255,255,0.16)_inset,0_20px_44px_-12px_rgba(0,0,0,0.82)] min-h-0">
             <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-violet-400 to-transparent opacity-90" />

@@ -4,7 +4,7 @@ import { AppRoute, MeteoSection } from '../types';
 const ROUTES: AppRoute[] = ['mondo', 'meteo', 'mappa', 'voli', 'notizie'];
 /** WorldHub opens on the globe page (#/mondo); an empty or unknown hash lands there. */
 const DEFAULT_ROUTE: AppRoute = 'mondo';
-const SECTIONS: MeteoSection[] = ['oggi', 'previsioni', 'grafici', 'vento', 'ambiente', 'astronomia', 'fulmini'];
+const SECTIONS: MeteoSection[] = ['oggi', 'previsioni', 'grafici', 'vento', 'ambiente', 'astronomia', 'webcam', 'fulmini'];
 
 export interface RouteState {
   route: AppRoute;

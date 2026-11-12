@@ -1,4 +1,4 @@
-import { LocationInfo, WeatherData, HourlyForecastItem, DailyForecastItem, AirQualityData, WeatherAlertInfo } from '../types';
+import { LocationInfo, WeatherData, HourlyForecastItem, DailyForecastItem, AirQualityData, WeatherAlertInfo, RainStep } from '../types';
 
 // WMO Weather interpretation codes (WW) in Italian
 export function getWeatherDescription(code: number): { text: string; icon: string; isRain: boolean; isStorm: boolean } {
@@ -253,8 +253,28 @@ export function evaluateWeatherAlerts(current: any, hourly: HourlyForecastItem[]
   return alerts;
 }
 
+/** Below this a 15-minute step counts as dry (0.1 mm is the API's resolution). */
+export const RAIN_STEP_MM = 0.1;
+
+const fmtMinutes = (m: number) =>
+  m < 60 ? `${m} min` : m % 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m / 60} h`;
+
+/** One sentence for the 15-minute rain outlook: when it starts, or when it stops. */
+export function summarizeRain(steps: RainStep[]): string {
+  const span = fmtMinutes(steps.length * 15);
+  const wet = steps.map((s) => s.mm >= RAIN_STEP_MM);
+  const start = wet.indexOf(true);
+  if (start === -1) return `Nessuna pioggia nei prossimi ${span}`;
+  const stop = wet.indexOf(false, start);
+  if (start === 0) {
+    return stop === -1 ? `Pioggia per almeno ${span}` : `Piove ora, smette tra circa ${fmtMinutes(stop * 15)}`;
+  }
+  const length = stop === -1 ? '' : `, per circa ${fmtMinutes((stop - start) * 15)}`;
+  return `Pioggia tra circa ${fmtMinutes(start * 15)}${length}`;
+}
+
 export async function fetchWeatherData(location: LocationInfo): Promise<WeatherData> {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,is_day&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,precipitation_probability,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cape,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max,sunrise,sunset,daylight_duration&timezone=auto`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,is_day&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,precipitation_probability,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cape,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max,sunrise,sunset,daylight_duration&minutely_15=precipitation&forecast_minutely_15=8&timezone=auto`;
 
   // Fetch meteo and air quality in parallel
   const [res, airQuality] = await Promise.all([
@@ -272,8 +292,8 @@ export async function fetchWeatherData(location: LocationInfo): Promise<WeatherD
   const daily = data.daily;
 
   // Format hourly next 24h
-  const now = new Date();
-  const currentHourISO = now.toISOString().slice(0, 13);
+  // The API answers in the location's local time (timezone=auto), so "now" must be local too.
+  const currentHourISO = new Date(Date.now() + (data.utc_offset_seconds ?? 0) * 1000).toISOString().slice(0, 13);
   let startIndex = hourly.time.findIndex((t: string) => t.startsWith(currentHourISO));
   if (startIndex === -1) startIndex = 0;
 
@@ -352,6 +372,10 @@ export async function fetchWeatherData(location: LocationInfo): Promise<WeatherD
       visibility: 10, // km
     },
     hourly: formattedHourly,
+    rainNext: (data.minutely_15?.time ?? []).map((time: string, i: number) => ({
+      time,
+      mm: data.minutely_15.precipitation?.[i] ?? 0,
+    })),
     daily: formattedDaily,
     airQuality,
     alerts,

@@ -78,8 +78,16 @@ export interface WeatherAlertInfo {
   instructions: string;
 }
 
+/** Precipitation expected in one 15-minute step, starting at `time` (local ISO). */
+export interface RainStep {
+  time: string;
+  mm: number;
+}
+
 export interface WeatherData {
   location: LocationInfo;
+  /** Next 2 hours in 15-minute steps, the first one being the current step. */
+  rainNext?: RainStep[];
   current: CurrentWeather;
   hourly: HourlyForecastItem[];
   daily: DailyForecastItem[];
@@ -171,4 +179,4 @@ export interface ItalyStationWeather {
 
 // Primary destinations (hash routes) and in-page sections of the Meteo view
 export type AppRoute = 'meteo' | 'mappa' | 'mondo' | 'voli' | 'notizie';
-export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'ambiente' | 'astronomia' | 'fulmini';
+export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'ambiente' | 'astronomia' | 'webcam' | 'fulmini';
