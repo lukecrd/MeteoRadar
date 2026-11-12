@@ -27,6 +27,8 @@ import { EnvironmentalUvCard } from './components/EnvironmentalUvCard';
 import { AiForecastModal } from './components/AiForecastModal';
 import { SettingsModal } from './components/SettingsModal';
 import { AtmosphericCanvas } from './components/AtmosphericCanvas';
+import { RainNextStrip } from './components/RainNextStrip';
+import { WebcamsCard } from './components/WebcamsCard';
 import { AlertBanner } from './components/AlertBanner';
 import { ItalySatelliteMap } from './components/ItalySatelliteMap';
 import { AndroidModal } from './components/AndroidModal';
@@ -490,6 +492,7 @@ export default function App() {
     { id: 'vento', label: 'Vento' },
     { id: 'ambiente', label: 'Umidità e aria' },
     { id: 'astronomia', label: 'Effemeridi & Luna' },
+    { id: 'webcam', label: 'Telecamere' },
     ...(devMode ? [{ id: 'fulmini' as MeteoSection, label: 'Fulmini (demo)' }] : []),
   ];
 
@@ -653,6 +656,8 @@ export default function App() {
               </ul>
             </nav>
 
+            <RainNextStrip steps={weatherData.rainNext ?? []} />
+
             <section id="sec-oggi" aria-label="Condizioni attuali" className="hub-module min-w-0 scroll-mt-40">
               <WeatherHero
                 weather={weatherData}
@@ -718,6 +723,10 @@ export default function App() {
                 daily={weatherData.daily}
                 isDark={isDark}
               />
+            </section>
+
+            <section id="sec-webcam" aria-label="Telecamere in zona" className="hub-module scroll-mt-40">
+              <WebcamsCard location={weatherData.location} />
             </section>
 
             {/* Lightning monitor has no real feed yet: shown only as a developer/demo tool */}
