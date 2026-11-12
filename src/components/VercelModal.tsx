@@ -301,8 +301,8 @@ export const VercelModal: React.FC<VercelModalProps> = ({ isOpen, onClose, isDar
               <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-4 h-4 text-indigo-400" />
-                  <span className="font-mono font-bold text-slate-900 dark:text-white">api/health.ts</span>
-                  <span className="text-slate-400 text-xs">Healthcheck Serverless</span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-white">api/webcams.ts</span>
+                  <span className="text-slate-400 text-xs">Telecamere Windy</span>
                 </div>
                 <span className="text-emerald-400 font-semibold text-xs">Pronto</span>
               </div>
