@@ -35,7 +35,9 @@ import { HubStatusStrip } from './components/HubStatusStrip';
 import { NewsTicker } from './components/NewsTicker';
 import { NewsHub } from './components/NewsHub';
 import { NewsGlobeStage } from './components/NewsGlobeStage';
-import { Loader2, Navigation } from 'lucide-react';
+import { AstronomicalEphemerisCard } from './components/AstronomicalEphemerisCard';
+import { KioskStationModal } from './components/KioskStationModal';
+import { Loader2, Monitor, Navigation } from 'lucide-react';
 
 export default function App() {
   // Theme state: dark mode as default for optimal night radar readability
@@ -115,12 +117,30 @@ export default function App() {
 
   // Modals & AI Report State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isKioskOpen, setIsKioskOpen] = useState(false);
   const [isAndroidModalOpen, setIsAndroidModalOpen] = useState(false);
   const [isVercelModalOpen, setIsVercelModalOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiReport, setAiReport] = useState<AiPredictionReport | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [testToastMessage, setTestToastMessage] = useState<string | null>(null);
+
+  // Global keyboard shortcut 'K' to open/close Kiosk Fullscreen Station when not typing in an input
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) {
+        return;
+      }
+      if (e.key === 'k' || e.key === 'K') {
+        e.preventDefault();
+        setIsKioskOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
   // Personal alerts for saved places; on the web, notices without notification permission show as a toast.
   const personalAlerts = usePersonalAlerts((n) => {
     setTestToastMessage(`${n.title}. ${n.body}`);
@@ -469,6 +489,7 @@ export default function App() {
     { id: 'grafici', label: 'Grafici' },
     { id: 'vento', label: 'Vento' },
     { id: 'ambiente', label: 'Umidità e aria' },
+    { id: 'astronomia', label: 'Effemeridi & Luna' },
     ...(devMode ? [{ id: 'fulmini' as MeteoSection, label: 'Fulmini (demo)' }] : []),
   ];
 
@@ -497,6 +518,7 @@ export default function App() {
         isDark={isDark}
         onToggleTheme={handleToggleTheme}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenKiosk={weatherData ? () => setIsKioskOpen(true) : undefined}
         onOpenAndroid={() => setIsAndroidModalOpen(true)}
         onOpenVercel={() => setIsVercelModalOpen(true)}
         hasActiveAlerts={humidityAlertState.isSpikeActive || isLightningAlertActive}
@@ -535,11 +557,13 @@ export default function App() {
           </div>
         )}
 
-        {/* Forecast city picker: always reachable, even when loading failed */}
-        {route === 'meteo' && (
+        {/* Forecast / Airspace city picker: reachable in Meteo and Voli & ISS */}
+        {(route === 'meteo' || route === 'voli') && (
           <div className="hub-panel p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 relative z-20">
             <div className="min-w-0 flex-1">
-              <div className="hub-label">Previsioni per</div>
+              <div className="hub-label">
+                {route === 'voli' ? 'Spazio aereo e orbita sopra' : 'Previsioni per'}
+              </div>
               <div className="font-display font-semibold text-lg truncate" title={currentLocation.name}>
                 {currentLocation.name}
                 {(currentLocation.admin1 || currentLocation.country) && (
@@ -550,7 +574,7 @@ export default function App() {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:w-[24rem] max-w-full">
+            <div className="flex items-center gap-2 sm:w-[28rem] max-w-full">
               <CitySearch
                 inputId="forecast-city-input"
                 currentLocation={currentLocation}
@@ -568,6 +592,18 @@ export default function App() {
               >
                 <Navigation className={`w-4 h-4 text-[var(--hub-cyan)] ${isGpsLoading ? 'animate-spin' : ''}`} />
               </button>
+              {weatherData && (
+                <button
+                  type="button"
+                  onClick={() => setIsKioskOpen(true)}
+                  className="hub-icon-btn shrink-0"
+                  aria-label="Apri Stazione Meteo Fullscreen (Kiosk)"
+                  title="Modalità Stazione Meteo Fullscreen (Wall Display — Tasto K)"
+                >
+                  <Monitor className="w-4 h-4 text-[var(--hub-cyan)]" />
+                  <span className="hidden sm:inline text-xs">Stazione Fullscreen</span>
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -595,7 +631,7 @@ export default function App() {
           </div>
         )}
 
-        {/* METEO (home): one page, progressive sections */}
+        {/* METEO: one page, progressive sections */}
         {route === 'meteo' && weatherData && (
           <div key="route-meteo" className="space-y-6 animate-tab-enter">
             {/* In-page section shortcuts (replace the old duplicated tabs) */}
@@ -676,8 +712,12 @@ export default function App() {
               </div>
             </section>
 
-            <section id="sec-sopra" aria-label="Aerei e ISS sopra di te" className="hub-module scroll-mt-40">
-              <OverheadCard location={weatherData.location} />
+            <section id="sec-astronomia" aria-label="Effemeridi astronomiche e fase lunare" className="hub-module scroll-mt-40">
+              <AstronomicalEphemerisCard
+                location={weatherData.location}
+                daily={weatherData.daily}
+                isDark={isDark}
+              />
             </section>
 
             {/* Lightning monitor has no real feed yet: shown only as a developer/demo tool */}
@@ -698,6 +738,13 @@ export default function App() {
                 />
               </section>
             )}
+          </div>
+        )}
+
+        {/* VOLI & ISS: dedicated airspace radar & orbital passes tab */}
+        {route === 'voli' && (
+          <div key="route-voli" className="animate-tab-enter">
+            <OverheadCard location={currentLocation} />
           </div>
         )}
 
@@ -742,6 +789,19 @@ export default function App() {
         onDismissTestToast={() => setTestToastMessage(null)}
         isDark={isDark}
       />
+
+      {/* Fullscreen Kiosk / Wall Display Weather Station Modal */}
+      {weatherData && (
+        <KioskStationModal
+          isOpen={isKioskOpen}
+          onClose={() => setIsKioskOpen(false)}
+          weather={weatherData}
+          currentHumidity={currentHumidity}
+          humidityReadings={humidityReadings}
+          onRefresh={() => loadWeather(currentLocation)}
+          isLoading={isLoading}
+        />
+      )}
 
       {/* AI Meteorological Prediction Modal */}
       {weatherData && (

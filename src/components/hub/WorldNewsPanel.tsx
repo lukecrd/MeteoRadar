@@ -22,12 +22,19 @@ export const WorldNewsPanel: React.FC<WorldNewsPanelProps> = ({ areas, region, s
   // Without a selected area: one merged, newest-first stream for the region.
   const items: GeoNewsItem[] = useMemo(() => {
     if (selectedArea) return selectedArea.items;
-    const seen = new Set<string>();
+    const seenTitles = new Set<string>();
+    const seenIds = new Set<string>();
     return areas
       .filter((a) => region === 'all' || a.region === region)
       .flatMap((a) => a.items)
       .sort((a, b) => b.publishedAt - a.publishedAt)
-      .filter((i) => (seen.has(i.title) ? false : (seen.add(i.title), true)))
+      .filter((i) => {
+        const titleKey = i.title.toLowerCase();
+        if (seenIds.has(i.id) || seenTitles.has(titleKey)) return false;
+        seenIds.add(i.id);
+        seenTitles.add(titleKey);
+        return true;
+      })
       .slice(0, MAX_STREAM);
   }, [areas, region, selectedArea]);
 

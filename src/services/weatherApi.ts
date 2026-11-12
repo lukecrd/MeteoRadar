@@ -254,7 +254,7 @@ export function evaluateWeatherAlerts(current: any, hourly: HourlyForecastItem[]
 }
 
 export async function fetchWeatherData(location: LocationInfo): Promise<WeatherData> {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,is_day&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,precipitation_probability,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cape,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max&timezone=auto`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,is_day&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,precipitation_probability,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,cape,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max,sunrise,sunset,daylight_duration&timezone=auto`;
 
   // Fetch meteo and air quality in parallel
   const [res, airQuality] = await Promise.all([
@@ -314,6 +314,9 @@ export async function fetchWeatherData(location: LocationInfo): Promise<WeatherD
       maxWindSpeed: Math.round(daily.wind_speed_10m_max[i] || 0),
       dominantWindDirection: Math.round(daily.wind_direction_10m_dominant[i] || 0),
       uvMax: Math.round(daily.uv_index_max?.[i] || 5),
+      sunrise: daily.sunrise?.[i],
+      sunset: daily.sunset?.[i],
+      daylightDurationSec: daily.daylight_duration?.[i],
     });
   }
 

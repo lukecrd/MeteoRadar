@@ -40,6 +40,8 @@ export interface Flight {
   altitudeM: number | null;
   speedKmh: number | null;
   heading: number | null;
+  aircraftType?: string | null;
+  emitterCategory?: string | null;
 }
 
 export type DisasterType = 'EQ' | 'TC' | 'FL' | 'VO' | 'WF' | 'DR' | string;
@@ -283,6 +285,10 @@ function adsbToState(ac: any, nowSec: number): any[] | null {
     null,
     typeof ac.alt_geom === 'number' ? ac.alt_geom * 0.3048 : null,
     ac.squawk ? String(ac.squawk) : null,
+    null,
+    null,
+    ac.t ? String(ac.t).trim().toUpperCase() : null,
+    ac.category ? String(ac.category).trim().toUpperCase() : null,
   ];
 }
 
@@ -373,6 +379,8 @@ function stateToFlight(s: any[]): Flight {
     altitudeM: s[7] != null ? Math.round(s[7]) : null,
     speedKmh: s[9] != null ? Math.round(s[9] * 3.6) : null,
     heading: s[10] != null ? Math.round(s[10]) : null,
+    aircraftType: s[17] ? String(s[17]) : null,
+    emitterCategory: s[18] ? String(s[18]) : null,
   };
 }
 

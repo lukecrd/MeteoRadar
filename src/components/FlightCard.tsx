@@ -86,12 +86,14 @@ export const FlightCard: React.FC<FlightCardProps> = ({ flight, position, status
 
       <div className="overflow-y-auto overscroll-contain px-3.5 py-2.5 space-y-3">
         {/* Route */}
-        <div className="flex items-center gap-2">
-          <AirportLine a={route?.origin ?? null} />
-          <div className="flex-1 h-px bg-[var(--hub-line-strong)] relative">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="min-w-0 flex-1">
+            <AirportLine a={route?.origin ?? null} />
+          </div>
+          <div className="w-10 shrink-0 h-px bg-[var(--hub-line-strong)] relative">
             <Plane className="w-3.5 h-3.5 absolute -top-[7px] left-1/2 -translate-x-1/2 text-[var(--hub-cyan)] rotate-45" />
           </div>
-          <div className="text-right">
+          <div className="text-right min-w-0 flex-1">
             <AirportLine a={route?.destination ?? null} />
           </div>
         </div>

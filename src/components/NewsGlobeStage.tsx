@@ -33,6 +33,7 @@ import { WorldEventGlobe, GlobeFocus, GlobeMarker, GlobePath } from './WorldEven
 import { FlightCard, FlightSearch } from './FlightCard';
 import { NewsHub } from './NewsHub';
 import { AlertsList, FlightsList, QuakesList, SatellitesList } from './WorldEventPanels';
+import { classifyFlight, FLIGHT_TYPE_FILTERS, FlightTypeCategory } from '../services/flightClassifier';
 
 type Side = 'left' | 'right';
 type WindowId = 'news' | 'flights' | 'satellites' | 'markets' | 'quakes' | 'alerts' | 'crypto';
@@ -75,41 +76,105 @@ const MarketsWindow: React.FC = () => {
   );
 };
 
-/** Altitude-band filter for the flight layer (ported from the former Global Hub). */
-const FlightFilterBar: React.FC<{ bands: AltBand[]; onToggle: (b: AltBand) => void; query: string; onQuery: (q: string) => void }> = ({
+/** Altitude-band, Aircraft-type, and Airline filter for the flight layer. */
+const FlightFilterBar: React.FC<{
+  bands: AltBand[];
+  onToggle: (b: AltBand) => void;
+  typeFilter: FlightTypeCategory;
+  onTypeChange: (t: FlightTypeCategory) => void;
+  airlineFilter: string;
+  onAirlineChange: (a: string) => void;
+  airlines: Array<{ name: string; count: number }>;
+  query: string;
+  onQuery: (q: string) => void;
+  onReset: () => void;
+}> = ({
   bands,
   onToggle,
+  typeFilter,
+  onTypeChange,
+  airlineFilter,
+  onAirlineChange,
+  airlines,
   query,
   onQuery,
-}) => (
-  <div className="space-y-2">
-    <div className="hub-label">Quota (filtro sul globo)</div>
-    <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtra per quota">
-      {ALT_BANDS.map((b) => (
-        <button
-          key={b.id}
-          type="button"
-          className="hub-chip !h-8"
-          aria-pressed={bands.length === 0 || bands.includes(b.id)}
-          onClick={() => onToggle(b.id)}
-          title={b.hint}
-          style={{ ['--chip-color' as any]: b.color }}
+  onReset,
+}) => {
+  const hasFilters = bands.length > 0 || typeFilter !== 'all' || airlineFilter !== 'all' || query.trim().length > 0;
+  return (
+    <div className="space-y-2.5 p-2.5 rounded-xl border border-[var(--hub-line)] bg-[var(--hub-panel)]">
+      <div className="flex items-center justify-between gap-2">
+        <div className="hub-label">Quota (filtro sul globo)</div>
+        {hasFilters && (
+          <button type="button" onClick={onReset} className="text-[11px] text-[var(--hub-cyan)] hover:underline">
+            Azzera filtri
+          </button>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filtra per quota">
+        {ALT_BANDS.map((b) => (
+          <button
+            key={b.id}
+            type="button"
+            className="hub-chip !h-7 text-xs"
+            aria-pressed={bands.length === 0 || bands.includes(b.id)}
+            onClick={() => onToggle(b.id)}
+            title={b.hint}
+            style={{ ['--chip-color' as any]: b.color }}
+          >
+            <span className="w-2 h-2 rounded-full" style={{ background: b.color }} />
+            {b.label}
+          </button>
+        ))}
+      </div>
+
+      <div>
+        <div className="hub-label mb-1">Tipo Aeromobile</div>
+        <div className="flex flex-wrap gap-1" role="group" aria-label="Filtra per tipo aeromobile">
+          {FLIGHT_TYPE_FILTERS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => onTypeChange(t.id)}
+              aria-pressed={typeFilter === t.id}
+              className="hub-chip !h-7 text-xs"
+            >
+              {t.shortLabel}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="globe-airline-select" className="hub-label block mb-1">
+          Compagnia Aerea
+        </label>
+        <select
+          id="globe-airline-select"
+          value={airlineFilter}
+          onChange={(e) => onAirlineChange(e.target.value)}
+          className="w-full h-8 px-2.5 rounded-lg border border-[var(--hub-line)] bg-[var(--hub-panel-strong)] text-xs focus:outline-none focus:border-[var(--hub-line-strong)]"
         >
-          <span className="w-2 h-2 rounded-full" style={{ background: b.color }} />
-          {b.label}
-        </button>
-      ))}
+          <option value="all">Tutte le compagnie ({airlines.length} attive)</option>
+          {airlines.map((a) => (
+            <option key={a.name} value={a.name}>
+              {a.name} ({a.count})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => onQuery(e.target.value)}
+        placeholder="Filtra per nominativo, modello, compagnia o Paese…"
+        aria-label="Filtra i voli mostrati"
+        className="w-full h-8 px-3 rounded-lg border border-[var(--hub-line)] bg-[var(--hub-panel-strong)] text-xs focus:outline-none focus:border-[var(--hub-line-strong)] placeholder:text-[var(--hub-dim)]"
+      />
     </div>
-    <input
-      type="search"
-      value={query}
-      onChange={(e) => onQuery(e.target.value)}
-      placeholder="Filtra i voli mostrati (nominativo o Paese)…"
-      aria-label="Filtra i voli mostrati"
-      className="w-full h-9 px-3 rounded-lg border border-[var(--hub-line)] bg-[var(--hub-panel)] text-sm focus:outline-none focus:border-[var(--hub-line-strong)] placeholder:text-[var(--hub-dim)]"
-    />
-  </div>
-);
+  );
+};
 
 const LOCAL_LEVEL_COLOR: Record<WeatherAlertInfo['level'], string> = {
   green: '#4ade80',
@@ -316,6 +381,8 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   const [newsTab, setNewsTab] = useState<'italia' | 'mondo'>('italia');
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [altBands, setAltBands] = useState<AltBand[]>([]);
+  const [flightTypeFilter, setFlightTypeFilter] = useState<FlightTypeCategory>('all');
+  const [flightAirlineFilter, setFlightAirlineFilter] = useState<string>('all');
   const [flightQuery, setFlightQuery] = useState('');
   const [satGroup, setSatGroup] = useState<SatelliteGroup>('stations');
   const [focus, setFocus] = useState<GlobeFocus | null>(null);
@@ -351,6 +418,40 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     if (areaUrl) for (const f of areaFlights.data?.items ?? []) byId.set(f.id, f);
     return [...byId.values()];
   }, [flights.data, areaFlights.data, areaUrl]);
+
+  const detectedAirlines = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const f of flightItems) {
+      const meta = classifyFlight(f);
+      if (meta.airlineName) {
+        counts.set(meta.airlineName, (counts.get(meta.airlineName) || 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 40)
+      .map(([name, count]) => ({ name, count }));
+  }, [flightItems]);
+
+  const filteredFlightItems = useMemo(() => {
+    const q = flightQuery.trim().toUpperCase();
+    return flightItems.filter((f) => {
+      const altFt = (f.altitudeM ?? 0) / 0.3048;
+      if (altBands.length && !altBands.includes(altBandOf(altFt))) return false;
+      const meta = classifyFlight(f);
+      if (flightTypeFilter !== 'all' && meta.category !== flightTypeFilter) return false;
+      if (flightAirlineFilter !== 'all' && meta.airlineName !== flightAirlineFilter) return false;
+      if (q) {
+        const matchCallsign = f.callsign.toUpperCase().includes(q);
+        const matchCountry = f.country.toUpperCase().includes(q);
+        const matchAirline = (meta.airlineName || '').toUpperCase().includes(q);
+        const matchAircraft = meta.aircraftLabel.toUpperCase().includes(q);
+        if (!matchCallsign && !matchCountry && !matchAirline && !matchAircraft) return false;
+      }
+      return true;
+    });
+  }, [flightItems, altBands, flightTypeFilter, flightAirlineFilter, flightQuery]);
+
   const disasters = usePolledJson<FeedResponse<Disaster>>(WORLD_ENDPOINTS.disasters, REFRESH.disasters, layers.alerts || open.alerts);
   const sats = useSatellites(satGroup, layers.satellites || open.satellites);
   const geo = usePolledResource(fetchGeoNews, GEO_NEWS_REFRESH_MS);
@@ -381,12 +482,10 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       }
     }
     if (layers.flights) {
-      const q = flightQuery.trim().toUpperCase();
-      for (const f of flightItems) {
+      for (const f of filteredFlightItems) {
         if (trackedId === `f:${f.id}`) continue; // drawn live below
         const altFt = (f.altitudeM ?? 0) / 0.3048;
-        if (altBands.length && !altBands.includes(altBandOf(altFt))) continue;
-        if (q && !f.callsign.toUpperCase().includes(q) && !f.country.toUpperCase().includes(q)) continue;
+        const meta = classifyFlight(f);
         out.push({
           id: `f:${f.id}`,
           layer: 'flights',
@@ -394,8 +493,8 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
           lon: f.lon,
           color: flightColor(altFt),
           size: 3.5,
-          title: `Volo ${f.callsign}`,
-          detail: [f.country, f.altitudeM != null ? `${f.altitudeM.toLocaleString('it-IT')} m` : null, f.speedKmh != null ? `${f.speedKmh} km/h` : null]
+          title: `Volo ${f.callsign}${meta.airlineName ? ` · ${meta.airlineName}` : ''}`,
+          detail: [meta.aircraftLabel, f.country, f.altitudeM != null ? `${f.altitudeM.toLocaleString('it-IT')} m` : null, f.speedKmh != null ? `${f.speedKmh} km/h` : null]
             .filter(Boolean)
             .join(' · '),
         });
@@ -472,7 +571,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       });
     }
     return out;
-  }, [layers, areas, flightItems, altBands, flightQuery, quakes.data, disasters.data, strikes, alerts, location, selectedFlight, tracker.position, tracker.flight, trackedId]);
+  }, [layers, areas, filteredFlightItems, quakes.data, disasters.data, strikes, alerts, location, selectedFlight, tracker.position, tracker.flight, trackedId]);
 
   /* ---------- Satellites (re-propagated every second) ---------- */
   const orbitals = useMemo<GlobeMarker[]>(() => {
@@ -663,6 +762,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         return (
           <FlightsList
             feed={flights.data}
+            filteredItems={filteredFlightItems}
             isLoading={flights.isLoading}
             error={flights.error}
             onRetry={flights.retry}
@@ -672,8 +772,19 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
                 <FlightFilterBar
                   bands={altBands}
                   onToggle={(b) => setAltBands((prev) => (prev.includes(b) ? prev.filter((x) => x !== b) : [...prev, b]))}
+                  typeFilter={flightTypeFilter}
+                  onTypeChange={setFlightTypeFilter}
+                  airlineFilter={flightAirlineFilter}
+                  onAirlineChange={setFlightAirlineFilter}
+                  airlines={detectedAirlines}
                   query={flightQuery}
                   onQuery={setFlightQuery}
+                  onReset={() => {
+                    setAltBands([]);
+                    setFlightTypeFilter('all');
+                    setFlightAirlineFilter('all');
+                    setFlightQuery('');
+                  }}
                 />
               </div>
             }

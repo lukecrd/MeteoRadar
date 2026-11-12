@@ -10,15 +10,24 @@ interface NewsTickerProps {
 /** Thin always-on band of live headlines under the header. */
 export const NewsTicker: React.FC<NewsTickerProps> = ({ category = 'meteo' as NewsFilter, onOpenHub }) => {
   const { items, error } = useNewsFeed(category, 180_000);
-  const headlines = items.slice(0, 14);
+  const headlines = React.useMemo(() => {
+    const seen = new Set<string>();
+    return items
+      .filter((item) => {
+        if (seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+      })
+      .slice(0, 14);
+  }, [items]);
 
   if (error && headlines.length === 0) return null;
 
   // The track is rendered twice so the -50% translate loops seamlessly.
   const renderRun = (copy: number) =>
-    headlines.map((item) => (
+    headlines.map((item, idx) => (
       <a
-        key={`${copy}-${item.id}`}
+        key={`${copy}-${item.id}-${idx}`}
         href={item.url}
         target="_blank"
         rel="noopener noreferrer"

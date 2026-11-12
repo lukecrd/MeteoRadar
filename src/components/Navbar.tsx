@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Moon, Sun, Sliders, Navigation, Smartphone } from 'lucide-react';
+import { Monitor, Moon, Sun, Sliders, Navigation, Smartphone } from 'lucide-react';
 import { LocationInfo } from '../types';
 import { CitySearch } from './CitySearch';
 
@@ -11,6 +11,7 @@ interface NavbarProps {
   isDark: boolean;
   onToggleTheme: () => void;
   onOpenSettings: () => void;
+  onOpenKiosk?: () => void;
   onOpenAndroid: () => void;
   onOpenVercel: () => void;
   hasActiveAlerts: boolean;
@@ -52,6 +53,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   isDark,
   onToggleTheme,
   onOpenSettings,
+  onOpenKiosk,
   onOpenAndroid,
   onOpenVercel,
   hasActiveAlerts,
@@ -100,6 +102,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Navigation className={`w-4 h-4 text-[var(--hub-cyan)] ${isGpsLoading ? 'animate-spin' : ''}`} />
             <span className="hidden lg:inline">GPS</span>
           </button>
+
+          {onOpenKiosk && (
+            <button
+              id="kiosk-station-btn"
+              onClick={onOpenKiosk}
+              className="hub-icon-btn"
+              title="Modalità Stazione Meteo Fullscreen (Kiosk / Wall Display — Tasto K)"
+              aria-label="Stazione Meteo Fullscreen"
+            >
+              <Monitor className="w-4 h-4 text-[var(--hub-cyan)]" />
+              <span className="hidden lg:inline">Kiosk</span>
+            </button>
+          )}
 
           {showDevTools && (<>
           <button

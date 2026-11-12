@@ -80,11 +80,20 @@ export const NewsHub: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
   const [query, setQuery] = useState('');
   const { items, fetchedAt, isLoading, error, freshIds, nextRefreshAt, refresh } = useNewsFeed(filter, REFRESH_MS);
 
+  const uniqueItems = useMemo(() => {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  }, [items]);
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((i) => `${i.title} ${i.summary} ${i.source}`.toLowerCase().includes(q));
-  }, [items, query]);
+    if (!q) return uniqueItems;
+    return uniqueItems.filter((i) => `${i.title} ${i.summary} ${i.source}`.toLowerCase().includes(q));
+  }, [uniqueItems, query]);
 
   // Prefer a recent story that has a summary for the lead slot.
   const leadIdx = Math.max(0, visible.slice(0, 8).findIndex((i) => i.summary));
@@ -92,7 +101,7 @@ export const NewsHub: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
   const rest = visible.filter((_, i) => i !== leadIdx);
   const side = rest.slice(0, 4);
   const stream = rest.slice(4);
-  const sourceCount = new Set(items.map((i) => i.source)).size;
+  const sourceCount = new Set(uniqueItems.map((i) => i.source)).size;
 
   return (
     <section

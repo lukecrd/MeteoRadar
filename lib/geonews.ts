@@ -88,12 +88,14 @@ async function loadArea(area: GeoArea, previous?: GeoAreaNews): Promise<{ area: 
   try {
     const raw = await fetchFeed({ url: feedUrl(area), source: 'Google News' }, 'mondo');
     const now = Date.now();
-    const seen = new Set<string>();
+    const seenTitles = new Set<string>();
+    const seenIds = new Set<string>();
     const items: GeoNewsItem[] = [];
     for (const { category: _c, ...item } of raw.sort((a, b) => b.publishedAt - a.publishedAt)) {
       const key = item.title.toLowerCase();
-      if (seen.has(key) || now - item.publishedAt > MAX_AGE_MS || !area.match.test(item.title)) continue;
-      seen.add(key);
+      if (seenIds.has(item.id) || seenTitles.has(key) || now - item.publishedAt > MAX_AGE_MS || !area.match.test(item.title)) continue;
+      seenIds.add(item.id);
+      seenTitles.add(key);
       items.push({ ...item, areaId: area.id });
       if (items.length >= MAX_ITEMS_PER_AREA) break;
     }

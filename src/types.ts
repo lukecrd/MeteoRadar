@@ -49,6 +49,9 @@ export interface DailyForecastItem {
   maxWindSpeed: number;
   dominantWindDirection: number;
   uvMax: number;
+  sunrise?: string;
+  sunset?: string;
+  daylightDurationSec?: number;
 }
 
 export interface AirQualityData {
@@ -167,5 +170,5 @@ export interface ItalyStationWeather {
 }
 
 // Primary destinations (hash routes) and in-page sections of the Meteo view
-export type AppRoute = 'meteo' | 'mappa' | 'mondo' | 'notizie';
-export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'ambiente' | 'fulmini';
+export type AppRoute = 'meteo' | 'mappa' | 'mondo' | 'voli' | 'notizie';
+export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'ambiente' | 'astronomia' | 'fulmini';

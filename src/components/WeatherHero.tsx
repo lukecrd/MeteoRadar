@@ -124,29 +124,30 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
       }`}
     >
 
-      {/* Top Header: Location, Badges & Actions */}
+      {/* Top Header: Location, Clean Unboxed Metadata & Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6 relative z-10 border-b border-slate-200/80 dark:border-slate-800/80 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="relative p-2.5 rounded-2xl bg-teal-500/15 text-teal-400 border border-teal-500/30 shadow-inner">
+        <div className="flex items-center gap-3.5">
+          <div className="hub-3d-subcard p-3 text-cyan-400">
             <MapPin className="w-5 h-5 relative" />
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <div className="flex items-baseline gap-2.5 flex-wrap">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                 {location.name}
               </h2>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold border border-slate-300 dark:border-slate-700">
-                {location.country} {location.admin1 ? `• ${location.admin1}` : ''}
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                {location.country} {location.admin1 ? `· ${location.admin1}` : ''}
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 font-bold border border-teal-500/30 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
-                Stazione Live
+              <span aria-hidden="true" className="text-slate-500">·</span>
+              <span className="text-xs font-semibold text-cyan-400 inline-flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                Telemetria 3D Live
               </span>
             </div>
-            <p className="font-hud text-xs text-slate-500 dark:text-slate-300 mt-0.5 flex items-center gap-2">
+            <p className="font-hud text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2">
               <span>Aggiornato alle {lastUpdated}</span>
-              <span>•</span>
-              <span className="text-teal-500 dark:text-teal-400">{location.latitude.toFixed(2)}°N, {location.longitude.toFixed(2)}°E</span>
+              <span aria-hidden="true">·</span>
+              <span className="text-cyan-500 dark:text-cyan-400">{location.latitude.toFixed(2)}°N, {location.longitude.toFixed(2)}°E</span>
             </p>
           </div>
         </div>
@@ -159,10 +160,10 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
               e.preventDefault();
               onOpenAiReport();
             }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-600 text-white dark:text-slate-950 transition-transform active:scale-95"
+            className="hub-icon-btn !px-3.5 text-xs font-bold !border-cyan-500/40"
             title="Diagnostica previsionale AI avanzata Gemini"
           >
-            <Sparkles className="w-4 h-4" aria-hidden="true" />
+            <Sparkles className="w-4 h-4 text-cyan-400" aria-hidden="true" />
             <span>Diagnostica AI</span>
           </button>
 
@@ -170,105 +171,146 @@ export const WeatherHero: React.FC<WeatherHeroProps> = ({
             id="refresh-weather-btn"
             onClick={onRefresh}
             disabled={isLoading}
-            className={`p-2.5 rounded-xl border transition-colors ${
-              isDark
-                ? 'border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200'
-                : 'border-slate-200 bg-white hover:bg-slate-100 text-slate-700'
-            }`}
+            className="hub-icon-btn"
             title="Ricarica dati meteo e telemetria"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-teal-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-cyan-400' : ''}`} />
           </button>
         </div>
       </div>
 
-      {/* Main Temperature & Weather Display */}
+      {/* Main Temperature & 3D Volumetric Weather Display */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center relative z-10">
-        {/* Left: Giant Temp & Condition & Min/Max */}
+        {/* Left: 3D Orbital Weather Stage & Giant Temp */}
         <div className="lg:col-span-7 flex flex-wrap sm:flex-nowrap items-center gap-6">
-          <div className="shrink-0 p-4 rounded-3xl bg-slate-100/70 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 shadow-xl">
-            {getWeatherIcon(current.weatherCode)}
+          <div className="relative shrink-0 w-28 h-28 flex items-center justify-center rounded-3xl hub-3d-subcard bg-slate-950/60 overflow-hidden">
+            {/* 3D Perspective Orbital Rings */}
+            <svg viewBox="0 0 120 120" className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
+              <ellipse
+                cx="60"
+                cy="60"
+                rx="50"
+                ry="18"
+                fill="none"
+                stroke="rgba(56, 189, 248, 0.28)"
+                strokeWidth="1.2"
+                strokeDasharray="4 3"
+                transform="rotate(-24 60 60)"
+              />
+              <ellipse
+                cx="60"
+                cy="60"
+                rx="46"
+                ry="15"
+                fill="none"
+                stroke="rgba(251, 191, 36, 0.22)"
+                strokeWidth="1"
+                transform="rotate(32 60 60)"
+              />
+            </svg>
+            <div className="relative z-10 drop-shadow-[0_8px_16px_rgba(56,189,248,0.28)]">
+              {getWeatherIcon(current.weatherCode)}
+            </div>
           </div>
+
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="text-6xl sm:text-7xl font-bold tracking-tighter text-slate-900 dark:text-white">
+              <span className="font-hud text-6xl sm:text-7xl font-bold tracking-tighter text-slate-900 dark:text-white tabular-nums">
                 {current.temperature > 0 ? `+${current.temperature}` : current.temperature}
               </span>
               <span className="text-4xl font-light text-cyan-400">°C</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1 flex items-center gap-2">
+            <div className="font-display text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1 flex items-center gap-2">
               <span>{current.weatherDescription}</span>
             </div>
-            
-            {/* Min / Max & Perceived Range Bar */}
-            <div className="flex flex-wrap items-center gap-3 mt-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
-              <span className="px-2.5 py-1 rounded-lg bg-slate-200/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700">
-                Percepita: <span className="font-bold text-slate-900 dark:text-white">{current.apparentTemperature}°C</span>
+
+            {/* Clean Unboxed Telemetry Line */}
+            <div className="flex flex-wrap items-center gap-2.5 mt-2.5 text-xs font-hud text-slate-600 dark:text-slate-300">
+              <span>
+                Percepita <strong className="text-slate-900 dark:text-white">{current.apparentTemperature}°C</strong>
               </span>
-              <span className="px-2.5 py-1 rounded-lg bg-slate-200/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5">
-                <span className="text-cyan-400 font-bold">Min {todayMin}°</span>
-                <span className="text-slate-400">•</span>
-                <span className="text-amber-400 font-bold">Max {todayMax}°</span>
+              <span aria-hidden="true">·</span>
+              <span>
+                Min <strong className="text-cyan-400">{todayMin}°</strong> / Max <strong className="text-amber-400">{todayMax}°</strong>
               </span>
               {todayDaily && (
-                <span className="px-2.5 py-1 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/30">
-                  Pioggia: {todayDaily.precipitationProbability}%
-                </span>
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    Prob. Pioggia <strong className="text-sky-400">{todayDaily.precipitationProbability}%</strong>
+                  </span>
+                </>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right: Key Atmospheric Metrics Grid */}
-        <div className="lg:col-span-5 grid grid-cols-2 gap-3">
+        {/* Right: 3D Extruded Atmospheric Metric Pods */}
+        <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
           {/* Umidità */}
-          <div className={`p-3.5 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-slate-700/60' : 'bg-white/80 border-slate-200'} shadow-sm`}>
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold">
-              <Droplets className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Umidità Rel.</span>
+          <div className="hub-3d-subcard p-4">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300 font-semibold">
+              <span className="flex items-center gap-1.5">
+                <Droplets className="w-3.5 h-3.5 text-cyan-400" />
+                Umidità Rel.
+              </span>
+              <span className="font-hud text-[11px] text-cyan-400">IGRO</span>
             </div>
-            <div className="text-2xl font-bold mt-1 text-cyan-500 dark:text-cyan-300">{current.relativeHumidity}%</div>
-            <div className="text-xs text-slate-500 dark:text-slate-300">Punto rugiada {current.dewPoint}°C</div>
+            <div className="font-hud text-2xl font-bold mt-1.5 text-cyan-500 dark:text-cyan-300 tabular-nums">
+              {current.relativeHumidity}%
+            </div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Punto rugiada {current.dewPoint}°C
+            </div>
           </div>
 
           {/* Pressione */}
-          <div className={`p-3.5 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-slate-700/60' : 'bg-white/80 border-slate-200'} shadow-sm`}>
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold">
-              <Gauge className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Pressione Atm.</span>
+          <div className="hub-3d-subcard p-4">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300 font-semibold">
+              <span className="flex items-center gap-1.5">
+                <Gauge className="w-3.5 h-3.5 text-indigo-400" />
+                Pressione Atm.
+              </span>
+              <span className="font-hud text-[11px] text-indigo-400">BARO</span>
             </div>
-            <div className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">
-              {current.pressure} <span className="text-xs font-normal">hPa</span>
+            <div className="font-hud text-2xl font-bold mt-1.5 text-slate-900 dark:text-white tabular-nums">
+              {current.pressure} <span className="text-xs font-normal text-slate-400">hPa</span>
             </div>
-            <div className="text-xs text-slate-500 dark:text-slate-300">
+            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {current.pressure < 1010 ? 'Bassa (Depressione)' : current.pressure > 1020 ? 'Alta (Anticiclone)' : 'Pressione Stabile'}
             </div>
           </div>
 
           {/* Indice UV */}
-          <div className={`p-3.5 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-slate-700/60' : 'bg-white/80 border-slate-200'} shadow-sm`}>
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold">
-              <Sun className="w-3.5 h-3.5 text-amber-400" />
-              <span>Indice UV</span>
+          <div className="hub-3d-subcard p-4">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300 font-semibold">
+              <span className="flex items-center gap-1.5">
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                Indice UV
+              </span>
+              <span className="font-hud text-[11px] text-amber-400">RAD</span>
             </div>
-            <div className="text-2xl font-bold mt-1 text-amber-500 dark:text-amber-300">
+            <div className="font-hud text-2xl font-bold mt-1.5 text-amber-500 dark:text-amber-300 tabular-nums">
               {current.uvIndex} <span className="text-xs font-normal text-slate-400">/ 11</span>
             </div>
-            <div className="text-xs text-slate-500 dark:text-slate-300">
+            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {current.uvIndex > 6 ? 'Esposizione Alta' : current.uvIndex > 3 ? 'Esposizione Moderata' : 'Basso'}
             </div>
           </div>
 
           {/* Vento & Raffiche */}
-          <div className={`p-3.5 rounded-2xl border ${isDark ? 'bg-slate-800/50 border-slate-700/60' : 'bg-white/80 border-slate-200'} shadow-sm`}>
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold">
-              <Wind className="w-3.5 h-3.5 text-teal-400" />
-              <span>Vento & Raffiche</span>
+          <div className="hub-3d-subcard p-4">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300 font-semibold">
+              <span className="flex items-center gap-1.5">
+                <Wind className="w-3.5 h-3.5 text-teal-400" />
+                Vento & Raffiche
+              </span>
+              <span className="font-hud text-[11px] text-teal-400">ANEMO</span>
             </div>
-            <div className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">
-              {current.windSpeed} <span className="text-xs font-normal">km/h</span>
+            <div className="font-hud text-2xl font-bold mt-1.5 text-slate-900 dark:text-white tabular-nums">
+              {current.windSpeed} <span className="text-xs font-normal text-slate-400">km/h</span>
             </div>
-            <div className="text-xs text-slate-500 dark:text-slate-300 truncate">
+            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
               Raffiche fino a {current.windGusts} km/h
             </div>
           </div>

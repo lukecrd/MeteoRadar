@@ -17,6 +17,7 @@ import {
   quakeColor,
   quakeTextColor,
 } from '../services/worldEventsApi';
+import { classifyFlight } from '../services/flightClassifier';
 
 /** Shared status line: loading, upstream error / stale copy, last update. */
 export const FeedStatus: React.FC<{
@@ -136,15 +137,17 @@ export const QuakesList: React.FC<{
 
 export const FlightsList: React.FC<{
   feed: FlightsResponse | null;
+  filteredItems?: FlightsResponse['items'];
   isLoading: boolean;
   error: string | null;
   onRetry?: () => void;
-  /** Flight-number search box rendered above the stats */
+  /** Flight-number search box and filters rendered above the stats */
   search?: React.ReactNode;
   activeId: string | null;
   onFocus: (f: FlightsResponse['items'][number]) => void;
-}> = ({ feed, isLoading, error, onRetry, search, activeId, onFocus }) => {
-  const items = feed?.items ?? [];
+}> = ({ feed, filteredItems, isLoading, error, onRetry, search, activeId, onFocus }) => {
+  const rawItems = feed?.items ?? [];
+  const items = filteredItems ?? rawItems;
   const max = feed?.topCountries[0]?.count || 1;
   return (
     <div>
@@ -155,7 +158,7 @@ export const FlightsList: React.FC<{
           <Stats
             items={[
               { label: 'In volo ora', value: feed.totalAirborne.toLocaleString('it-IT') },
-              { label: 'Sul globo', value: items.length },
+              { label: filteredItems && filteredItems.length !== rawItems.length ? 'Filtrati sul globo' : 'Sul globo', value: items.length },
             ]}
           />
           <div className="hub-label mb-2">Paese di registrazione</div>
@@ -172,25 +175,41 @@ export const FlightsList: React.FC<{
               </li>
             ))}
           </ul>
-          <div className="hub-label mb-1">Campione di voli</div>
+          <div className="hub-label mb-1">
+            Voli attivi ({items.length})
+          </div>
         </>
       )}
+      {items.length === 0 && !isLoading && (
+        <p className="text-xs text-[var(--hub-dim)] py-2">
+          Nessun volo corrisponde ai filtri di quota, compagnia o tipo aeromobile selezionati.
+        </p>
+      )}
       <ol className="divide-y divide-[var(--hub-line)]">
-        {items.slice(0, 40).map((f) => (
-          <li key={f.id}>
-            <ItemButton active={activeId === `f:${f.id}`} onClick={() => onFocus(f)}>
-              <Plane className="w-4 h-4 mt-0.5 shrink-0 text-[var(--hub-cyan)]" style={{ transform: `rotate(${(f.heading ?? 45) - 45}deg)` }} />
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold font-hud">{f.callsign}</span>
-                <span className="block text-xs text-[var(--hub-dim)]">
-                  {f.country}
-                  {f.altitudeM != null ? ` · ${f.altitudeM.toLocaleString('it-IT')} m` : ''}
-                  {f.speedKmh != null ? ` · ${f.speedKmh} km/h` : ''}
+        {items.slice(0, 50).map((f) => {
+          const meta = classifyFlight(f);
+          return (
+            <li key={f.id}>
+              <ItemButton active={activeId === `f:${f.id}`} onClick={() => onFocus(f)}>
+                <Plane className="w-4 h-4 mt-0.5 shrink-0 text-[var(--hub-cyan)]" style={{ transform: `rotate(${(f.heading ?? 45) - 45}deg)` }} />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-sm font-semibold font-hud">{f.callsign}</span>
+                    {meta.airlineName && (
+                      <span className="text-xs font-medium text-[var(--hub-text)]">· {meta.airlineName}</span>
+                    )}
+                  </span>
+                  <span className="block text-xs text-[var(--hub-dim)]">
+                    {meta.aircraftLabel} · {meta.categoryLabel}
+                    {f.country ? ` · ${f.country}` : ''}
+                    {f.altitudeM != null ? ` · ${f.altitudeM.toLocaleString('it-IT')} m` : ''}
+                    {f.speedKmh != null ? ` · ${f.speedKmh} km/h` : ''}
+                  </span>
                 </span>
-              </span>
-            </ItemButton>
-          </li>
-        ))}
+              </ItemButton>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );

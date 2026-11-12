@@ -156,7 +156,8 @@ async function loadCategory(category: NewsCategory): Promise<{ items: NewsItem[]
 
   const results = await Promise.allSettled(NEWS_FEEDS[category].map((f) => fetchFeed(f, category)));
   const errors: string[] = [];
-  const seen = new Set<string>();
+  const seenTitles = new Set<string>();
+  const seenIds = new Set<string>();
   const items: NewsItem[] = [];
   for (const r of results) {
     if (r.status === 'rejected') {
@@ -164,9 +165,10 @@ async function loadCategory(category: NewsCategory): Promise<{ items: NewsItem[]
       continue;
     }
     for (const item of r.value) {
-      const key = item.title.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
+      const titleKey = item.title.toLowerCase();
+      if (seenIds.has(item.id) || seenTitles.has(titleKey)) continue;
+      seenIds.add(item.id);
+      seenTitles.add(titleKey);
       items.push(item);
     }
   }
@@ -184,8 +186,17 @@ async function loadCategory(category: NewsCategory): Promise<{ items: NewsItem[]
 export async function getNews(category: NewsCategory | 'all'): Promise<NewsResponse> {
   const cats = category === 'all' ? NEWS_CATEGORIES : [category];
   const loaded = await Promise.all(cats.map(loadCategory));
-  const items = loaded
-    .flatMap((l) => l.items)
+  const seenIds = new Set<string>();
+  const seenTitles = new Set<string>();
+  const deduped: NewsItem[] = [];
+  for (const item of loaded.flatMap((l) => l.items)) {
+    const titleKey = item.title.toLowerCase();
+    if (seenIds.has(item.id) || seenTitles.has(titleKey)) continue;
+    seenIds.add(item.id);
+    seenTitles.add(titleKey);
+    deduped.push(item);
+  }
+  const items = deduped
     .sort((a, b) => b.publishedAt - a.publishedAt)
     .slice(0, category === 'all' ? 60 : MAX_ITEMS_PER_CATEGORY);
   return {

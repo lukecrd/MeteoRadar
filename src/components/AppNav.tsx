@@ -1,5 +1,5 @@
 import React from 'react';
-import { CloudSun, Map as MapIcon, Globe2, Newspaper, LucideIcon } from 'lucide-react';
+import { CloudSun, Map as MapIcon, Globe2, Newspaper, Plane, LucideIcon } from 'lucide-react';
 import { AppRoute } from '../types';
 
 const DESTINATIONS: Array<{ id: AppRoute; label: string; icon: LucideIcon }> = [
@@ -7,6 +7,7 @@ const DESTINATIONS: Array<{ id: AppRoute; label: string; icon: LucideIcon }> = [
   { id: 'mondo', label: 'Mondo', icon: Globe2 },
   { id: 'meteo', label: 'Meteo', icon: CloudSun },
   { id: 'mappa', label: 'Mappa', icon: MapIcon },
+  { id: 'voli', label: 'Voli & ISS', icon: Plane },
   { id: 'notizie', label: 'Notizie', icon: Newspaper },
 ];
 
@@ -49,7 +50,7 @@ export const AppBottomNav: React.FC<AppNavProps> = ({ active, onNavigate }) => (
     className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--hub-line)] bg-[var(--hub-panel-strong)] backdrop-blur-xl"
     style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
   >
-    <ul className="grid grid-cols-4">
+    <ul className="grid grid-cols-5">
       {DESTINATIONS.map(({ id, label, icon: Icon }) => {
         const isActive = id === active;
         return (
@@ -58,16 +59,16 @@ export const AppBottomNav: React.FC<AppNavProps> = ({ active, onNavigate }) => (
               href={`#/${id}`}
               onClick={(e) => { e.preventDefault(); onNavigate(id); }}
               aria-current={isActive ? 'page' : undefined}
-              className={`flex flex-col items-center justify-center gap-0.5 h-14 text-xs font-semibold transition-colors ${
+              className={`flex flex-col items-center justify-center gap-0.5 h-14 text-[11px] font-semibold transition-colors ${
                 isActive ? 'text-[var(--hub-text)]' : 'text-[var(--hub-dim)]'
               }`}
             >
-              <span className={`flex items-center justify-center w-12 h-7 rounded-full transition-colors ${
+              <span className={`flex items-center justify-center w-11 h-7 rounded-full transition-colors ${
                 isActive ? 'bg-[color-mix(in_srgb,var(--hub-cyan)_18%,transparent)]' : ''
               }`}>
                 <Icon className={`w-5 h-5 ${isActive ? 'text-[var(--hub-cyan)]' : ''}`} aria-hidden="true" />
               </span>
-              {label}
+              <span className="truncate max-w-full px-0.5">{label}</span>
             </a>
           </li>
         );
