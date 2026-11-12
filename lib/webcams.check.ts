@@ -16,7 +16,7 @@ assert.equal(off.configured, false);
 assert.deepEqual(off.items, []);
 
 // With a key: Windy's payload is mapped, inactive cams dropped, and the answer cached.
-process.env.WINDY_API_KEY = 'test';
+process.env.WINDY_API_KEY = ' "test"\n'; // pasted with quotes and a newline
 let calls = 0;
 globalThis.fetch = (async (url: string, init: any) => {
   calls++;

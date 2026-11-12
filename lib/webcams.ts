@@ -44,7 +44,8 @@ export function parseWebcamQuery(query: any): { lat: number; lon: number } | nul
 
 /** Never throws: a failed or unconfigured upstream comes back as { items: [], error }. */
 export async function getWebcams(lat: number, lon: number): Promise<WebcamsResponse> {
-  const key = process.env.WINDY_API_KEY;
+  // Pasted values often carry spaces, a newline or quotes: Windy answers 401 to those.
+  const key = process.env.WINDY_API_KEY?.trim().replace(/^["']|["']$/g, "");
   if (!key) return { items: [], configured: false, fetchedAt: Date.now() };
 
   // ~1 km grid: neighbours share one cached answer.
