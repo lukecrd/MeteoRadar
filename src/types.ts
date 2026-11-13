@@ -54,6 +54,30 @@ export interface DailyForecastItem {
   daylightDurationSec?: number;
 }
 
+export interface PollenHourlyItem {
+  hourLabel: string;
+  alder: number;
+  birch: number;
+  grass: number;
+  mugwort: number;
+  olive: number;
+  ragweed: number;
+  total: number;
+}
+
+export interface PollenData {
+  alder: number; // Ontano (grains/m³)
+  birch: number; // Betulla (grains/m³)
+  grass: number; // Graminacee (grains/m³)
+  mugwort: number; // Artemisia (grains/m³)
+  olive: number; // Olivo (grains/m³)
+  ragweed: number; // Ambrosia (grains/m³)
+  totalGrains: number;
+  overallRisk: 'assente' | 'basso' | 'moderato' | 'alto' | 'molto_alto';
+  dominantAllergen: string;
+  hourly: PollenHourlyItem[];
+}
+
 export interface AirQualityData {
   europeanAqi: number;
   pm10: number;
@@ -64,6 +88,7 @@ export interface AirQualityData {
   uvIndex: number;
   aqiLevel: 'ottima' | 'buona' | 'moderata' | 'scadente' | 'molto_scadente' | 'pericolosa';
   aqiDescription: string;
+  pollen?: PollenData;
 }
 
 export interface WeatherAlertInfo {
@@ -179,4 +204,4 @@ export interface ItalyStationWeather {
 
 // Primary destinations (hash routes) and in-page sections of the Meteo view
 export type AppRoute = 'meteo' | 'mappa' | 'mondo' | 'voli' | 'notizie';
-export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'ambiente' | 'astronomia' | 'webcam' | 'fulmini';
+export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'mare' | 'ambiente' | 'pollini' | 'astronomia' | 'webcam' | 'fulmini';

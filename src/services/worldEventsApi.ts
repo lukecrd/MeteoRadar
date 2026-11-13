@@ -8,6 +8,7 @@ import type {
   SatelliteTle,
   SatellitesResponse,
 } from '../../lib/worldEvents';
+import type { Volcano, VolcanoAlertColor, VolcanoQuakeRef, VolcanoStatus } from '../../lib/volcanoes';
 
 import type { AirportInfo, FlightDetail, FlightInfoResponse, FlightLiveResponse, FlightSearchResponse } from '../../lib/flightTracker';
 import { FLIGHT_ALT_SCALE, QUAKE_SCALE } from '../theme/colorScales';
@@ -15,12 +16,14 @@ import { FLIGHT_ALT_SCALE, QUAKE_SCALE } from '../theme/colorScales';
 export type { AirportInfo, FlightDetail, FlightInfoResponse, FlightLiveResponse, FlightSearchResponse };
 
 export type { Disaster, Earthquake, FeedResponse, Flight, FlightsResponse, SatelliteGroup, SatelliteTle, SatellitesResponse };
+export type { Volcano, VolcanoAlertColor, VolcanoQuakeRef, VolcanoStatus };
 
 // Same convention as newsApi: native builds can point at a deployed backend.
 const API_BASE: string = ((import.meta as any).env?.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') ?? '';
 
 export const WORLD_ENDPOINTS = {
   earthquakes: `${API_BASE}/api/earthquakes`,
+  volcanoes: `${API_BASE}/api/volcanoes`,
   flights: `${API_BASE}/api/flights`,
   flightsArea: (lat: string, lon: string, radiusNm: number) => `${API_BASE}/api/flights?lat=${lat}&lon=${lon}&radius=${radiusNm}`,
   disasters: `${API_BASE}/api/disasters`,
@@ -45,16 +48,24 @@ export const SATELLITE_GROUP_META: { id: SatelliteGroup; label: string }[] = [
 export const ISS_NORAD = 25544;
 
 /** Globe layers the user can show/hide. */
-export type WorldLayer = 'news' | 'quakes' | 'flights' | 'alerts' | 'satellites';
+export type WorldLayer = 'news' | 'quakes' | 'volcanoes' | 'flights' | 'alerts' | 'satellites';
 
 // Data colours come from the shared scales in theme/colorScales (quakes warm,
 // flights cool); the swatch here only labels the layer toggle.
 export const LAYER_META: Record<WorldLayer, { label: string; color: string }> = {
   news: { label: 'Notizie', color: '#60a5fa' },
   quakes: { label: 'Terremoti', color: QUAKE_SCALE[4].color },
+  volcanoes: { label: 'Vulcani', color: '#ff5722' },
   flights: { label: 'Voli', color: FLIGHT_ALT_SCALE[1].color },
   alerts: { label: 'Allerte', color: '#f472b6' },
   satellites: { label: 'Satelliti', color: '#a98bf5' },
+};
+
+export const VOLCANO_ALERT_COLOR: Record<VolcanoAlertColor, string> = {
+  red: '#ff3b5c',
+  orange: '#ff6b2b',
+  yellow: '#facc15',
+  green: '#34d399',
 };
 
 export { quakeColor, quakeTextColor, flightColor, FLIGHT_ALT_SCALE } from '../theme/colorScales';

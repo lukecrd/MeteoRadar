@@ -38,6 +38,8 @@ import { NewsTicker } from './components/NewsTicker';
 import { NewsHub } from './components/NewsHub';
 import { NewsGlobeStage } from './components/NewsGlobeStage';
 import { AstronomicalEphemerisCard } from './components/AstronomicalEphemerisCard';
+import { MarineSwellCard } from './components/MarineSwellCard';
+import { PollenBulletinCard } from './components/PollenBulletinCard';
 import { KioskStationModal } from './components/KioskStationModal';
 import { Loader2, Monitor, Navigation } from 'lucide-react';
 
@@ -490,7 +492,9 @@ export default function App() {
     { id: 'previsioni', label: 'Previsioni' },
     { id: 'grafici', label: 'Grafici' },
     { id: 'vento', label: 'Vento' },
+    { id: 'mare', label: 'Mare & Swell 3D' },
     { id: 'ambiente', label: 'Umidità e aria' },
+    { id: 'pollini', label: 'Pollini Live' },
     { id: 'astronomia', label: 'Effemeridi & Luna' },
     { id: 'webcam', label: 'Telecamere' },
     ...(devMode ? [{ id: 'fulmini' as MeteoSection, label: 'Fulmini (demo)' }] : []),
@@ -694,6 +698,15 @@ export default function App() {
               />
             </section>
 
+            <section id="sec-mare" aria-label="Stato del Mare e Swell 3D" className="hub-module scroll-mt-40">
+              <MarineSwellCard
+                location={weatherData.location}
+                windSpeed={weatherData.current.windSpeed}
+                windDirection={weatherData.current.windDirection}
+                isDark={isDark}
+              />
+            </section>
+
             <section id="sec-ambiente" aria-label="Umidità, UV e qualità dell'aria" className="grid grid-cols-1 xl:grid-cols-2 gap-6 scroll-mt-40">
               <div className="hub-module">
                 <EnvironmentalUvCard
@@ -715,6 +728,16 @@ export default function App() {
                   spikeThreshold={settings.humiditySpikeThreshold}
                 />
               </div>
+            </section>
+
+            <section id="sec-pollini" aria-label="Bollettino Pollini in Tempo Reale" className="hub-module scroll-mt-40">
+              <PollenBulletinCard
+                location={weatherData.location}
+                airQuality={weatherData.airQuality}
+                humidity={currentHumidity}
+                windSpeed={weatherData.current.windSpeed}
+                isDark={isDark}
+              />
             </section>
 
             <section id="sec-astronomia" aria-label="Effemeridi astronomiche e fase lunare" className="hub-module scroll-mt-40">

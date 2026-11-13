@@ -1,4 +1,4 @@
-import { LocationInfo, WeatherData, HourlyForecastItem, DailyForecastItem, AirQualityData, WeatherAlertInfo, RainStep } from '../types';
+import { LocationInfo, WeatherData, HourlyForecastItem, DailyForecastItem, AirQualityData, PollenData, PollenHourlyItem, WeatherAlertInfo, RainStep } from '../types';
 
 // WMO Weather interpretation codes (WW) in Italian
 export function getWeatherDescription(code: number): { text: string; icon: string; isRain: boolean; isStorm: boolean } {
@@ -136,7 +136,7 @@ export async function reverseGeocode(lat: number, lon: number): Promise<{ name: 
 
 export async function fetchAirQualityData(lat: number, lon: number): Promise<AirQualityData | undefined> {
   try {
-    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,uv_index`;
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,uv_index,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&forecast_days=2&timezone=auto`;
     const res = await fetch(url);
     if (!res.ok) return undefined;
     const json = await res.json();
@@ -167,6 +167,58 @@ export async function fetchAirQualityData(lat: number, lon: number): Promise<Air
       desc = 'Allarme salute: evitare uscite prolungate e arieggiare i locali solo nelle ore serali.';
     }
 
+    const round1 = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v * 10) / 10 : 0);
+    const alder = round1(curr.alder_pollen);
+    const birch = round1(curr.birch_pollen);
+    const grass = round1(curr.grass_pollen);
+    const mugwort = round1(curr.mugwort_pollen);
+    const olive = round1(curr.olive_pollen);
+    const ragweed = round1(curr.ragweed_pollen);
+    const totalGrains = round1(alder + birch + grass + mugwort + olive + ragweed);
+
+    const speciesPairs: Array<{ name: string; val: number }> = [
+      { name: 'Graminacee', val: grass },
+      { name: 'Olivo', val: olive },
+      { name: 'Betulla', val: birch },
+      { name: 'Ambrosia', val: ragweed },
+      { name: 'Ontano', val: alder },
+      { name: 'Artemisia', val: mugwort },
+    ];
+    speciesPairs.sort((a, b) => b.val - a.val);
+    const dominantAllergen = speciesPairs[0].val > 0 ? speciesPairs[0].name : 'Nessun polline critico attivo';
+
+    let overallRisk: PollenData['overallRisk'] = 'assente';
+    if (totalGrains > 120 || speciesPairs[0].val > 80) overallRisk = 'molto_alto';
+    else if (totalGrains > 50 || speciesPairs[0].val > 35) overallRisk = 'alto';
+    else if (totalGrains > 15 || speciesPairs[0].val > 10) overallRisk = 'moderato';
+    else if (totalGrains > 0.5) overallRisk = 'basso';
+
+    const hourlyPollen: PollenHourlyItem[] = [];
+    if (json.hourly && Array.isArray(json.hourly.time)) {
+      const currentHourISO = new Date(Date.now() + (json.utc_offset_seconds ?? 0) * 1000).toISOString().slice(0, 13);
+      let startIdx = json.hourly.time.findIndex((t: string) => t.startsWith(currentHourISO));
+      if (startIdx === -1) startIdx = 0;
+      for (let i = startIdx; i < Math.min(startIdx + 24, json.hourly.time.length); i++) {
+        const dt = new Date(json.hourly.time[i]);
+        const hAlder = round1(json.hourly.alder_pollen?.[i]);
+        const hBirch = round1(json.hourly.birch_pollen?.[i]);
+        const hGrass = round1(json.hourly.grass_pollen?.[i]);
+        const hMugwort = round1(json.hourly.mugwort_pollen?.[i]);
+        const hOlive = round1(json.hourly.olive_pollen?.[i]);
+        const hRagweed = round1(json.hourly.ragweed_pollen?.[i]);
+        hourlyPollen.push({
+          hourLabel: `${dt.getHours().toString().padStart(2, '0')}:00`,
+          alder: hAlder,
+          birch: hBirch,
+          grass: hGrass,
+          mugwort: hMugwort,
+          olive: hOlive,
+          ragweed: hRagweed,
+          total: round1(hAlder + hBirch + hGrass + hMugwort + hOlive + hRagweed),
+        });
+      }
+    }
+
     return {
       europeanAqi: eAqi,
       pm10: Math.round((curr.pm10 || 12) * 10) / 10,
@@ -177,6 +229,18 @@ export async function fetchAirQualityData(lat: number, lon: number): Promise<Air
       uvIndex: Math.round((curr.uv_index || 5) * 10) / 10,
       aqiLevel: level,
       aqiDescription: desc,
+      pollen: {
+        alder,
+        birch,
+        grass,
+        mugwort,
+        olive,
+        ragweed,
+        totalGrains,
+        overallRisk,
+        dominantAllergen,
+        hourly: hourlyPollen,
+      },
     };
   } catch (err) {
     console.warn('Air quality API error:', err);

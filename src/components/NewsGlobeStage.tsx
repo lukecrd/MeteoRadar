@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Activity, Bitcoin, CandlestickChart, Crosshair, Newspaper, Plane, Satellite, ShieldAlert, Square, X, LucideIcon } from 'lucide-react';
+import { Activity, Bitcoin, CandlestickChart, Crosshair, Flame, Newspaper, Plane, Satellite, ShieldAlert, Square, X, LucideIcon } from 'lucide-react';
 import { LightningStrike, LocationInfo, WeatherAlertInfo } from '../types';
 import { timeAgo } from '../services/newsApi';
 import {
@@ -13,6 +13,8 @@ import {
   ISS_NORAD,
   LAYER_META,
   SatelliteGroup,
+  VOLCANO_ALERT_COLOR,
+  Volcano,
   WORLD_ENDPOINTS,
   WorldLayer,
   ALT_BANDS,
@@ -32,11 +34,11 @@ import { destinationPoint, greatCircle, useFlightTracker } from '../hooks/useFli
 import { WorldEventGlobe, GlobeFocus, GlobeMarker, GlobePath } from './WorldEventGlobe';
 import { FlightCard, FlightSearch } from './FlightCard';
 import { NewsHub } from './NewsHub';
-import { AlertsList, FlightsList, QuakesList, SatellitesList } from './WorldEventPanels';
+import { AlertsList, FlightsList, QuakesList, SatellitesList, VolcanoesList } from './WorldEventPanels';
 import { classifyFlight, FLIGHT_TYPE_FILTERS, FlightTypeCategory } from '../services/flightClassifier';
 
 type Side = 'left' | 'right';
-type WindowId = 'news' | 'flights' | 'satellites' | 'markets' | 'quakes' | 'alerts' | 'crypto';
+type WindowId = 'news' | 'flights' | 'satellites' | 'markets' | 'quakes' | 'volcanoes' | 'alerts' | 'crypto';
 
 interface WindowDef {
   id: WindowId;
@@ -55,6 +57,7 @@ const WINDOWS: WindowDef[] = [
   { id: 'satellites', side: 'left', title: 'Satelliti', icon: Satellite, layer: 'satellites' },
   { id: 'markets', side: 'left', title: 'Mercati', icon: CandlestickChart },
   { id: 'quakes', side: 'right', title: 'Terremoti', icon: Activity, layer: 'quakes' },
+  { id: 'volcanoes', side: 'right', title: 'Vulcani', icon: Flame, layer: 'volcanoes' },
   { id: 'alerts', side: 'right', title: 'Allerte', icon: ShieldAlert, layer: 'alerts' },
   { id: 'crypto', side: 'right', title: 'Cripto', icon: Bitcoin },
 ];
@@ -183,7 +186,7 @@ const LOCAL_LEVEL_COLOR: Record<WeatherAlertInfo['level'], string> = {
   red: '#ef4444',
 };
 
-const REFRESH = { quakes: 90_000, flights: 60_000, areaFlights: 20_000, disasters: 5 * 60_000 };
+const REFRESH = { quakes: 90_000, volcanoes: 90_000, flights: 60_000, areaFlights: 20_000, disasters: 5 * 60_000 };
 // From this zoom (view ~2000 km across) the globe also loads every aircraft around
 // its centre; the global feed alone is a 300-plane sample with little local traffic.
 const AREA_FLIGHTS_MIN_ZOOM = 6;
@@ -219,7 +222,16 @@ function seedFromSample(f: SampleFlight): FlightDetail {
 
 const MOBILE_QUERY = '(max-width: 767px)';
 const MIN_STAGE_PX = 360;
-const CLOSED: Record<WindowId, boolean> = { news: false, flights: false, satellites: false, markets: false, quakes: false, alerts: false, crypto: false };
+const CLOSED: Record<WindowId, boolean> = {
+  news: false,
+  flights: false,
+  satellites: false,
+  markets: false,
+  quakes: false,
+  volcanoes: false,
+  alerts: false,
+  crypto: false,
+};
 
 function useMediaQuery(query: string): boolean {
   const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches);
@@ -385,7 +397,14 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   const [open, setOpen] = useState<Record<WindowId, boolean>>(() =>
     typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches ? CLOSED : { ...CLOSED, news: true, quakes: true }
   );
-  const [layers, setLayers] = useState<Record<WorldLayer, boolean>>({ news: true, quakes: true, flights: true, alerts: true, satellites: true });
+  const [layers, setLayers] = useState<Record<WorldLayer, boolean>>({
+    news: true,
+    quakes: true,
+    volcanoes: true,
+    flights: true,
+    alerts: true,
+    satellites: true,
+  });
   const [newsTab, setNewsTab] = useState<'italia' | 'mondo'>('italia');
   const [selectedAreaId, setSelectedAreaId] = useState<string | null>(null);
   const [altBands, setAltBands] = useState<AltBand[]>([]);
@@ -407,6 +426,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
 
   // Only poll a source while its layer is shown or its window is open.
   const quakes = usePolledJson<FeedResponse<Earthquake>>(WORLD_ENDPOINTS.earthquakes, REFRESH.quakes, layers.quakes || open.quakes);
+  const volcanoes = usePolledJson<FeedResponse<Volcano>>(WORLD_ENDPOINTS.volcanoes, REFRESH.volcanoes, layers.volcanoes || open.volcanoes);
   const flights = usePolledJson<FlightsResponse>(WORLD_ENDPOINTS.flights, REFRESH.flights, layers.flights || open.flights);
   // Only the derived URL is state, so the auto-rotating globe re-renders the
   // stage just when the area to load actually changes.
@@ -523,6 +543,22 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         });
       }
     }
+    if (layers.volcanoes) {
+      for (const v of volcanoes.data?.items ?? []) {
+        const baseSize = v.alertColor === 'red' ? 14.5 : v.alertColor === 'orange' ? 12.5 : v.alertColor === 'yellow' ? 10 : 8.5;
+        const size = Math.min(18, baseSize + Math.min(3.5, v.seismicCount7d * 0.4));
+        out.push({
+          id: `v:${v.id}`,
+          layer: 'volcanoes',
+          lat: v.lat,
+          lon: v.lon,
+          color: VOLCANO_ALERT_COLOR[v.alertColor],
+          size,
+          title: `Vulcano ${v.name} (${v.country})`,
+          detail: `${v.type} · ${v.elevationM} m · ${v.seismicCount7d > 0 ? `${v.seismicCount7d} sismi vicini` : v.lastEruption}`,
+        });
+      }
+    }
     if (layers.alerts) {
       for (const d of disasters.data?.items ?? []) {
         out.push({
@@ -579,7 +615,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       });
     }
     return out;
-  }, [layers, areas, filteredFlightItems, quakes.data, disasters.data, strikes, alerts, location, selectedFlight, tracker.position, tracker.flight, trackedId]);
+  }, [layers, areas, filteredFlightItems, quakes.data, volcanoes.data, disasters.data, strikes, alerts, location, selectedFlight, tracker.position, tracker.flight, trackedId]);
 
   /* ---------- Satellites (re-propagated every second) ---------- */
   const orbitals = useMemo<GlobeMarker[]>(() => {
@@ -669,6 +705,9 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         setNewsTab('mondo');
         setSelectedAreaId(m.id.slice(2));
       }
+      if (m.layer === 'volcanoes') {
+        showWindow('volcanoes');
+      }
       setHighlightId(m.id);
       setFocus({ lat: m.lat, lon: m.lon, seq: Date.now() });
     },
@@ -706,6 +745,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   const counts: Record<WorldLayer, number> = {
     news: areas.filter((a) => a.items.length > 0).length,
     quakes: quakes.data?.items.length ?? 0,
+    volcanoes: volcanoes.data?.items.length ?? 0,
     flights: flights.data?.totalAirborne ?? 0,
     alerts: (disasters.data?.items.length ?? 0) + alerts.length + strikes.length,
     satellites: sats.states.length,
@@ -764,6 +804,17 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
             onRetry={quakes.retry}
             activeId={highlightId}
             onFocus={(q) => focusOn(`q:${q.id}`, 'quakes', q.lat, q.lon)}
+          />
+        );
+      case 'volcanoes':
+        return (
+          <VolcanoesList
+            feed={volcanoes.data}
+            isLoading={volcanoes.isLoading}
+            error={volcanoes.error}
+            onRetry={volcanoes.retry}
+            activeId={highlightId}
+            onFocus={(v) => focusOn(`v:${v.id}`, 'volcanoes', v.lat, v.lon)}
           />
         );
       case 'flights':

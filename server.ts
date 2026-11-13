@@ -5,6 +5,7 @@ import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { getNews, isNewsCategory } from './lib/news';
 import { getDisasters, getEarthquakes, getAreaFlights, getFlights, getSatellites, parseAreaQuery, isSatelliteGroup } from './lib/worldEvents';
+import { getVolcanoes } from './lib/volcanoes';
 import { getFlightInfo, getFlightLive, searchFlights } from './lib/flightTracker';
 import { getGeoNews } from './lib/geonews';
 import { getMarkets } from './lib/markets';
@@ -56,6 +57,10 @@ app.get('/api/news', async (req, res) => {
 app.get('/api/earthquakes', async (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=30');
   res.json(await getEarthquakes());
+});
+app.get('/api/volcanoes', async (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=90');
+  res.json(await getVolcanoes());
 });
 // Webcams near a point (Windy; key and cache in lib/webcams.ts, which never throws).
 app.get('/api/webcams', async (req, res) => {
