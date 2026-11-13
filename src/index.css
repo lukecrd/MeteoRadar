@@ -563,18 +563,18 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
 .hub-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
 .hub-scroll::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 6px; }
 
-/* WorldHub stage: always night, in both app themes. Chrome is neutral graphite
-   so the event markers are the only colour on screen. */
+/* WorldHub stage: always night, in both app themes. Translucent glass chrome
+   so the interactive 3D globe shines clearly behind floating HUD windows. */
 .worldhub-stage {
   color-scheme: dark;
   --bg: #000000;
-  --surface: #14171c;
-  --surface-raised: #1b1f26;
-  --surface-overlay: rgba(20, 23, 28, 0.9);
-  --line: #2a3039;
-  --line-strong: #4a5361;
+  --surface: rgba(10, 15, 24, 0.42);
+  --surface-raised: rgba(18, 25, 38, 0.48);
+  --surface-overlay: rgba(8, 12, 20, 0.38);
+  --line: rgba(148, 163, 184, 0.22);
+  --line-strong: rgba(148, 163, 184, 0.46);
   --fg: #eef1f5;
-  --fg-muted: #9aa4b0;
+  --fg-muted: #b0bac7;
   /* No accent hue on the stage: interactive state is shown in white. */
   --accent: #eef1f5;
   --accent-fg: #000000;
@@ -585,7 +585,7 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   --info: #38bdf8;
   /* Aliases resolve where declared (:root), so restate them for this scope. */
   --hub-bg: var(--bg);
-  --hub-panel: var(--surface);
+  --hub-panel: rgba(10, 15, 24, 0.34);
   --hub-panel-strong: var(--surface-overlay);
   --hub-line: var(--line);
   --hub-line-strong: var(--line-strong);
@@ -598,10 +598,51 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   --hub-up: var(--success);
   --hub-down: var(--danger);
   --hub-glow: rgba(238, 241, 245, 0.1);
-  --elev-1: 0 1px 0 rgb(255 255 255 / 0.04) inset;
-  --elev-3: 0 24px 64px -16px rgb(0 0 0 / 0.8);
+  --elev-1: 0 1px 0 rgb(255 255 255 / 0.05) inset;
+  --elev-3: 0 16px 40px -14px rgb(0 0 0 / 0.65);
   color: var(--fg);
   font-variant-numeric: tabular-nums;
+}
+.worldhub-stage select option {
+  background-color: #0f172a;
+  color: #eef1f5;
+}
+.worldhub-stage .hub-panel {
+  background: linear-gradient(
+    165deg,
+    rgba(18, 26, 40, 0.42) 0%,
+    rgba(8, 12, 20, 0.34) 100%
+  );
+  border-color: rgba(148, 163, 184, 0.24);
+  backdrop-filter: blur(12px) saturate(135%);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
+}
+.wh-glass-window {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--wh-accent, #38bdf8) 38%, rgba(148, 163, 184, 0.24));
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--wh-accent, #38bdf8) 9%, rgba(12, 18, 28, 0.44)) 0%,
+    rgba(6, 10, 18, 0.34) 100%
+  );
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.18) inset,
+    0 14px 36px -10px rgba(0, 0, 0, 0.62),
+    0 0 20px -8px color-mix(in srgb, var(--wh-accent, #38bdf8) 32%, transparent);
+  backdrop-filter: blur(11px) saturate(140%);
+  -webkit-backdrop-filter: blur(11px) saturate(140%);
+}
+.wh-glass-window::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--wh-accent, #38bdf8) 70%, #fff), transparent);
+  pointer-events: none;
+  border-radius: 999px;
 }
 .hub-globe-stage {
   background: #000 !important;
@@ -613,12 +654,13 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   display: flex;
   align-items: stretch;
   gap: 2px;
-  padding: 4px;
-  border-radius: 14px;
-  border: 1px solid var(--line);
-  background: var(--surface-overlay);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(8, 12, 20, 0.42);
+  backdrop-filter: blur(12px) saturate(135%);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.12) inset, 0 10px 28px -8px rgba(0, 0, 0, 0.65);
   max-width: 100%;
   overflow-x: auto;
   scrollbar-width: none;
@@ -718,6 +760,49 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
 .animate-modal-slide-up { animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
 /* Toast entrance (replaces the unresolved tailwindcss-animate "animate-in" classes) */
 .animate-toast-in { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ---------- Kiosk 3D Volumetric Holographic System ---------- */
+.kiosk-stage {
+  perspective: 1600px;
+}
+
+.kiosk-card-3d {
+  position: relative;
+  border-radius: 18px;
+  border: 1.5px solid var(--kiosk-accent, #22d3ee);
+  background:
+    radial-gradient(120% 95% at 50% 0%, color-mix(in srgb, var(--kiosk-accent, #22d3ee) 22%, rgba(9, 14, 28, 0.96)) 0%, rgba(5, 9, 20, 0.96) 65%, rgba(2, 5, 13, 0.98) 100%);
+  box-shadow:
+    0 2px 0 0 rgba(255, 255, 255, 0.28) inset,
+    0 -3px 0 0 color-mix(in srgb, var(--kiosk-accent, #22d3ee) 55%, #000) inset,
+    0 5px 0 0 color-mix(in srgb, var(--kiosk-accent, #22d3ee) 42%, #020617),
+    0 18px 38px -8px rgba(0, 0, 0, 0.85),
+    0 0 28px -6px color-mix(in srgb, var(--kiosk-accent, #22d3ee) 40%, transparent);
+  transform: translateZ(0) rotateX(0.6deg);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+
+.kiosk-card-3d:hover,
+.kiosk-card-3d.is-focused {
+  transform: translateY(-4px) rotateX(1.2deg) scale(1.005);
+  box-shadow:
+    0 2px 0 0 rgba(255, 255, 255, 0.42) inset,
+    0 -3px 0 0 var(--kiosk-accent, #22d3ee) inset,
+    0 7px 0 0 color-mix(in srgb, var(--kiosk-accent, #22d3ee) 62%, #020617),
+    0 26px 50px -10px rgba(0, 0, 0, 0.92),
+    0 0 38px -2px color-mix(in srgb, var(--kiosk-accent, #22d3ee) 65%, transparent);
+}
+
+.kiosk-subbox-3d {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--kiosk-accent, #22d3ee) 45%, rgba(51, 65, 85, 0.7));
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(4, 8, 18, 0.96) 100%);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.16) inset,
+    0 3px 0 0 rgba(0, 0, 0, 0.65),
+    0 8px 18px -4px rgba(0, 0, 0, 0.7);
+}
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -281,25 +281,33 @@ interface WindowPanelProps {
   children: React.ReactNode;
 }
 
-/** One overlay window: header (close) and a scrollable body. Layer visibility lives in the legend. */
+/** One compact translucent HUD window: header (close) and a scrollable body. Layer visibility lives in the legend. */
 const WindowPanel: React.FC<WindowPanelProps> = ({ def, onClose, className, children }) => {
   const { id, title, icon: Icon, layer } = def;
+  const accent = layer ? LAYER_META[layer].color : '#38bdf8';
   return (
     <section
       id={`worldhub-window-${id}`}
       aria-label={title}
-      className={`hub-panel flex flex-col shrink-0 !bg-[var(--hub-panel-strong)] backdrop-blur-xl shadow-[var(--elev-3)] ${className}`}
+      style={{ ['--wh-accent' as any]: accent }}
+      className={`wh-glass-window flex flex-col shrink-0 ${className}`}
     >
-      <header className="flex items-center justify-between gap-2 pl-4 pr-2 py-2 border-b border-[var(--hub-line)] shrink-0">
-        <h2 className="font-display text-base flex items-center gap-2 min-w-0">
-          <Icon className="w-4 h-4 shrink-0" style={{ color: layer ? LAYER_META[layer].color : 'var(--hub-dim)' }} />
+      <header className="flex items-center justify-between gap-2 pl-3 pr-1.5 py-1.5 border-b border-[var(--hub-line)] shrink-0">
+        <h2 className="font-display text-sm font-semibold flex items-center gap-1.5 min-w-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]">
+          <Icon className="w-3.5 h-3.5 shrink-0" style={{ color: accent }} />
           <span className="truncate">{title}</span>
         </h2>
-        <button type="button" onClick={onClose} className="hub-icon-btn !h-8 !px-2 !border-transparent !bg-transparent" aria-label={`Chiudi ${title}`} title="Chiudi">
-          <X className="w-4 h-4" />
+        <button
+          type="button"
+          onClick={onClose}
+          className="hub-icon-btn !h-7 !w-7 !min-w-7 !p-0 !border-transparent !bg-transparent hover:!bg-white/10 !shadow-none"
+          aria-label={`Chiudi ${title}`}
+          title="Chiudi"
+        >
+          <X className="w-3.5 h-3.5" />
         </button>
       </header>
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4">{children}</div>
+      <div className="hub-scroll flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 text-xs">{children}</div>
     </section>
   );
 };
@@ -835,8 +843,8 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       onClose={() => setOpen((prev) => ({ ...prev, [def.id]: false }))}
       className={
         isMobile
-          ? 'max-h-[55dvh] animate-tab-enter'
-          : `max-h-[min(72vh,680px)] ${def.side === 'left' ? 'animate-drawer-left' : 'animate-drawer-right'}`
+          ? 'max-h-[40dvh] animate-tab-enter'
+          : `max-h-[min(48vh,380px)] ${def.side === 'left' ? 'animate-drawer-left' : 'animate-drawer-right'}`
       }
     >
       {renderWindowBody(def.id)}
@@ -885,7 +893,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   );
 
   const followBadge = following && selectedFlight && (
-    <div className="hub-panel !rounded-full !bg-[var(--hub-panel-strong)] backdrop-blur-xl flex items-center gap-2 pl-3 pr-1 py-1 text-xs max-w-full pointer-events-auto">
+    <div className="wh-glass-window !rounded-full flex items-center gap-2 pl-3 pr-1 py-1 text-xs max-w-full pointer-events-auto">
       <Crosshair className="w-3.5 h-3.5 shrink-0" style={{ color: TRACKED_FLIGHT_COLOR }} />
       <span className="truncate">
         Stai seguendo <strong>{tracker.flight?.callsign ?? selectedFlight.icao24.toUpperCase()}</strong>
@@ -904,7 +912,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
 
   if (isMobile) {
     // Phones: globe fills the screen; the legend
-    // sits above the bottom nav and opens a single bottom sheet.
+    // sits above the bottom nav and opens a single compact translucent bottom sheet.
     const openDef = WINDOWS.find((w) => open[w.id]);
     return (
       <section
@@ -917,7 +925,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
         <div className="absolute inset-x-2 bottom-2 z-30 max-h-[calc(100%-1rem)] flex flex-col gap-2 pointer-events-none">
           {followBadge && <div className="self-center max-w-full">{followBadge}</div>}
           {showCard ? (
-            <div className="pointer-events-auto max-h-[55dvh] flex flex-col min-h-0 animate-tab-enter">{flightCard}</div>
+            <div className="pointer-events-auto max-h-[42dvh] flex flex-col min-h-0 animate-tab-enter">{flightCard}</div>
           ) : (
             openDef && <div className="pointer-events-auto flex flex-col min-h-0">{renderWindow(openDef)}</div>
           )}
@@ -927,19 +935,19 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     );
   }
 
-  // Tablet / desktop: the legend sits bottom centre; open windows slide in from
-  // their side as a scrollable drawer column over the globe.
+  // Tablet / desktop: the legend sits bottom centre; compact translucent windows
+  // slide in from their side as a slim drawer column over the globe.
   const drawer = (side: Side) => {
     const defs = WINDOWS.filter((w) => w.side === side);
     const openDefs = defs.filter((w) => open[w.id]);
-    const card = side === 'left' && showCard && <div className="flex flex-col min-h-0 max-h-[min(72vh,680px)] shrink-0 animate-drawer-left">{flightCard}</div>;
+    const card = side === 'left' && showCard && <div className="flex flex-col min-h-0 max-h-[min(48vh,380px)] shrink-0 animate-drawer-left">{flightCard}</div>;
     return (
       <div
         // Ends above the legend row; the right one leaves the globe's zoom buttons uncovered.
         className={`absolute top-3 bottom-[4.25rem] z-30 flex items-start pointer-events-none ${side === 'left' ? 'left-3' : 'right-14'}`}
       >
         {(card || openDefs.length > 0) && (
-          <div className="pointer-events-auto hub-scroll max-h-full overflow-y-auto overscroll-contain flex flex-col gap-3 w-[min(360px,30vw)] min-w-[280px] pb-1">
+          <div className="pointer-events-auto hub-scroll max-h-full overflow-y-auto overscroll-contain flex flex-col gap-2.5 w-[min(295px,24vw)] min-w-[235px] pb-1">
             {card}
             {openDefs.map(renderWindow)}
           </div>

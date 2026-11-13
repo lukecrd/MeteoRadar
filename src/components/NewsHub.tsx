@@ -111,14 +111,14 @@ export const NewsHub: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
     >
       {/* Header (the side window supplies its own title when embedded) */}
       <div className="flex flex-col @3xl:flex-row @3xl:items-end justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           {!embedded && (
             <>
               <div className="hub-label flex items-center gap-2">
                 <span className="hub-live-dot" /> Feed in tempo reale
               </div>
               <h2 id="news-hub-title" className="font-display text-2xl @3xl:text-4xl font-bold mt-1 flex items-center gap-3">
-                <SatelliteDish className="w-7 h-7 text-[var(--hub-cyan)]" />
+                <SatelliteDish className="w-7 h-7 text-[var(--hub-cyan)] shrink-0" />
                 Notizie
               </h2>
             </>
@@ -129,7 +129,7 @@ export const NewsHub: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
               : 'Aggregazione notizie da ANSA e Google News'}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <SyncCountdown nextAt={nextRefreshAt} fetchedAt={fetchedAt} />
           <button type="button" onClick={refresh} className="hub-icon-btn" title="Aggiorna ora" disabled={isLoading}>
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-[var(--hub-cyan)]' : ''}`} />
@@ -139,30 +139,35 @@ export const NewsHub: React.FC<{ embedded?: boolean }> = ({ embedded = false }) 
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col @2xl:flex-row @2xl:items-center gap-3">
-        <div className="flex gap-2 overflow-x-auto pb-1 -mb-1 [scrollbar-width:none]" role="group" aria-label="Filtra per categoria">
+      <div className="flex flex-col @4xl:flex-row @4xl:items-center @4xl:justify-between gap-3">
+        <div
+          className="flex flex-wrap items-center gap-2 min-w-0 flex-1"
+          role="group"
+          aria-label="Filtra per categoria"
+        >
           {FILTERS.map((f) => (
             <button
               key={f}
               type="button"
-              className="hub-chip"
+              className="hub-chip shrink-0"
               aria-pressed={filter === f}
               style={{ ['--chip-color' as any]: NEWS_CATEGORY_META[f].color }}
               onClick={() => setFilter(f)}
             >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: NEWS_CATEGORY_META[f].color }} />
+              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: NEWS_CATEGORY_META[f].color }} />
               {NEWS_CATEGORY_META[f].label}
             </button>
           ))}
         </div>
-        <label className="@2xl:ml-auto flex items-center gap-2 h-9 px-3 rounded-xl border border-[var(--hub-line)] bg-[var(--hub-panel)] focus-within:border-[var(--hub-line-strong)] @2xl:w-64">
+        <label className="flex items-center gap-2 h-10 px-3.5 rounded-xl border border-[var(--hub-line)] bg-[var(--hub-panel-strong)] focus-within:border-[var(--hub-cyan)] transition-colors w-full @4xl:w-72 shrink-0">
           <Search className="w-4 h-4 text-[var(--hub-dim)] shrink-0" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Filtra titoli e testate…"
-            className="w-full bg-transparent text-sm focus:outline-none placeholder:text-[var(--hub-dim)]"
+            aria-label="Filtra titoli e testate"
+            className="w-full min-w-0 bg-transparent text-sm text-[var(--hub-text)] focus:outline-none placeholder:text-[var(--hub-dim)]"
           />
         </label>
       </div>
