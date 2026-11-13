@@ -23,7 +23,7 @@ const API_BASE: string = ((import.meta as any).env?.VITE_API_BASE as string | un
 
 export const WORLD_ENDPOINTS = {
   earthquakes: `${API_BASE}/api/earthquakes`,
-  volcanoes: `${API_BASE}/api/volcanoes`,
+  volcanoes: `${API_BASE}/api/disasters?type=volcanoes`,
   flights: `${API_BASE}/api/flights`,
   flightsArea: (lat: string, lon: string, radiusNm: number) => `${API_BASE}/api/flights?lat=${lat}&lon=${lon}&radius=${radiusNm}`,
   disasters: `${API_BASE}/api/disasters`,

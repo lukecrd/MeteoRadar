@@ -105,6 +105,10 @@ app.get('/api/flights/info', async (req, res) => {
   }
 });
 app.get('/api/disasters', async (req, res) => {
+  if (req.query?.type === 'volcanoes') {
+    res.setHeader('Cache-Control', 'public, max-age=90');
+    return res.json(await getVolcanoes());
+  }
   res.setHeader('Cache-Control', 'public, max-age=120');
   res.json(await getDisasters());
 });

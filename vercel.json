@@ -21,6 +21,7 @@
   ],
   "rewrites": [
     { "source": "/api/health", "destination": "/health.json" },
+    { "source": "/api/volcanoes", "destination": "/api/disasters?type=volcanoes" },
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"

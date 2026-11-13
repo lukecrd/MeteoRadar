@@ -1,12 +1,18 @@
 import { getDisasters } from '../lib/worldEvents.js';
+import { getVolcanoes } from '../lib/volcanoes.js';
 
-// WorldHub globe layer: see lib/worldEvents.ts for source and caching notes.
+// WorldHub globe layer: see lib/worldEvents.ts and lib/volcanoes.ts for source and caching notes.
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  if (req.query?.type === 'volcanoes') {
+    res.setHeader('Cache-Control', 's-maxage=90, stale-while-revalidate=180');
+    return res.status(200).json(await getVolcanoes());
   }
 
   // Loaders never throw: upstream failures come back as { stale, error }.
