@@ -336,7 +336,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
     const minT = Math.min(...temps) - 1.5;
     const maxT = Math.max(...temps) + 1.5;
     const spanT = Math.max(4, maxT - minT);
-    const w = 680;
+    const w = 1000;
     const h = 112;
     const padX = 28;
     const usableW = w - padX * 2;
@@ -393,7 +393,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Stazione Meteo Fullscreen 3D · ${location.name}`}
+      aria-label={`Stazione Meteo Fullscreen · ${location.name}`}
       className={`on-dark fixed inset-0 z-50 bg-[#030712] text-slate-50 flex flex-col justify-between overflow-y-auto xl:overflow-hidden select-none p-3 sm:p-5 gap-3.5 ${idle ? 'cursor-none' : ''}`}
       style={{
         backgroundImage:
@@ -419,7 +419,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="font-display text-base sm:text-xl font-bold tracking-tight text-white truncate">
-                STAZIONE 3D · {location.name.toUpperCase()}
+                STAZIONE · {location.name.toUpperCase()}
               </h1>
               <span className="text-xs font-hud text-cyan-300 tabular-nums">
                 {lat.toFixed(2)}°N {lon.toFixed(2)}°E
@@ -442,7 +442,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
         {/* 3D HOLOGRAPHIC KIOSK TABS: TAB 1 (METEO) vs TAB 2 (NOTIZIE, TERREMOTI & VOLI 3D) */}
         <div
           role="tablist"
-          aria-label="Sezioni Stazione Kiosk 3D"
+          aria-label="Sezioni Stazione Kiosk"
           className="flex items-center gap-2 p-1 rounded-2xl bg-slate-950/90 border border-slate-700/80 shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset]"
         >
           <button
@@ -457,7 +457,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
             }`}
           >
             <Gauge className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span>1 · Meteo, Aria &amp; Cielo 3D</span>
+            <span>1 · Meteo &amp; Cielo</span>
           </button>
 
           <button
@@ -472,7 +472,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
             }`}
           >
             <Globe2 className="w-4 h-4 text-violet-400 shrink-0" />
-            <span>2 · Notizie, Terremoti &amp; Voli 3D</span>
+            <span>2 · Notizie, Voli &amp; Sismi</span>
             <span className="font-hud text-[11px] px-1.5 py-0.5 rounded-md bg-slate-900/90 border border-slate-700 text-cyan-300 tabular-nums">
               {uniqueNews.length}N · {allNearbyFlights.length}V · {filteredQuakes.length}T
             </span>
@@ -498,14 +498,14 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-4 font-hud tabular-nums">
             <div className="text-right">
-              <div className="text-[10px] uppercase tracking-wider text-cyan-300/80">Ora Locale</div>
+              <div className="text-xs uppercase tracking-wider text-cyan-300/80">Ora Locale</div>
               <div className="text-xl sm:text-2xl font-bold text-cyan-400 leading-none mt-0.5 drop-shadow-[0_0_10px_rgba(34,211,238,0.35)]">
                 {localTimeStr}
               </div>
             </div>
             <div className="h-7 w-px bg-slate-700/80" />
             <div className="text-right">
-              <div className="text-[10px] uppercase tracking-wider text-amber-300/80">UTC</div>
+              <div className="text-xs uppercase tracking-wider text-amber-300/80">UTC</div>
               <div className="text-xl sm:text-2xl font-bold text-amber-300 leading-none mt-0.5">
                 {utcStr}
               </div>
@@ -522,10 +522,10 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                   ? 'border-cyan-400 bg-cyan-500/25 text-cyan-200 shadow-[0_0_16px_rgba(34,211,238,0.3)]'
                   : 'border-slate-700 bg-slate-800/90 text-slate-200 hover:border-cyan-400/60'
               }`}
-              title="Rotazione automatica quadranti e tab ogni 7 secondi (tasto C)"
+              title="Rotazione automatica pannelli e schede ogni 7 secondi (tasto C)"
             >
               <Play className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden sm:inline">Ciclo 3D</span>
+              <span className="hidden sm:inline">Ciclo</span>
             </button>
 
             <button
@@ -582,23 +582,23 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               )}
             >
               <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-80" />
-              <div>
+              <div className="flex-1 flex flex-col">
                 <div className="text-xs font-hud uppercase tracking-wider text-cyan-300 flex items-center justify-between gap-2">
                   <span className="flex items-center gap-1.5 font-bold">
-                    <Gauge className="w-4 h-4 text-cyan-400 shrink-0" /> Termometria &amp; Barometro 3D
+                    <Gauge className="w-4 h-4 text-cyan-400 shrink-0" /> Temperatura &amp; Pressione
                   </span>
                   <span className="text-slate-300 tabular-nums">
                     Min {daily[0]?.minTemp}° · Max {daily[0]?.maxTemp}°C
                   </span>
                 </div>
 
-                <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="mt-3 flex-1 flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-hud text-5xl 2xl:text-6xl font-bold tabular-nums tracking-tight text-white drop-shadow-[0_4px_16px_rgba(34,211,238,0.28)]">
+                    <div className="font-hud text-[clamp(3rem,11vh,8rem)] leading-none font-bold tabular-nums tracking-tight text-white drop-shadow-[0_4px_16px_rgba(34,211,238,0.28)]">
                       {current.temperature.toFixed(1)}°
                     </div>
-                    <div className="text-sm font-bold text-cyan-300 mt-1 truncate">{current.weatherDescription}</div>
-                    <div className="text-xs text-slate-300 font-hud tabular-nums mt-0.5">
+                    <div className="text-xl font-bold text-cyan-300 mt-2 truncate">{current.weatherDescription}</div>
+                    <div className="text-sm text-slate-300 font-hud tabular-nums mt-1">
                       Percepita <strong className="text-white">{current.apparentTemperature.toFixed(1)}°C</strong> · Rugiada{' '}
                       <strong className="text-cyan-300">{current.dewPoint}°C</strong>
                     </div>
@@ -606,7 +606,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
 
                   {/* 3D Isometric Barometric Pressure Cylinder */}
                   <div className="flex flex-col items-center shrink-0">
-                    <svg viewBox="0 0 68 92" className="w-16 h-20 select-none" aria-hidden="true">
+                    <svg viewBox="0 0 68 92" className="w-16 h-20 xl:w-[9vh] xl:h-[13vh] select-none" aria-hidden="true">
                       <defs>
                         <linearGradient id="kioskBaroFill" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="#22d3ee" />
@@ -644,7 +644,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                         strokeDasharray="2 2"
                       />
                     </svg>
-                    <span className="font-hud text-xs font-bold text-cyan-300 tabular-nums -mt-1">
+                    <span className="font-hud text-base font-bold text-cyan-300 tabular-nums -mt-1">
                       {current.pressure} hPa
                     </span>
                   </div>
@@ -653,20 +653,20 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
 
               <dl className="grid grid-cols-4 gap-2 pt-3 border-t border-slate-800 text-xs mt-3">
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400 truncate">Nuvole</dt>
-                  <dd className="font-hud text-sm font-bold text-white tabular-nums mt-0.5">{current.cloudCover}%</dd>
+                  <dt className="text-xs text-slate-400 truncate">Nuvole</dt>
+                  <dd className="font-hud text-lg font-bold text-white tabular-nums mt-0.5">{current.cloudCover}%</dd>
                 </div>
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400 truncate">Pioggia</dt>
-                  <dd className="font-hud text-sm font-bold text-sky-300 tabular-nums mt-0.5">{current.precipitation} mm</dd>
+                  <dt className="text-xs text-slate-400 truncate">Pioggia</dt>
+                  <dd className="font-hud text-lg font-bold text-sky-300 tabular-nums mt-0.5">{current.precipitation} mm</dd>
                 </div>
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400 truncate">Zero Term.</dt>
-                  <dd className="font-hud text-sm font-bold text-amber-300 tabular-nums mt-0.5">{zeroTermicoM} m</dd>
+                  <dt className="text-xs text-slate-400 truncate">Zero Term.</dt>
+                  <dd className="font-hud text-lg font-bold text-amber-300 tabular-nums mt-0.5">{zeroTermicoM} m</dd>
                 </div>
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400 truncate">CAPE</dt>
-                  <dd className="font-hud text-sm font-bold text-emerald-300 tabular-nums mt-0.5">{capeVal} J/kg</dd>
+                  <dt className="text-xs text-slate-400 truncate">CAPE</dt>
+                  <dd className="font-hud text-lg font-bold text-emerald-300 tabular-nums mt-0.5">{capeVal} J/kg</dd>
                 </div>
               </dl>
             </section>
@@ -682,13 +682,13 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-80" />
               <div className="text-xs font-hud uppercase tracking-wider text-emerald-300 flex items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5 font-bold">
-                  <Wind className="w-4 h-4 text-emerald-400 shrink-0" /> Rosa Venti 3D &amp; Anemometro
+                  <Wind className="w-4 h-4 text-emerald-400 shrink-0" /> Vento
                 </span>
                 <span className="text-amber-300 font-bold">Beaufort {beaufort.scale}</span>
               </div>
 
-              <div className="flex items-center gap-4 my-2.5">
-                <svg viewBox="0 0 120 106" className="w-28 h-24 shrink-0 select-none" aria-hidden="true">
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 my-3 text-center">
+                <svg viewBox="0 0 120 106" className="w-full max-w-[22rem] h-24 xl:h-[24vh] select-none" aria-hidden="true">
                   <defs>
                     <radialGradient id="kioskWindGlow" cx="50%" cy="50%" r="55%">
                       <stop offset="0%" stopColor="rgba(16, 185, 129, 0.28)" />
@@ -701,7 +701,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                   <line x1="12" y1="54" x2="108" y2="54" stroke="rgba(52, 211, 153, 0.25)" strokeWidth="1" />
                   <line x1="60" y1="20" x2="60" y2="88" stroke="rgba(52, 211, 153, 0.25)" strokeWidth="1" />
 
-                  <text x="60" y="16" textAnchor="middle" className="fill-cyan-300 text-[10px] font-hud font-bold">N</text>
+                  <text x="60" y="16" textAnchor="middle" className="fill-cyan-300 text-xs font-hud font-bold">N</text>
                   <text x="113" y="57" textAnchor="middle" className="fill-slate-300 text-[9px] font-hud font-bold">E</text>
                   <text x="60" y="99" textAnchor="middle" className="fill-slate-300 text-[9px] font-hud font-bold">S</text>
                   <text x="7" y="57" textAnchor="middle" className="fill-slate-300 text-[9px] font-hud font-bold">O</text>
@@ -722,14 +722,14 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                   })()}
                 </svg>
 
-                <div className="min-w-0 flex-1">
-                  <div className="font-hud text-4xl 2xl:text-5xl font-bold tabular-nums text-white leading-none">
-                    {current.windSpeed} <span className="text-sm font-normal text-emerald-300">km/h</span>
+                <div className="min-w-0">
+                  <div className="font-hud text-[clamp(2.5rem,7vh,5rem)] font-bold tabular-nums text-white leading-none">
+                    {current.windSpeed} <span className="text-xl font-normal text-emerald-300">km/h</span>
                   </div>
-                  <div className="text-sm font-bold text-emerald-300 mt-1.5 truncate">
+                  <div className="text-xl font-bold text-emerald-300 mt-2 truncate">
                     {windLabel} ({current.windDirection}°)
                   </div>
-                  <div className="text-xs text-slate-300 font-hud tabular-nums mt-0.5">
+                  <div className="text-sm text-slate-300 font-hud tabular-nums mt-1">
                     {windKnots} kt · {windMs} m/s · {beaufort.description}
                   </div>
                 </div>
@@ -737,14 +737,14 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
 
               <dl className="grid grid-cols-2 gap-2.5 pt-3 border-t border-slate-800 text-xs">
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400">Raffiche Massime</dt>
-                  <dd className="font-hud text-base font-bold tabular-nums text-amber-300 mt-0.5">
+                  <dt className="text-xs text-slate-400">Raffiche Massime</dt>
+                  <dd className="font-hud text-lg font-bold tabular-nums text-amber-300 mt-0.5">
                     {current.windGusts} km/h
                   </dd>
                 </div>
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400">Visibilità Ottica</dt>
-                  <dd className="font-hud text-base font-bold tabular-nums text-cyan-300 mt-0.5">
+                  <dt className="text-xs text-slate-400">Visibilità Ottica</dt>
+                  <dd className="font-hud text-lg font-bold tabular-nums text-cyan-300 mt-0.5">
                     {current.visibility} km
                   </dd>
                 </div>
@@ -760,27 +760,27 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               )}
             >
               <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-violet-400 to-transparent opacity-80" />
-              <div>
+              <div className="flex-1 flex flex-col">
                 <div className="text-xs font-hud uppercase tracking-wider text-violet-300 flex items-center justify-between gap-2">
                   <span className="flex items-center gap-1.5 font-bold">
-                    <Droplets className="w-4 h-4 text-sky-400 shrink-0" /> Igrometria &amp; Spettrometro Aria
+                    <Droplets className="w-4 h-4 text-sky-400 shrink-0" /> Umidità &amp; Aria
                   </span>
                   <span className="text-emerald-400 flex items-center gap-1 font-bold">
-                    <Activity className="w-3.5 h-3.5" /> AQI {airQuality?.europeanAqi ?? 28}
+                    <Activity className="w-3.5 h-3.5" /> AQI {airQuality?.europeanAqi ?? '—'}
                   </span>
                 </div>
 
-                <div className="mt-2.5 flex items-center justify-between gap-3">
+                <div className="mt-2.5 flex-1 flex flex-col justify-center gap-4">
                   <div>
-                    <div className="font-hud text-4xl font-bold tabular-nums text-sky-300 leading-none">
+                    <div className="font-hud text-[clamp(3rem,10vh,7.5rem)] font-bold tabular-nums text-sky-300 leading-none">
                       {currentHumidity.toFixed(1)}%
                     </div>
-                    <div className="text-xs text-slate-300 mt-1">
+                    <div className="text-base text-slate-300 mt-2">
                       Umidità Live · UV <strong className="text-amber-300">{current.uvIndex}</strong>/{daily[0]?.uvMax ?? 6}
                     </div>
                   </div>
                   {sparkLine && (
-                    <svg viewBox="0 0 220 48" className="w-36 h-12 shrink-0 select-none" aria-hidden="true">
+                    <svg viewBox="0 0 220 48" preserveAspectRatio="none" className="w-full h-12 xl:h-[11vh] select-none" aria-hidden="true">
                       <defs>
                         <linearGradient id="kioskHumGrad" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="0%" stopColor="rgba(56, 189, 248, 0.45)" />
@@ -794,6 +794,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                         strokeWidth="2.4"
                         strokeLinecap="round"
                         strokeLinejoin="round"
+                        vectorEffect="non-scaling-stroke"
                         points={sparkLine}
                       />
                     </svg>
@@ -803,19 +804,19 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
 
               <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800 text-xs mt-2">
                 {[
-                  { label: 'PM2.5', val: airQuality?.pm2_5 ?? 7, max: 35, color: 'bg-emerald-400', text: 'text-emerald-300' },
-                  { label: 'PM10', val: airQuality?.pm10 ?? 15, max: 50, color: 'bg-cyan-400', text: 'text-cyan-300' },
-                  { label: 'O₃', val: airQuality?.ozone ?? 78, max: 140, color: 'bg-violet-400', text: 'text-violet-300' },
-                  { label: 'NO₂', val: airQuality?.nitrogenDioxide ?? 12, max: 60, color: 'bg-amber-400', text: 'text-amber-300' },
-                  { label: 'SO₂', val: airQuality?.sulphurDioxide ?? 2, max: 30, color: 'bg-sky-400', text: 'text-sky-300' },
-                  { label: 'CO', val: Math.round((airQuality?.carbonMonoxide ?? 220) / 10), max: 100, color: 'bg-rose-400', text: 'text-rose-300' },
+                  { label: 'PM2.5', val: airQuality?.pm2_5, max: 35, color: 'bg-emerald-400', text: 'text-emerald-300' },
+                  { label: 'PM10', val: airQuality?.pm10, max: 50, color: 'bg-cyan-400', text: 'text-cyan-300' },
+                  { label: 'O₃', val: airQuality?.ozone, max: 140, color: 'bg-violet-400', text: 'text-violet-300' },
+                  { label: 'NO₂', val: airQuality?.nitrogenDioxide, max: 60, color: 'bg-amber-400', text: 'text-amber-300' },
+                  { label: 'SO₂', val: airQuality?.sulphurDioxide, max: 30, color: 'bg-sky-400', text: 'text-sky-300' },
+                  { label: 'CO', val: airQuality ? Math.round(airQuality.carbonMonoxide / 10) : undefined, max: 100, color: 'bg-rose-400', text: 'text-rose-300' },
                 ].map((p) => {
-                  const pct = Math.min(100, Math.max(8, Math.round((p.val / p.max) * 100)));
+                  const pct = p.val == null ? 0 : Math.min(100, Math.max(8, Math.round((p.val / p.max) * 100)));
                   return (
                     <div key={p.label} className="rounded-lg bg-slate-950/75 border border-slate-800/90 p-1.5">
-                      <div className="flex items-center justify-between text-[10px]">
+                      <div className="flex items-center justify-between text-xs">
                         <span className="text-slate-400 font-semibold">{p.label}</span>
-                        <span className={`font-hud font-bold tabular-nums ${p.text}`}>{p.val}</span>
+                        <span className={`font-hud font-bold tabular-nums ${p.text}`}>{p.val ?? '—'}</span>
                       </div>
                       <div className="h-1.5 w-full rounded-full bg-slate-800 mt-1 overflow-hidden">
                         <div className={`h-full rounded-full ${p.color}`} style={{ width: `${pct}%` }} />
@@ -837,28 +838,28 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-80" />
               <div className="text-xs font-hud uppercase tracking-wider text-amber-300 flex items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5 font-bold">
-                  <Moon className="w-4 h-4 text-amber-300 shrink-0" /> Sfera Celeste 3D &amp; Luna
+                  <Moon className="w-4 h-4 text-amber-300 shrink-0" /> Sole &amp; Luna
                 </span>
                 <span className="text-slate-200 tabular-nums">
                   {solar.daylightHours}h {solar.daylightMinutes}m luce
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-3 my-2">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <MoonDiskSvg phaseValue={lunar.phaseValue} size={64} showOrbitRing />
+              <div className="flex-1 flex flex-col items-center justify-center gap-4 my-3">
+                <div className="flex items-center gap-4 min-w-0">
+                  <MoonDiskSvg phaseValue={lunar.phaseValue} size={112} showOrbitRing />
                   <div className="min-w-0">
-                    <div className="font-display text-base font-bold text-amber-200 truncate">{lunar.phaseName}</div>
-                    <div className="font-hud text-xs font-semibold text-white tabular-nums">
+                    <div className="font-display text-2xl font-bold text-amber-200 truncate">{lunar.phaseName}</div>
+                    <div className="font-hud text-base font-semibold text-white tabular-nums mt-1">
                       Illum. <span className="text-amber-300">{lunar.illuminationPct.toFixed(1)}%</span> · {lunar.ageDays.toFixed(1)} gg
                     </div>
-                    <div className="text-[11px] text-cyan-300 font-hud tabular-nums">
+                    <div className="text-sm text-cyan-300 font-hud tabular-nums">
                       {lunar.distanceKm.toLocaleString('it-IT')} km
                     </div>
                   </div>
                 </div>
 
-                <svg viewBox="0 0 230 92" className="w-32 h-16 shrink-0 select-none" aria-hidden="true">
+                <svg viewBox="0 0 230 92" className="w-full max-w-[24rem] h-16 xl:h-[12vh] select-none" aria-hidden="true">
                   <ellipse cx="115" cy="68" rx="82" ry="16" fill="rgba(56,189,248,0.12)" stroke="rgba(56,189,248,0.45)" strokeWidth="1.2" />
                   <path d="M 33 68 Q 115 4 197 68" fill="none" stroke="#fbbf24" strokeWidth="1.8" strokeDasharray="3 2" />
                   <line x1={sunGx} y1={sunGy} x2={sunGx} y2={sunY} stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="2 2" />
@@ -874,24 +875,24 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
 
               <dl className="grid grid-cols-3 gap-2 pt-2.5 border-t border-slate-800 text-xs">
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400 flex items-center gap-1">
+                  <dt className="text-xs text-slate-400 flex items-center gap-1">
                     <Sun className="w-3 h-3 text-amber-400" /> Alba/Tram.
                   </dt>
-                  <dd className="font-hud text-xs font-bold text-white tabular-nums mt-0.5">
+                  <dd className="font-hud text-sm font-bold text-white tabular-nums mt-0.5">
                     {solar.sunriseTime} · {solar.sunsetTime}
                   </dd>
                 </div>
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400 flex items-center gap-1">
+                  <dt className="text-xs text-slate-400 flex items-center gap-1">
                     <Compass className="w-3 h-3 text-cyan-400" /> Zenit Max
                   </dt>
-                  <dd className="font-hud text-xs font-bold text-cyan-300 tabular-nums mt-0.5">
+                  <dd className="font-hud text-sm font-bold text-cyan-300 tabular-nums mt-0.5">
                     {solar.solarNoonTime} ({solar.maxElevationDeg}°)
                   </dd>
                 </div>
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
-                  <dt className="text-[10px] text-slate-400 truncate">Golden Hour</dt>
-                  <dd className="font-hud text-xs font-bold text-amber-300 tabular-nums mt-0.5 truncate">
+                  <dt className="text-xs text-slate-400 truncate">Golden Hour</dt>
+                  <dd className="font-hud text-sm font-bold text-amber-300 tabular-nums mt-0.5 truncate">
                     {solar.eveningGoldenHour}
                   </dd>
                 </div>
@@ -911,16 +912,16 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-sky-400 to-transparent opacity-80" />
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className="text-xs font-hud uppercase tracking-wider text-sky-300 font-bold">
-                  Curva Termo-Pluviometrica 3D · Prossime 12 Ore
+                  Prossime 12 ore
                 </span>
                 <span className="text-[11px] font-hud text-slate-400">
-                  Curva Gialla/Ciano = Temperatura (°C) · Colonne 3D = Probabilità Pioggia (%)
+                  Linea = temperatura · Colonne = probabilità di pioggia
                 </span>
               </div>
 
               {chart12 && (
                 <div className="rounded-xl bg-slate-950/85 border border-slate-800/90 p-3">
-                  <svg viewBox={`0 0 ${chart12.w} ${chart12.h}`} className="w-full h-32 select-none block">
+                  <svg viewBox={`0 0 ${chart12.w} ${chart12.h}`} className="w-full h-32 xl:h-[17vh] select-none block">
                     <defs>
                       <linearGradient id="kioskTempArea3D" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stopColor="rgba(56, 189, 248, 0.42)" />
@@ -962,7 +963,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                         <text x={n.x} y={n.y - 8} textAnchor="middle" className="fill-white text-[11px] font-bold">
                           {n.item.temperature.toFixed(0)}°
                         </text>
-                        <text x={n.x} y="106" textAnchor="middle" className="fill-slate-300 text-[10px]">
+                        <text x={n.x} y="106" textAnchor="middle" className="fill-slate-300 text-xs">
                           {n.item.hourLabel}
                         </text>
                       </g>
@@ -982,10 +983,9 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-80" />
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className="text-xs font-hud uppercase tracking-wider text-emerald-300 font-bold">
-                  Proiezione Multi-Giorno · 5 Giorni
+                  Prossimi 5 giorni
                 </span>
-                <span className="text-[11px] font-hud text-slate-400">Escursione Termica &amp; Pioggia</span>
-              </div>
+                              </div>
 
               <div className="grid grid-cols-5 gap-2.5 my-auto text-center font-hud">
                 {daily.slice(0, 5).map((d) => (
@@ -993,9 +993,9 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                     key={d.date}
                     className="rounded-xl border border-slate-800/90 bg-slate-950/80 p-3 flex flex-col justify-between gap-1.5"
                   >
-                    <div className="text-xs font-bold text-cyan-200 truncate">{d.dayLabel}</div>
-                    <div className="text-base font-bold text-white tabular-nums">
-                      {d.maxTemp}° <span className="text-xs text-slate-400 font-normal">{d.minTemp}°</span>
+                    <div className="text-base font-bold text-cyan-200 truncate">{d.dayLabel}</div>
+                    <div className="text-2xl font-bold text-white tabular-nums">
+                      {d.maxTemp}° <span className="text-base text-slate-400 font-normal">{d.minTemp}°</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
                       <div
@@ -1003,8 +1003,8 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                         style={{ width: `${Math.min(100, Math.max(25, (d.maxTemp + 10) * 2.2))}%` }}
                       />
                     </div>
-                    <div className="text-[11px] text-sky-300 tabular-nums">{d.precipitationProbability}% pioggia</div>
-                    <div className="text-[10px] text-amber-300/90 tabular-nums">UV {d.uvMax}</div>
+                    <div className="text-sm text-sky-300 tabular-nums">{d.precipitationProbability}% pioggia</div>
+                    <div className="text-sm text-amber-300/90 tabular-nums">UV {d.uvMax}</div>
                   </div>
                 ))}
               </div>
@@ -1111,7 +1111,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
             <div className="space-y-2.5 shrink-0">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-hud uppercase tracking-wider text-violet-300 font-bold flex items-center gap-1.5">
-                  <Newspaper className="w-4 h-4 text-violet-400 shrink-0" /> Hub Notizie Tempo Reale 3D (ANSA · Google News)
+                  <Newspaper className="w-4 h-4 text-violet-400 shrink-0" /> Notizie in tempo reale
                 </span>
                 <span className="text-xs font-hud text-cyan-300 tabular-nums">
                   {uniqueNews.length} notizie attive
@@ -1215,7 +1215,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
             <div className="space-y-2 shrink-0">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-hud uppercase tracking-wider text-cyan-300 font-bold flex items-center gap-1.5">
-                  <Plane className="w-4 h-4 text-cyan-400 shrink-0" /> Cupola Radar Voli 3D &amp; ISS
+                  <Plane className="w-4 h-4 text-cyan-400 shrink-0" /> Voli in zona &amp; ISS
                 </span>
                 <div className="flex items-center gap-1 font-hud text-xs">
                   {([75, 150] as const).map((r) => (
@@ -1264,7 +1264,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
 
             {/* 3D Isometric Airspace Radar Dome SVG */}
             <div className="my-2.5 rounded-xl bg-slate-950/90 border border-slate-800/90 p-2.5 overflow-hidden shrink-0">
-              <svg viewBox="0 0 360 195" className="w-full h-40 select-none block" aria-label="Cupola radar 3D voli">
+              <svg viewBox="0 0 360 195" className="w-full h-40 xl:h-[30vh] select-none block" aria-label="Cupola radar voli">
                 <defs>
                   <radialGradient id="kioskEventDomeGlow" cx="50%" cy="50%" r="55%">
                     <stop offset="0%" stopColor="rgba(34, 211, 238, 0.26)" />
@@ -1383,7 +1383,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
             <div className="space-y-2 shrink-0">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-hud uppercase tracking-wider text-rose-300 font-bold flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 text-rose-400 shrink-0" /> Sismografo 3D (INGV/USGS)
+                  <Activity className="w-4 h-4 text-rose-400 shrink-0" /> Terremoti (INGV/USGS)
                 </span>
                 <span className="text-xs font-hud text-rose-300 font-bold tabular-nums">
                   {filteredQuakes.length} sismi
@@ -1415,13 +1415,13 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
 
             {/* 3D Isometric Subterranean Hypocenter Depth Visualizer SVG */}
             <div className="my-2.5 rounded-xl bg-slate-950/90 border border-slate-800/90 p-2.5 overflow-hidden shrink-0">
-              <div className="flex items-center justify-between text-[10px] font-hud text-slate-400 mb-1">
+              <div className="flex items-center justify-between text-xs font-hud text-slate-400 mb-1">
                 <span className="flex items-center gap-1 text-rose-300 font-semibold">
-                  <Layers className="w-3 h-3" /> Sezione Crostale 3D · Profondità Ipocentri
+                  <Layers className="w-3 h-3" /> Profondità ipocentri
                 </span>
                 <span>0–120 km</span>
               </div>
-              <svg viewBox="0 0 260 135" className="w-full h-32 select-none block" aria-label="Sezione crostale 3D ipocentri sismici">
+              <svg viewBox="0 0 260 135" className="w-full h-32 xl:h-[22vh] select-none block" aria-label="Sezione crostale ipocentri sismici">
                 {/* 3D Surface Crust Plane */}
                 <polygon
                   points="35,28 235,28 215,52 15,52"
@@ -1499,7 +1499,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                         <div className="font-medium text-slate-100 truncate" title={q.place}>
                           {q.place}
                         </div>
-                        <div className="font-hud text-[10px] text-slate-400 tabular-nums">
+                        <div className="font-hud text-xs text-slate-400 tabular-nums">
                           Prof. {Math.round(q.depthKm ?? 0)} km · a {q.distKm.toLocaleString('it-IT')} km
                         </div>
                       </div>
