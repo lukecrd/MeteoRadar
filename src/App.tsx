@@ -29,6 +29,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { AtmosphericCanvas } from './components/AtmosphericCanvas';
 import { RainNextStrip } from './components/RainNextStrip';
 import { WebcamsCard } from './components/WebcamsCard';
+import { PollenCard, SeaStateCard } from './components/EnvironmentExtraCards';
 import { AlertBanner } from './components/AlertBanner';
 import { ItalySatelliteMap } from './components/ItalySatelliteMap';
 import { AndroidModal } from './components/AndroidModal';
@@ -490,9 +491,7 @@ export default function App() {
     { id: 'previsioni', label: 'Previsioni' },
     { id: 'grafici', label: 'Grafici' },
     { id: 'vento', label: 'Vento' },
-    { id: 'ambiente', label: 'Umidità e aria' },
-    { id: 'astronomia', label: 'Effemeridi & Luna' },
-    { id: 'webcam', label: 'Telecamere' },
+    { id: 'umidita', label: 'Umidità' },
     ...(devMode ? [{ id: 'fulmini' as MeteoSection, label: 'Fulmini (demo)' }] : []),
   ];
 
@@ -561,7 +560,7 @@ export default function App() {
         )}
 
         {/* Forecast / Airspace city picker: reachable in Meteo and Voli & ISS */}
-        {(route === 'meteo' || route === 'voli') && (
+        {(route === 'meteo' || route === 'ambiente' || route === 'voli') && (
           <div className="hub-panel p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 relative z-20">
             <div className="min-w-0 flex-1">
               <div className="hub-label">
@@ -612,7 +611,7 @@ export default function App() {
         )}
 
         {/* Loading state */}
-        {isLoading && !weatherData && route === 'meteo' && (
+        {isLoading && !weatherData && (route === 'meteo' || route === 'ambiente') && (
           <div className="py-32 flex flex-col items-center justify-center gap-4" role="status">
             <div className="relative w-14 h-14">
               <Loader2 className="w-14 h-14 text-[var(--hub-cyan)] animate-spin" />
@@ -622,7 +621,7 @@ export default function App() {
         )}
 
         {/* Error Notification: only where weather data is shown */}
-        {errorMsg && route === 'meteo' && (
+        {errorMsg && (route === 'meteo' || route === 'ambiente') && (
           <div role="alert" className="hub-panel p-4 !border-[var(--hub-red)]/40 text-[var(--hub-red)] text-sm font-medium flex flex-wrap items-center gap-3">
             <span>{errorMsg}</span>
             <button
@@ -694,39 +693,18 @@ export default function App() {
               />
             </section>
 
-            <section id="sec-ambiente" aria-label="Umidità, UV e qualità dell'aria" className="grid grid-cols-1 xl:grid-cols-2 gap-6 scroll-mt-40">
-              <div className="hub-module">
-                <EnvironmentalUvCard
-                  uvIndex={weatherData.current.uvIndex}
-                  airQuality={weatherData.airQuality}
-                  isDark={isDark}
-                />
-              </div>
-              <div className="hub-module">
-                <HumiditySensorCard
-                  currentHumidity={currentHumidity}
-                  dewPoint={weatherData.current.dewPoint}
-                  temperature={weatherData.current.temperature}
-                  readings={humidityReadings}
-                  alertState={humidityAlertState}
-                  onSimulateSpike={devMode ? handleSimulateHumiditySpike : undefined}
-                  onCalibrate={handleCalibrateSensor}
-                  isDark={isDark}
-                  spikeThreshold={settings.humiditySpikeThreshold}
-                />
-              </div>
-            </section>
-
-            <section id="sec-astronomia" aria-label="Effemeridi astronomiche e fase lunare" className="hub-module scroll-mt-40">
-              <AstronomicalEphemerisCard
-                location={weatherData.location}
-                daily={weatherData.daily}
+            <section id="sec-umidita" aria-label="Umidità e punto di rugiada" className="hub-module scroll-mt-40">
+              <HumiditySensorCard
+                currentHumidity={currentHumidity}
+                dewPoint={weatherData.current.dewPoint}
+                temperature={weatherData.current.temperature}
+                readings={humidityReadings}
+                alertState={humidityAlertState}
+                onSimulateSpike={devMode ? handleSimulateHumiditySpike : undefined}
+                onCalibrate={handleCalibrateSensor}
                 isDark={isDark}
+                spikeThreshold={settings.humiditySpikeThreshold}
               />
-            </section>
-
-            <section id="sec-webcam" aria-label="Telecamere in zona" className="hub-module scroll-mt-40">
-              <WebcamsCard location={weatherData.location} />
             </section>
 
             {/* Lightning monitor has no real feed yet: shown only as a developer/demo tool */}
@@ -747,6 +725,40 @@ export default function App() {
                 />
               </section>
             )}
+          </div>
+        )}
+
+        {/* AMBIENTE: ephemerides, pollen, UV & air, sea state, webcams */}
+        {route === 'ambiente' && weatherData && (
+          <div key="route-ambiente" className="space-y-6 animate-tab-enter">
+            <section aria-label="Effemeridi astronomiche e fase lunare" className="hub-module">
+              <AstronomicalEphemerisCard
+                location={weatherData.location}
+                daily={weatherData.daily}
+                isDark={isDark}
+              />
+            </section>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <section aria-label="Pollini e allergeni" className="hub-module">
+                <PollenCard location={weatherData.location} />
+              </section>
+              <section aria-label="Stato del mare" className="hub-module">
+                <SeaStateCard location={weatherData.location} />
+              </section>
+            </div>
+
+            <section aria-label="Indice UV e qualità dell'aria" className="hub-module">
+              <EnvironmentalUvCard
+                uvIndex={weatherData.current.uvIndex}
+                airQuality={weatherData.airQuality}
+                isDark={isDark}
+              />
+            </section>
+
+            <section aria-label="Telecamere in zona" className="hub-module">
+              <WebcamsCard location={weatherData.location} />
+            </section>
           </div>
         )}
 
