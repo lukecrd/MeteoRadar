@@ -1,11 +1,12 @@
 import React from 'react';
-import { CloudSun, Map as MapIcon, Globe2, Newspaper, Plane, LucideIcon } from 'lucide-react';
+import { CloudSun, Map as MapIcon, Globe2, Newspaper, Plane, Leaf, LucideIcon } from 'lucide-react';
 import { AppRoute } from '../types';
 
 const DESTINATIONS: Array<{ id: AppRoute; label: string; icon: LucideIcon }> = [
   // The WorldHub globe (home) comes first.
   { id: 'mondo', label: 'Mondo', icon: Globe2 },
   { id: 'meteo', label: 'Meteo', icon: CloudSun },
+  { id: 'ambiente', label: 'Ambiente', icon: Leaf },
   { id: 'mappa', label: 'Mappa', icon: MapIcon },
   { id: 'voli', label: 'Voli & ISS', icon: Plane },
   { id: 'notizie', label: 'Notizie', icon: Newspaper },
@@ -50,7 +51,7 @@ export const AppBottomNav: React.FC<AppNavProps> = ({ active, onNavigate }) => (
     className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--hub-line)] bg-[var(--hub-panel-strong)] backdrop-blur-xl"
     style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
   >
-    <ul className="grid grid-cols-5">
+    <ul className="grid grid-cols-6">
       {DESTINATIONS.map(({ id, label, icon: Icon }) => {
         const isActive = id === active;
         return (
