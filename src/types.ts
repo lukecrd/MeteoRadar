@@ -203,5 +203,5 @@ export interface ItalyStationWeather {
 }
 
 // Primary destinations (hash routes) and in-page sections of the Meteo view
-export type AppRoute = 'meteo' | 'mappa' | 'mondo' | 'voli' | 'notizie';
-export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'mare' | 'ambiente' | 'pollini' | 'astronomia' | 'webcam' | 'fulmini';
+export type AppRoute = 'meteo' | 'ambiente' | 'mappa' | 'mondo' | 'voli' | 'notizie';
+export type MeteoSection = 'oggi' | 'previsioni' | 'grafici' | 'vento' | 'umidita' | 'fulmini';
