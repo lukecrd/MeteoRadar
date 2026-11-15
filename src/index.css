@@ -92,8 +92,8 @@
   --elev-3: 0 24px 64px -16px rgb(20 23 28 / 0.24);
 }
 html.dark {
-  --bg: #000000;
-  --bg-2: #000000;
+  --bg: #0b1626;
+  --bg-2: #0f1c30;
   --surface: #14171c;
   --surface-raised: #1b1f26;
   --surface-overlay: rgba(20, 23, 28, 0.88);
