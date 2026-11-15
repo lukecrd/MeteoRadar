@@ -373,7 +373,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
       fragmentShader: BODY_FRAGMENT,
       uniforms: {
         uSun: { value: sunUniform },
-        uNight: { value: new THREE.Vector3(...srgb(isDark ? '#060d16' : '#cbd5e1')) },
+        uNight: { value: new THREE.Vector3(...srgb(isDark ? '#0e1a2e' : '#cbd5e1')) },
         uDay: { value: new THREE.Vector3(...srgb(isDark ? '#15283d' : '#eef3f8')) },
         uLine: { value: new THREE.Vector3(...srgb(isDark ? '#eef1f5' : '#14171c')) },
         uOpacity: { value: isDark ? 0.92 : 0.8 },

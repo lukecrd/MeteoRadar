@@ -79,9 +79,9 @@
   --line-strong: rgba(20, 23, 28, 0.38);
   --fg: #121417;
   --fg-muted: #59606b;
-  --accent: #14171c;
+  --accent: #0369a1;
   --accent-fg: #ffffff;
-  --focus: #14171c;
+  --focus: #0369a1;
   --success: #047857;
   --warning: #b45309;
   --danger: #be123c;
@@ -101,9 +101,9 @@ html.dark {
   --line-strong: #4a5361;
   --fg: #eef1f5;
   --fg-muted: #9aa4b0;
-  --accent: #eef1f5;
+  --accent: #38bdf8;
   --accent-fg: #000000;
-  --focus: #eef1f5;
+  --focus: #38bdf8;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #fb7185;
@@ -567,25 +567,25 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
    so the interactive 3D globe shines clearly behind floating HUD windows. */
 .worldhub-stage {
   color-scheme: dark;
-  --bg: #000000;
-  --surface: rgba(10, 15, 24, 0.42);
-  --surface-raised: rgba(18, 25, 38, 0.48);
-  --surface-overlay: rgba(8, 12, 20, 0.38);
-  --line: rgba(148, 163, 184, 0.22);
-  --line-strong: rgba(148, 163, 184, 0.46);
+  --bg: #0b1626;
+  --surface: rgba(22, 36, 58, 0.46);
+  --surface-raised: rgba(32, 50, 78, 0.52);
+  --surface-overlay: rgba(16, 28, 46, 0.42);
+  --line: rgba(125, 211, 252, 0.22);
+  --line-strong: rgba(125, 211, 252, 0.46);
   --fg: #eef1f5;
   --fg-muted: #b0bac7;
-  /* No accent hue on the stage: interactive state is shown in white. */
-  --accent: #eef1f5;
+  /* Sky-blue accent on the stage: interactive state reads as blue. */
+  --accent: #38bdf8;
   --accent-fg: #000000;
-  --focus: #eef1f5;
+  --focus: #38bdf8;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #fb7185;
   --info: #38bdf8;
   /* Aliases resolve where declared (:root), so restate them for this scope. */
   --hub-bg: var(--bg);
-  --hub-panel: rgba(10, 15, 24, 0.34);
+  --hub-panel: rgba(22, 36, 58, 0.38);
   --hub-panel-strong: var(--surface-overlay);
   --hub-line: var(--line);
   --hub-line-strong: var(--line-strong);
@@ -597,7 +597,7 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   --hub-red: var(--danger);
   --hub-up: var(--success);
   --hub-down: var(--danger);
-  --hub-glow: rgba(238, 241, 245, 0.1);
+  --hub-glow: rgba(56, 189, 248, 0.14);
   --elev-1: 0 1px 0 rgb(255 255 255 / 0.05) inset;
   --elev-3: 0 16px 40px -14px rgb(0 0 0 / 0.65);
   color: var(--fg);
@@ -645,7 +645,7 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   border-radius: 999px;
 }
 .hub-globe-stage {
-  background: #000 !important;
+  background: #0b1626 !important;
   color: var(--fg);
 }
 
