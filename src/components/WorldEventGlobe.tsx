@@ -345,7 +345,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     renderer.domElement.style.height = '100%';
     host.appendChild(renderer.domElement);
 
-    const lineColor = isDark ? 0x8b97a6 : 0x0e7490;
+    const lineColor = isDark ? 0xa3b1c2 : 0x0e7490;
     const group = new THREE.Group();
     scene.add(group);
 
@@ -373,8 +373,8 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
       fragmentShader: BODY_FRAGMENT,
       uniforms: {
         uSun: { value: sunUniform },
-        uNight: { value: new THREE.Vector3(...srgb(isDark ? '#0e1a2e' : '#cbd5e1')) },
-        uDay: { value: new THREE.Vector3(...srgb(isDark ? '#15283d' : '#eef3f8')) },
+        uNight: { value: new THREE.Vector3(...srgb(isDark ? '#1a2f4f' : '#cbd5e1')) },
+        uDay: { value: new THREE.Vector3(...srgb(isDark ? '#264468' : '#eef3f8')) },
         uLine: { value: new THREE.Vector3(...srgb(isDark ? '#eef1f5' : '#14171c')) },
         uOpacity: { value: isDark ? 0.92 : 0.8 },
       },
@@ -385,10 +385,10 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     group.add(body);
 
     const gridGeo = buildGraticule();
-    const gridMat = new THREE.LineBasicMaterial({ color: lineColor, transparent: true, opacity: isDark ? 0.12 : 0.14, depthWrite: false });
+    const gridMat = new THREE.LineBasicMaterial({ color: lineColor, transparent: true, opacity: isDark ? 0.18 : 0.14, depthWrite: false });
     group.add(new THREE.LineSegments(gridGeo, gridMat));
 
-    const coastMat = new THREE.LineBasicMaterial({ color: isDark ? 0xc9d3df : 0x0e7490, transparent: true, opacity: isDark ? 0.4 : 0.5, depthWrite: false });
+    const coastMat = new THREE.LineBasicMaterial({ color: isDark ? 0xdbe4ef : 0x0e7490, transparent: true, opacity: isDark ? 0.62 : 0.5, depthWrite: false });
     let coastGeo: THREE.BufferGeometry | null = null;
     let disposed = false;
     loadCoastline().then((lines) => {
@@ -400,7 +400,7 @@ export const WorldEventGlobe: React.FC<WorldEventGlobeProps> = ({
     // Limb outline lives in the scene (not the group) so it never rotates;
     // it scales with zoom through the camera like everything else.
     const limbGeo = new THREE.RingGeometry(0.995, 1.004, 128);
-    const limbMat = new THREE.MeshBasicMaterial({ color: lineColor, transparent: true, opacity: isDark ? 0.5 : 0.35, depthWrite: false });
+    const limbMat = new THREE.MeshBasicMaterial({ color: lineColor, transparent: true, opacity: isDark ? 0.65 : 0.35, depthWrite: false });
     scene.add(new THREE.Mesh(limbGeo, limbMat));
 
     // Faint ring at the typical orbit height while satellites are shown:

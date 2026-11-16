@@ -36,6 +36,7 @@ import { FlightCard, FlightSearch } from './FlightCard';
 import { NewsHub } from './NewsHub';
 import { AlertsList, FlightsList, QuakesList, SatellitesList, VolcanoesList } from './WorldEventPanels';
 import { classifyFlight, FLIGHT_TYPE_FILTERS, FlightTypeCategory } from '../services/flightClassifier';
+import { satellitePasses } from '../services/overhead';
 
 type Side = 'left' | 'right';
 type WindowId = 'news' | 'flights' | 'satellites' | 'markets' | 'quakes' | 'volcanoes' | 'alerts' | 'crypto';
@@ -246,12 +247,14 @@ function useMediaQuery(query: string): boolean {
 }
 
 /**
- * Height of the full-bleed stage: from its top edge (under the app header)
- * to the bottom of the viewport, minus the fixed bottom nav on phones, so the
- * globe fills the screen and the page itself never scrolls.
+ * Size of the full-bleed stage. Height runs from its top edge (under the app
+ * header) to the bottom of the viewport, minus the fixed bottom nav on phones,
+ * so the globe fills the screen and the page itself never scrolls; width is
+ * the measured box, for layout that depends on the room beside the globe.
  */
-function useStageHeight(sectionRef: React.RefObject<HTMLElement | null>): number | null {
+function useStageSize(sectionRef: React.RefObject<HTMLElement | null>): { height: number | null; width: number | null } {
   const [height, setHeight] = useState<number | null>(null);
+  const [width, setWidth] = useState<number | null>(null);
   useLayoutEffect(() => {
     const measure = () => {
       const el = sectionRef.current;
@@ -261,6 +264,7 @@ function useStageHeight(sectionRef: React.RefObject<HTMLElement | null>): number
         .reduce((h, n) => Math.max(h, n.offsetHeight), 0);
       const top = el.getBoundingClientRect().top + window.scrollY;
       setHeight(Math.round(Math.max(MIN_STAGE_PX, window.innerHeight - top - bottomNav)));
+      setWidth(el.clientWidth);
     };
     measure();
     // The header above can change height (fonts, wrap, banners); body keeps
@@ -275,7 +279,7 @@ function useStageHeight(sectionRef: React.RefObject<HTMLElement | null>): number
       window.removeEventListener('resize', measure);
     };
   }, [sectionRef]);
-  return height;
+  return { height, width };
 }
 
 interface NewsGlobeStageProps {
@@ -325,6 +329,8 @@ const WindowPanel: React.FC<WindowPanelProps> = ({ def, onClose, className, chil
 };
 
 interface LegendProps {
+  /** Desktop: a vertical rail without chrome instead of the pill. */
+  rail?: boolean;
   open: Record<WindowId, boolean>;
   layers: Record<WorldLayer, boolean>;
   counts: Record<WorldLayer, number>;
@@ -336,7 +342,7 @@ interface LegendProps {
  * The map legend is the control: the swatch shows/hides a layer on the globe,
  * the name opens its window. Windows without a layer (markets, crypto) follow a divider.
  */
-const Legend: React.FC<LegendProps> = ({ open, layers, counts, onToggleWindow, onToggleLayer }) => {
+const Legend: React.FC<LegendProps> = ({ rail, open, layers, counts, onToggleWindow, onToggleLayer }) => {
   const item = (def: WindowDef) => {
     const isOpen = open[def.id];
     const name = (
@@ -378,7 +384,7 @@ const Legend: React.FC<LegendProps> = ({ open, layers, counts, onToggleWindow, o
     );
   };
   return (
-    <nav aria-label="Legenda e finestre del mappamondo" className="wh-legend">
+    <nav aria-label="Legenda e finestre del mappamondo" className={`wh-legend ${rail ? 'wh-legend--rail' : ''}`}>
       {WINDOWS.filter((w) => w.layer).map(item)}
       <span className="wh-legend__sep" aria-hidden />
       {WINDOWS.filter((w) => !w.layer).map(item)}
@@ -393,10 +399,8 @@ const Legend: React.FC<LegendProps> = ({ open, layers, counts, onToggleWindow, o
  */
 export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location, alerts, strikes }) => {
   const isMobile = useMediaQuery(MOBILE_QUERY);
-  // Phones start with the globe clear; desktop opens one drawer per side.
-  const [open, setOpen] = useState<Record<WindowId, boolean>>(() =>
-    typeof window !== 'undefined' && window.matchMedia(MOBILE_QUERY).matches ? CLOSED : { ...CLOSED, news: true, quakes: true }
-  );
+  // The globe starts clear: windows open on request from the legend or a readout.
+  const [open, setOpen] = useState<Record<WindowId, boolean>>(CLOSED);
   const [layers, setLayers] = useState<Record<WorldLayer, boolean>>({
     news: true,
     quakes: true,
@@ -415,7 +419,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
   const [focus, setFocus] = useState<GlobeFocus | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
-  const stageHeight = useStageHeight(sectionRef);
+  const { height: stageHeight, width: stageWidth } = useStageSize(sectionRef);
 
   // Selected aircraft (popup) and follow mode.
   const [selectedFlight, setSelectedFlight] = useState<{ icao24: string; seed: FlightDetail | null } | null>(null);
@@ -751,6 +755,37 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     satellites: sats.states.length,
   };
 
+  // Meridiano instruments (desktop): clock, the four ring readouts, latest headlines.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const minute = Math.floor(now.getTime() / 60_000);
+  const issPass = useMemo(() => {
+    const iss = sats.feed.data?.group === 'stations' ? sats.feed.data.items.find((t) => t.norad === ISS_NORAD) : undefined;
+    if (!iss) return null;
+    const nowMs = minute * 60_000;
+    return satellitePasses(iss.line1, iss.line2, location.latitude, location.longitude, nowMs, 24).find((p) => p.endMs > nowMs) ?? null;
+  }, [sats.feed.data, location.latitude, location.longitude, minute]);
+  const lastQuake = useMemo(
+    () => (quakes.data?.items ?? []).reduce<Earthquake | null>((best, q) => (!best || q.time > best.time ? q : best), null),
+    [quakes.data]
+  );
+  const latestNews = useMemo(
+    () => {
+      // The same story can sit in several areas: keep the first copy.
+      const seen = new Set<string>();
+      return areas
+        .flatMap((a) => a.items)
+        .sort((a, b) => b.publishedAt - a.publishedAt)
+        .filter((n) => !seen.has(n.title) && seen.add(n.title))
+        .slice(0, 3);
+    },
+    [areas]
+  );
+  const hhmm = (ms: number) => new Date(ms).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
   const renderWindowBody = (id: WindowId) => {
     switch (id) {
       case 'news':
@@ -902,7 +937,7 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     </WindowPanel>
   );
 
-  const legend = <Legend open={open} layers={layers} counts={counts} onToggleWindow={toggleWindow} onToggleLayer={toggleLayer} />;
+  const legend = <Legend rail={!isMobile} open={open} layers={layers} counts={counts} onToggleWindow={toggleWindow} onToggleLayer={toggleLayer} />;
 
   const flightCard = (
     <FlightCard
@@ -986,26 +1021,73 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
     );
   }
 
-  // Tablet / desktop: the legend sits bottom centre; compact translucent windows
-  // slide in from their side as a slim drawer column over the globe.
-  const drawer = (side: Side) => {
+  // Tablet / desktop (Meridiano): a left column with the clock, open drawers and
+  // the legend rail; a right column with open drawers and the latest headlines;
+  // a thin ring around the globe carrying four live readouts (large screens).
+  const column = (side: Side) => {
     const defs = WINDOWS.filter((w) => w.side === side);
     const openDefs = defs.filter((w) => open[w.id]);
     const card = side === 'left' && showCard && <div className="flex flex-col min-h-0 max-h-[min(48vh,380px)] shrink-0 animate-drawer-left">{flightCard}</div>;
+    const stack = (card || openDefs.length > 0) && (
+      <div className="pointer-events-auto hub-scroll flex-1 min-h-0 overflow-y-auto overscroll-contain flex flex-col gap-2.5 pb-1">
+        {card}
+        {openDefs.map(renderWindow)}
+      </div>
+    );
     return (
       <div
-        // Ends above the legend row; the right one leaves the globe's zoom buttons uncovered.
-        className={`absolute top-3 bottom-[4.25rem] z-30 flex items-start pointer-events-none ${side === 'left' ? 'left-3' : 'right-14'}`}
+        // The right one leaves the globe's zoom buttons uncovered.
+        className={`absolute top-4 bottom-4 z-30 flex flex-col gap-4 w-[min(295px,24vw)] min-w-[235px] pointer-events-none ${side === 'left' ? 'left-5' : 'right-14'}`}
       >
-        {(card || openDefs.length > 0) && (
-          <div className="pointer-events-auto hub-scroll max-h-full overflow-y-auto overscroll-contain flex flex-col gap-2.5 w-[min(295px,24vw)] min-w-[235px] pb-1">
-            {card}
-            {openDefs.map(renderWindow)}
+        {side === 'left' && (
+          <div className="wh-clock shrink-0">
+            {hhmm(now.getTime())}
+            <small>
+              {now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}, {now.toISOString().slice(11, 16)} UTC
+            </small>
           </div>
+        )}
+        {stack}
+        {side === 'left' ? (
+          <div className="pointer-events-auto mt-auto shrink-0">{legend}</div>
+        ) : (
+          latestNews.length > 0 && (
+            <div className="wh-feed mt-auto shrink-0 pointer-events-auto">
+              {latestNews.map((n) => (
+                <a key={n.id} href={n.url} target="_blank" rel="noreferrer">
+                  <time dateTime={new Date(n.publishedAt).toISOString()}>{hhmm(n.publishedAt)}</time>
+                  <span>
+                    <strong className="line-clamp-2">{n.title}</strong>
+                    {n.source}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )
         )}
       </div>
     );
   };
+
+  const readout = (corner: 'tl' | 'tr' | 'bl' | 'br', id: WindowId, body: React.ReactNode) => (
+    <button
+      type="button"
+      onClick={() => showWindow(id)}
+      className={`wh-readout wh-readout--${corner} pointer-events-auto text-left cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-[var(--hub-cyan)]`}
+      aria-controls={`worldhub-window-${id}`}
+    >
+      {body}
+    </button>
+  );
+  const alertCount = counts.alerts;
+  const alertNames = (disasters.data?.items ?? []).slice(0, 2).map((d) => d.name).join(', ');
+  // The ring is decoration: it only appears when the band between the two
+  // columns (each min(295px, 24vw), at least 235px, offset 20px / 56px) is as
+  // wide as the ring itself, so it never runs under the rail or the headlines.
+  const ringFits =
+    stageWidth != null &&
+    stageHeight != null &&
+    stageWidth - 2 * Math.max(235, Math.min(295, 0.24 * stageWidth)) - 76 - 32 >= 0.94 * stageHeight;
 
   return (
     <section
@@ -1015,12 +1097,47 @@ export const NewsGlobeStage: React.FC<NewsGlobeStageProps> = ({ isDark, location
       aria-label="Mappamondo eventi in tempo reale"
     >
       {globe}
-      {/* Follow badge: top centre, between the drawers. Flight search lives in the Voli window. */}
-      {followBadge && <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 max-w-[min(560px,calc(100%-8rem))]">{followBadge}</div>}
-      {/* Clear of the globe's zoom buttons (bottom right). */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100%-7rem)] flex">{legend}</div>
-      {drawer('left')}
-      {drawer('right')}
+      {ringFits && (
+        <div className="wh-ring hidden lg:block z-20">
+          {(layers.satellites || open.satellites) &&
+            readout('tl', 'satellites', (
+              <>
+                <b>ISS</b>
+                {issPass ? (
+                  <>passa su {location.name} alle <em>{hhmm(issPass.startMs)}</em></>
+                ) : sats.feed.data ? (
+                  'nessun passaggio nelle prossime 24 ore'
+                ) : (
+                  'in attesa dei dati orbitali'
+                )}
+              </>
+            ))}
+          {lastQuake &&
+            readout('tr', 'quakes', (
+              <>
+                <b>{lastQuake.mag.toFixed(1)} M</b>
+                <span className="line-clamp-2">{lastQuake.place}, {timeAgo(lastQuake.time, now.getTime())}</span>
+              </>
+            ))}
+          {counts.flights > 0 &&
+            readout('bl', 'flights', (
+              <>
+                <b>{counts.flights.toLocaleString('it-IT')}</b>
+                aerei in volo nel mondo
+              </>
+            ))}
+          {readout('br', 'alerts', (
+            <>
+              <b>{alertCount === 0 ? 'Nessuna' : alertCount === 1 ? '1 allerta' : `${alertCount} allerte`}</b>
+              <span className="line-clamp-2">{alertCount === 0 ? 'allerta attiva' : alertNames || `vicino a ${location.name}`}</span>
+            </>
+          ))}
+        </div>
+      )}
+      {/* Follow badge: top centre, between the columns. Flight search lives in the Voli window. */}
+      {followBadge && <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 max-w-[min(560px,calc(100%-8rem))]">{followBadge}</div>}
+      {column('left')}
+      {column('right')}
     </section>
   );
 };

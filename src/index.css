@@ -92,22 +92,22 @@
   --elev-3: 0 24px 64px -16px rgb(20 23 28 / 0.24);
 }
 html.dark {
-  --bg: #0b1626;
-  --bg-2: #0f1c30;
-  --surface: #14171c;
-  --surface-raised: #1b1f26;
-  --surface-overlay: rgba(20, 23, 28, 0.88);
-  --line: #2a3039;
-  --line-strong: #4a5361;
-  --fg: #eef1f5;
-  --fg-muted: #9aa4b0;
-  --accent: #38bdf8;
+  --bg: #112240;
+  --bg-2: #182e52;
+  --surface: #172b4c;
+  --surface-raised: #1e3658;
+  --surface-overlay: rgba(19, 36, 66, 0.88);
+  --line: #2b4470;
+  --line-strong: #4a699c;
+  --fg: #f4f7fb;
+  --fg-muted: #aab7ca;
+  --accent: #8fd3ff;
   --accent-fg: #000000;
-  --focus: #38bdf8;
+  --focus: #8fd3ff;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #fb7185;
-  --info: #38bdf8;
+  --info: #8fd3ff;
 
   --elev-1: 0 1px 0 rgb(255 255 255 / 0.04) inset;
   --elev-2: 0 12px 32px -12px rgb(0 0 0 / 0.7);
@@ -567,25 +567,26 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
    so the interactive 3D globe shines clearly behind floating HUD windows. */
 .worldhub-stage {
   color-scheme: dark;
-  --bg: #0b1626;
-  --surface: rgba(22, 36, 58, 0.46);
-  --surface-raised: rgba(32, 50, 78, 0.52);
-  --surface-overlay: rgba(16, 28, 46, 0.42);
-  --line: rgba(125, 211, 252, 0.22);
-  --line-strong: rgba(125, 211, 252, 0.46);
-  --fg: #eef1f5;
-  --fg-muted: #b0bac7;
-  /* Sky-blue accent on the stage: interactive state reads as blue. */
-  --accent: #38bdf8;
+  /* Lighter navy: the stage reads as a lit room, not a black box. */
+  --bg: #112240;
+  --surface: rgba(34, 54, 86, 0.5);
+  --surface-raised: rgba(46, 70, 108, 0.56);
+  --surface-overlay: rgba(26, 44, 74, 0.5);
+  --line: rgba(160, 216, 255, 0.3);
+  --line-strong: rgba(160, 216, 255, 0.58);
+  --fg: #f4f7fb;
+  --fg-muted: #b6c3d6;
+  /* Glacial accent on the stage: interactive state reads as pale blue. */
+  --accent: #8fd3ff;
   --accent-fg: #000000;
-  --focus: #38bdf8;
+  --focus: #8fd3ff;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #fb7185;
-  --info: #38bdf8;
+  --info: #8fd3ff;
   /* Aliases resolve where declared (:root), so restate them for this scope. */
   --hub-bg: var(--bg);
-  --hub-panel: rgba(22, 36, 58, 0.38);
+  --hub-panel: rgba(34, 54, 86, 0.42);
   --hub-panel-strong: var(--surface-overlay);
   --hub-line: var(--line);
   --hub-line-strong: var(--line-strong);
@@ -597,12 +598,104 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   --hub-red: var(--danger);
   --hub-up: var(--success);
   --hub-down: var(--danger);
-  --hub-glow: rgba(56, 189, 248, 0.14);
-  --elev-1: 0 1px 0 rgb(255 255 255 / 0.05) inset;
+  --hub-glow: rgba(160, 216, 255, 0.18);
+  --elev-1: 0 1px 0 rgb(255 255 255 / 0.07) inset;
   --elev-3: 0 16px 40px -14px rgb(0 0 0 / 0.65);
   color: var(--fg);
   font-variant-numeric: tabular-nums;
 }
+
+/* Meridiano: the observatory instruments around the globe (desktop). */
+.wh-clock {
+  font-weight: 300;
+  font-stretch: 70%;
+  font-size: clamp(56px, 9vh, 96px);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+.wh-clock small {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  font-stretch: 100%;
+  letter-spacing: 0;
+  color: var(--fg-muted);
+}
+.wh-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: 94%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  pointer-events: none;
+}
+.wh-ring::before {
+  content: '';
+  position: absolute;
+  inset: 3.5%;
+  border-radius: 50%;
+  border: 1px dashed rgba(160, 216, 255, 0.2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wh-ring::before { animation: spin 90s linear infinite; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Readouts need room between the clock, the rail and the headlines: short
+   viewports keep the ring and drop them (the rail still opens every window). */
+.wh-readout { display: none; }
+@media (min-height: 860px) { .wh-readout { display: block; } }
+.wh-readout {
+  position: absolute;
+  width: 170px;
+  font-size: 13px;
+  line-height: 1.25;
+  color: var(--fg-muted);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+.wh-readout b {
+  display: block;
+  font-weight: 500;
+  font-stretch: 80%;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.wh-readout em { font-style: normal; color: var(--accent); }
+/* Just outside the ring: two at the shoulders, two at the equator (the
+   clock sits above the left ones, the legend rail and the headlines below). */
+.wh-readout--tl { top: 20%; right: calc(100% + 8px); text-align: right; }
+.wh-readout--tr { top: 20%; left: calc(100% + 8px); }
+.wh-readout--bl { top: 50%; right: calc(100% + 8px); text-align: right; }
+.wh-readout--br { top: 50%; left: calc(100% + 8px); }
+.wh-feed { display: grid; gap: 12px; font-size: 13px; line-height: 1.35; color: var(--fg-muted); text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7); }
+.wh-feed a { display: grid; grid-template-columns: 40px 1fr; gap: 10px; }
+.wh-feed a:hover strong { text-decoration: underline; }
+.wh-feed time { font-stretch: 80%; color: var(--accent); }
+.wh-feed strong { display: block; font-weight: 500; color: var(--fg); }
+/* Legend as a vertical rail: no chrome, the swatches line up like instrument lamps. */
+/* Declared before .wh-legend, so the double class wins the tie. */
+.wh-legend.wh-legend--rail {
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+}
+.wh-legend--rail .wh-legend__item { border-radius: 8px; }
+.wh-legend--rail .wh-legend__item.is-open { text-shadow: none; }
+.wh-legend--rail .wh-legend__swatch,
+.wh-legend--rail .wh-legend__name { height: 28px; line-height: 28px; }
+.wh-legend--rail .wh-legend__name { flex: 1; justify-content: space-between; font-weight: 500; }
+.wh-legend--rail .wh-legend__sep { width: auto; height: 1px; margin: 4px 8px; }
 .worldhub-stage select option {
   background-color: #0f172a;
   color: #eef1f5;
@@ -610,21 +703,21 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
 .worldhub-stage .hub-panel {
   background: linear-gradient(
     165deg,
-    rgba(18, 26, 40, 0.42) 0%,
-    rgba(8, 12, 20, 0.34) 100%
+    rgba(34, 52, 84, 0.5) 0%,
+    rgba(20, 34, 60, 0.42) 100%
   );
-  border-color: rgba(148, 163, 184, 0.24);
+  border-color: rgba(170, 190, 215, 0.3);
   backdrop-filter: blur(12px) saturate(135%);
   -webkit-backdrop-filter: blur(12px) saturate(135%);
 }
 .wh-glass-window {
   position: relative;
   border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--wh-accent, #38bdf8) 38%, rgba(148, 163, 184, 0.24));
+  border: 1px solid color-mix(in srgb, var(--wh-accent, #38bdf8) 42%, rgba(170, 190, 215, 0.3));
   background: linear-gradient(
     165deg,
-    color-mix(in srgb, var(--wh-accent, #38bdf8) 9%, rgba(12, 18, 28, 0.44)) 0%,
-    rgba(6, 10, 18, 0.34) 100%
+    color-mix(in srgb, var(--wh-accent, #38bdf8) 10%, rgba(28, 44, 72, 0.52)) 0%,
+    rgba(18, 30, 54, 0.42) 100%
   );
   box-shadow:
     0 1px 0 0 rgba(255, 255, 255, 0.18) inset,
@@ -645,7 +738,7 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   border-radius: 999px;
 }
 .hub-globe-stage {
-  background: #0b1626 !important;
+  background: #112240 !important;
   color: var(--fg);
 }
 
@@ -715,7 +808,7 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   padding: 6px 10px;
   border-radius: 10px;
   border-left: 2px solid;
-  background: rgba(20, 23, 28, 0.92);
+  background: rgba(19, 36, 66, 0.92);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   white-space: nowrap;
@@ -822,6 +915,7 @@ html:not(.dark) :is(.leaflet-container, .hub-globe-stage, .on-dark) {
   .animate-drawer-right,
   .animate-modal-backdrop,
   .animate-modal-slide-up,
-  .animate-toast-in { animation: none !important; }
+  .animate-toast-in,
+  .wh-ring::before { animation: none !important; }
   .hub-ticker-track { flex-wrap: nowrap; }
 }
