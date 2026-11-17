@@ -443,7 +443,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
         <div
           role="tablist"
           aria-label="Sezioni Stazione Kiosk"
-          className="flex items-center gap-2 p-1 rounded-2xl bg-slate-950/90 border border-slate-700/80 shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset]"
+          className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-slate-950/90 border border-slate-700/80 shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset]"
         >
           <button
             type="button"
@@ -570,9 +570,9 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
           TAB 1: METEO, ARIA & CIELO 3D
           ===================================================================== */}
       {kioskTab === 'meteo' && (
-        <div key="kiosk-tab-meteo" className="kiosk-stage flex-1 min-h-0 flex flex-col justify-between gap-3.5">
+        <div key="kiosk-tab-meteo" className="kiosk-stage xl:flex-1 xl:min-h-0 flex flex-col justify-between gap-3.5">
           {/* TOP 4 3D VOLUMETRIC TELEMETRY QUADRANTS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5 flex-1 min-h-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5 xl:flex-1 xl:min-h-0">
             {/* MODULE 1: 3D THERMOMETRY, BAROMETRIC CYLINDER & CONVECTIVE ENERGY */}
             <section
               className={card3DClass(
@@ -651,7 +651,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                 </div>
               </div>
 
-              <dl className="grid grid-cols-4 gap-2 pt-3 border-t border-slate-800 text-xs mt-3">
+              <dl className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-slate-800 text-xs mt-3">
                 <div className="rounded-lg bg-slate-950/70 border border-slate-800/90 p-2">
                   <dt className="text-xs text-slate-400 truncate">Nuvole</dt>
                   <dd className="font-hud text-lg font-bold text-white tabular-nums mt-0.5">{current.cloudCover}%</dd>
@@ -987,7 +987,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                 </span>
                               </div>
 
-              <div className="grid grid-cols-5 gap-2.5 my-auto text-center font-hud">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5 my-auto text-center font-hud">
                 {daily.slice(0, 5).map((d) => (
                   <div
                     key={d.date}
@@ -1046,8 +1046,8 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
           TAB 3: SINTESI — few, huge figures, readable from across the room
           ===================================================================== */}
       {kioskTab === 'sintesi' && (
-        <div key="kiosk-tab-sintesi" className="kiosk-stage flex-1 min-h-0 flex flex-col gap-3.5">
-          <section className="relative flex-1 min-h-0 rounded-2xl border border-slate-700/75 bg-slate-950/80 p-6 grid grid-cols-1 lg:grid-cols-2 items-center gap-6 overflow-hidden">
+        <div key="kiosk-tab-sintesi" className="kiosk-stage xl:flex-1 xl:min-h-0 flex flex-col gap-3.5">
+          <section className="relative xl:flex-1 xl:min-h-0 rounded-2xl border border-slate-700/75 bg-slate-950/80 p-6 grid grid-cols-1 lg:grid-cols-2 items-center gap-6 overflow-hidden">
             <div className="text-center lg:text-left min-w-0">
               <div className="font-hud font-bold tabular-nums leading-none text-white text-[clamp(4rem,19vh,15rem)]">
                 {localTimeStr.slice(0, 5)}
@@ -1056,7 +1056,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
               <div className="mt-1 text-[clamp(1rem,2.6vh,2rem)] text-slate-400">{location.name}</div>
             </div>
 
-            <div className="flex items-center justify-center lg:justify-end gap-[3vh] min-w-0">
+            <div className="flex flex-wrap items-center justify-center lg:justify-end gap-[3vh] min-w-0">
               <GlanceIcon className="shrink-0 w-[20vh] h-[20vh] max-w-[30vw] text-cyan-300" strokeWidth={1.4} aria-hidden />
               <div className="min-w-0">
                 <div className="font-hud font-bold tabular-nums leading-none text-white text-[clamp(4rem,22vh,17rem)]">
@@ -1102,7 +1102,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
           TAB 2: NOTIZIE, TERREMOTI & VOLI 3D (UNIFIED FUTURISTIC 3D COMMAND TAB)
           ===================================================================== */}
       {kioskTab === 'eventi' && (
-        <div key="kiosk-tab-eventi" className="kiosk-stage flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+        <div key="kiosk-tab-eventi" className="kiosk-stage xl:flex-1 xl:min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
           {/* COLUMN 1 (5 COLS): 3D HOLOGRAPHIC NEWS HUB WITH CATEGORY TABS */}
           <section className="lg:col-span-5 relative rounded-2xl border border-violet-400/50 bg-gradient-to-br from-slate-900/95 via-slate-900/85 to-slate-950/95 p-4 sm:p-5 flex flex-col justify-between overflow-hidden shadow-[0_1px_0_0_rgba(255,255,255,0.16)_inset,0_20px_44px_-12px_rgba(0,0,0,0.82)] min-h-0">
             <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-violet-400 to-transparent opacity-90" />
