@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
   ArrowUpRight,
@@ -153,6 +153,11 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
     };
   }, [isOpen]);
 
+  // onClose is a new function on every parent render; depending on it would rerun the
+  // effect, whose cleanup exits fullscreen, and the re-request lacks a user gesture.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   // Sync native Fullscreen API state and keyboard shortcuts (Escape, 1, 2, 3, C, F)
   useEffect(() => {
     if (!isOpen) return;
@@ -162,7 +167,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
     };
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
       } else if (e.key === '1') {
         setKioskTab('meteo');
       } else if (e.key === '2') {
@@ -190,7 +195,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
         document.exitFullscreen().catch(() => {});
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   const toggleBrowserFullscreen = () => {
     if (!document.fullscreenElement) {
