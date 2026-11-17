@@ -991,10 +991,10 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
                 {daily.slice(0, 5).map((d) => (
                   <div
                     key={d.date}
-                    className="rounded-xl border border-slate-800/90 bg-slate-950/80 p-3 flex flex-col justify-between gap-1.5"
+                    className="rounded-xl border border-slate-800/90 bg-slate-950/80 p-3 min-w-0 flex flex-col justify-between gap-1.5"
                   >
                     <div className="text-base font-bold text-cyan-200 truncate">{d.dayLabel}</div>
-                    <div className="text-2xl font-bold text-white tabular-nums">
+                    <div className="text-2xl font-bold text-white tabular-nums flex flex-col items-center leading-tight">
                       {d.maxTemp}° <span className="text-base text-slate-400 font-normal">{d.minTemp}°</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
