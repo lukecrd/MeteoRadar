@@ -901,9 +901,9 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
           </div>
 
           {/* BOTTOM METEO ROW: 12-HOUR 3D THERMO-PLUVIOMETRIC CURVE + 5-DAY THERMAL OUTLOOK */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 shrink-0">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-3.5 shrink-0">
             <section
-              className={`lg:col-span-7 ${card3DClass(
+              className={`xl:col-span-7 ${card3DClass(
                 4,
                 'border-sky-400',
                 'shadow-[0_0_30px_rgba(56,189,248,0.22)]'
@@ -974,7 +974,7 @@ export const KioskStationModal: React.FC<KioskStationModalProps> = ({
             </section>
 
             <section
-              className={`lg:col-span-5 ${card3DClass(
+              className={`xl:col-span-5 ${card3DClass(
                 5,
                 'border-emerald-400',
                 'shadow-[0_0_30px_rgba(52,211,153,0.22)]'
